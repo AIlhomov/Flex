@@ -1,4 +1,14 @@
 /* Just like Unix wc */
+
+/* 
+
+HOW TO RUN:
+1. flex fb1-1.l
+2. cc lex.yy.c -lfl
+3. ./a.out
+
+*/
+
 %{
 int chars = 0;
 int words = 0;
