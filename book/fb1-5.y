@@ -39,3 +39,5 @@ yyerror(char *s)
 {
     fprintf(stderr, "error: %s\n", s);
 }
+
+// term, factor and exp tells bison how to handle ABS, MUL, DIV, ADD and SUB
