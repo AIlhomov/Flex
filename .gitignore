@@ -6,3 +6,5 @@ stack.hh
 
 parser.tab.hh
 parser.tab.cc
+
+wordcount
