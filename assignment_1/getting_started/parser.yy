@@ -9,7 +9,7 @@
 %code requires{
   #include <string>
   #include "Node.h"
-  #define USE_LEX_ONLY false //change this macro to true if you want to isolate the lexer from the parser.
+  #define USE_LEX_ONLY true //change this macro to true if you want to isolate the lexer from the parser.
 }
 
 /* Code included in the parser implementation file */
@@ -23,7 +23,10 @@
 
 /* Token definitions for the grammar */
 /* Tokens represent the smallest units of the language, like operators and parentheses */
-%token <std::string> PLUSOP MINUSOP MULTOP INT LP RP 
+%token <std::string> PLUSOP MINUSOP MULTOP INT LP RP
+%token <std::string> ERROR IF ELSE WHILE FOR PRINT
+%token <std::string> RS LC RC COMMA SEMICOLON COLON ASSIGN EQ NEQ LT LEQ GT GEQ AND OR NOT BREAK CONTINUE SCAN VOID RETURN FUNC
+%token <std::string> ID STRING ARRAY CHAR TRUE FALSE CONST VAR MAIN LS BOOL DOT
 %token END 0 "end of file"
 
 /* Operator precedence and associativity rules */
@@ -63,8 +66,11 @@ expression: expression PLUSOP expression {      /*
                             /* printf("r3 "); */
                           }
             | factor      {$$ = $1; /* printf("r4 ");*/}
+            
             ;
 
 factor:     INT           {  $$ = new Node("Int", $1, yylineno); /* printf("r5 ");  Here we create a leaf node Int. The value of the leaf node is $1 */}
             | LP expression RP { $$ = $2; /* printf("r6 ");  simply return the expression */}
+            
+
     ;
