@@ -39,8 +39,8 @@ char **argv;
             perror(argv[i]);
             return (1);
         }
-        yyrestart(f);
-        yylex();
+        yyrestart(f); /* Opens the file, makes it input to the scanner*/
+        yylex();      /* Actually scans the file */
         fclose(f);
         printf("%s: Lines: %d\nWords: %d\nChars: %d\n", argv[i], lines, words, chars);
         totchars += chars; chars = 0;
