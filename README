@@ -1,2 +1,20 @@
 flex (FILENAME)
 cc lex.yy.c -o prog -lfl
+
+fb2-4.l: Creates a text concordance by identifying where words are used in a 
+    file and the line number where they are used. Basically tells the most important words skipping
+    common words like "the", "an" and so on.
+
+fb2-5.l: Helps analyze C code by identifying where variables, functions, 
+    and other identifiers are defined and referenced.
+
+    Example:
+    calculateArea (defined at geometry.c:12)
+    x (defined at geometry.c:8, used at geometry.c:15, geometry.c:20)
+
+
+
+Great book (seriously): "Flex and Bison" by John Levine
+Companion source code for "flex & bison", published by O'Reilly
+Media, ISBN 978-0-596-15597-1
+Copyright (c) 2009, Taughannock Networks. All rights reserved.
