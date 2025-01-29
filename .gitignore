@@ -8,3 +8,8 @@ parser.tab.hh
 parser.tab.cc
 
 wordcount
+
+fb3-1.tab.c
+fb3-1.tab.h
+fb3-1.lex.c
+fb3-1
