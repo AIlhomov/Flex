@@ -1,0 +1,2 @@
+flex (FILENAME)
+cc lex.yy.c -o prog -lfl
