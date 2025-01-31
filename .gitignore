@@ -13,3 +13,9 @@ fb3-1.tab.c
 fb3-1.tab.h
 fb3-1.lex.c
 fb3-1
+
+fb3-2.tab.h
+fb3-2.tab.c
+fb3-2.lex.c
+
+compiler
