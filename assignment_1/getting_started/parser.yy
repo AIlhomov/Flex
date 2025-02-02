@@ -49,7 +49,7 @@
 
 /* Specify types for non-terminals in the grammar */
 /* The type specifies the data type of the values associated with these non-terminals */
-%type <Node *> root expression factor identifier statement reqStatement
+%type <Node *> root expression factor identifier 
 
 /* Grammar rules section */
 /* This section defines the production rules for the language being parsed */
@@ -57,12 +57,11 @@
 root:       expression {root = $1;}
 			;
 
-identifier: IDENTIFIER { $$ = new Node("identifier", $1, yylineno); }
-		; 
 
 
 /* LEFT_BRACKET statement RIGHT_BRACKET */
 
+/* EXPRESSION ALL DONE (LOOK AT COMMENTS) */
 expression: expression PLUSOP expression {      /*
                                                   Create a subtree that corresponds to the AddExpression
                                                   The root of the subtree is AddExpression
@@ -110,47 +109,69 @@ expression: expression PLUSOP expression {      /*
 				$$->children.push_back($1);
 				$$->children.push_back($3);
 			}
+			| expression LEFT_BRACKET expression RIGHT_BRACKET {
+				$$ = new Node("expression LEFT_BRACKET expression RIGHT_BRACKET", "", yylineno);
+				$$->children.push_back($1);
+				$$->children.push_back($3);
+			}
+			| expression DOT LENGTH {
+				$$ = new Node("expression DOT LENGTH", "", yylineno);
+				$$->children.push_back($1);
+			}
+
+			/* fix this later */
+			/* | Expression " . " Identifier " ( " ( Expression ( " ," Expression ) * ) ? " ) " */
+			/* | < INTEGER_LITERAL > */
+
 			| TRUE {
 				$$ = new Node("TRUE", "", yylineno);
 			}
 			| FALSE {
 				$$ = new Node("FALSE", "", yylineno);
 			}
+
+			/* fix this later */
+			/* | Identifier */
+
 			| THIS {
 				$$ = new Node("THIS", "", yylineno);
 			}
-			| NEW {
-				$$ = new Node("NEW", "", yylineno);
-			}
-			| IDENTIFIER {
-				$$ = new Node("IDENTIFIER", "", yylineno);
-			}
-			| expression DOT LENGTH {
-				$$ = new Node("exp DOT LENGTH", "", yylineno); /* fix later */
-        $$->children.push_back($1); /* expression */
-			}
 			| NEW INT LEFT_BRACKET expression RIGHT_BRACKET {
-				$$ = new Node("NEW INT LEFT_BRACKET exp RIGHT_BRACKET", "", yylineno);
-				$$->children.push_back($4); /* expression */
+				$$ = new Node("NEW INT LEFT_BRACKET expression RIGHT_BRACKET", "", yylineno);
+				$$->children.push_back($4);
 			}
-			| NEW IDENTIFIER LP RP {
-				$$ = new Node("NEW identifier LP RP", "", yylineno);
+
+			/* fix this later */
+			/* | " new " Identifier " ( " " ) " */
+
+			| EXCLAMATION_MARK expression {
+				$$ = new Node("EXCLAMATION_MARK expression", "", yylineno);
+				$$->children.push_back($2);
 			}
-			| EXCLAMATION_MARK {
-				$$ = new Node("EXCLAMATION_MARK", "", yylineno);
-			}
-			| expression LEFT_BRACKET expression RIGHT_BRACKET {
-				$$ = new Node("exp LEFT_BRACKET exp RIGHT_BRACKET", "", yylineno);
-				$$->children.push_back($1); /* expression */
-				$$->children.push_back($3); /* expression */
-			}
-			
-			| INT {
-				$$ = new Node("INT", "", yylineno);
+			| LEFT_CURLY expression RIGHT_CURLY {
+				$$ = new Node("LEFT_CURLY expression RIGHT_CURLY", "", yylineno);
+				$$->children.push_back($2);
 			}
       		| factor      {$$ = $1; /* printf("r4 ");*/}
       		;
 
+
+identifier: IDENTIFIER { $$ = new Node("identifier", "", yylineno); }
+		    ; 
+
+
+
+
+
+factor:     INTEGER_LITERAL           {  $$ = new Node("Int", $1, yylineno); /* printf("r5 ");  Here we create a leaf node Int. The value of the leaf node is $1 */}
+			 
+            | LP expression RP { $$ = $2; /* printf("r6 ");  simply return the expression */}
+    ;
+
+
+
+
+/* 
 reqStatement: %empty 
 			| reqStatement statement {
 				$$ = new Node("statement", "", yylineno);
@@ -161,11 +182,11 @@ reqStatement: %empty
 statement: LEFT_BRACKET reqStatement RIGHT_BRACKET{
 				$$ = new Node("statement", "", yylineno);
 			}
-			| INT IDENTIFIER ASSIGN INTEGER_LITERAL SEMI_COLON { /* int x = 5; */
-				$$ = new Node("AssignmentStatement", "", yylineno); /* come back later (WTF IS THIS) */				
+			| INT IDENTIFIER ASSIGN INTEGER_LITERAL SEMI_COLON {  int x = 5; 
+				$$ = new Node("AssignmentStatement", "", yylineno);  come back later (WTF IS THIS)			
 				$$->children.push_back(new Node("IDENTIFIER", $2, yylineno)); // Identifier: x
 			}
-			;
+			; */
 
 
 /* reqclassdeclaration: %empty
@@ -192,8 +213,3 @@ mainclass: classdeclaration */
 	| INT
 	| identifier
 	; */	
-
-factor:     INTEGER_LITERAL           {  $$ = new Node("Int", $1, yylineno); /* printf("r5 ");  Here we create a leaf node Int. The value of the leaf node is $1 */}
-			 
-            | LP expression RP { $$ = $2; /* printf("r6 ");  simply return the expression */}
-    ;
