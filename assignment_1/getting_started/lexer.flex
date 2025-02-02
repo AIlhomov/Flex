@@ -66,9 +66,8 @@
 
 
 
-
-0|[1-9][0-9]*           {if(USE_LEX_ONLY) {printf("INT ");} else {return yy::parser::make_INT(yytext);}}
-[a-zA-Z]*               {if(USE_LEX_ONLY) {printf("CHAR ");} else {return yy::parser::make_IDENTIFIER(yytext);}}
+0|[1-9][0-9]*           {if(USE_LEX_ONLY) {printf("INTEGER_LITERAL ");} else {return yy::parser::make_INTEGER_LITERAL(atoi(yytext));}}
+[a-zA-Z]*               {if(USE_LEX_ONLY) {printf("CHAR ");} else {return yy::parser::make_IDENTIFIER(std::string(yytext));}}
 [ \t\n\r]+              {printf("%s", yytext);}
 "//"[^\n]*              {printf("%s", yytext);}
 .                       { if(!lexical_errors) fprintf(stderr, "Lexical errors found! See the logs below: \n"); fprintf(stderr,"\t@error at line %d. Character %s is not recognized\n", yylineno, yytext); lexical_errors = 1;}

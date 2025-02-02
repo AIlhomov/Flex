@@ -30,6 +30,7 @@
 %token <std::string> ASSIGN MORE_THAN_EQUAL LESS_THAN_EQUAL UNDER_SCORE BOOLEAN CLASS ELSE IF MAIN PUBLIC STRING VOID SYSTEM_OUT_PRINTLN WHILE EXTENDS
 %token <std::string> RETURN STATIC LEFT_CURLY RIGHT_CURLY SEMI_COLON COMMA DIVIDE 
 %token <std::string> IDENTIFIER
+%token <int> INTEGER_LITERAL /* how could i forget this */
 %token END 0 "end of file"
 
 /* Operator precedence and associativity rules */
@@ -53,7 +54,13 @@
 /* Grammar rules section */
 /* This section defines the production rules for the language being parsed */
 %%
-root:       expression {root = $1;};
+root:       statement {root = $1;}
+			| root statement { /* Req* to handle multiple */ }
+			;
+
+identifier: IDENTIFIER { $$ = new Node("identifier", $1, yylineno); }
+		; 
+
 
 /* LEFT_BRACKET statement RIGHT_BRACKET */
 
@@ -123,8 +130,13 @@ expression: expression PLUSOP expression {      /*
 				$$ = new Node("exp DOT LENGTH", "", yylineno); /* fix later */
         $$->children.push_back($1); /* expression */
 			}
-			| NEW INT LEFT_BRACKET expression RIGHT_BRACKET 
-			| NEW identifier LP RP
+			| NEW INT LEFT_BRACKET expression RIGHT_BRACKET {
+				$$ = new Node("NEW INT LEFT_BRACKET exp RIGHT_BRACKET", "", yylineno);
+				$$->children.push_back($4); /* expression */
+			}
+			| NEW IDENTIFIER LP RP {
+				$$ = new Node("NEW identifier LP RP", "", yylineno);
+			}
 			| EXCLAMATION_MARK {
 				$$ = new Node("EXCLAMATION_MARK", "", yylineno);
 			}
@@ -133,8 +145,15 @@ expression: expression PLUSOP expression {      /*
 				$$->children.push_back($1); /* expression */
 				$$->children.push_back($3); /* expression */
 			}
-			| expression DOT identifier LP expression
-			| INT
+			| expression DOT IDENTIFIER LP expression RP {
+				$$ = new Node("exp DOT identifier LP exp RP", "", yylineno);
+				$$->children.push_back($1); /* expression */
+				$$->children.push_back($3); /* identifier */
+				$$->children.push_back($5); /* expression */
+			}
+			| INT {
+				$$ = new Node("INT", "", yylineno);
+			}
       		| factor      {$$ = $1; /* printf("r4 ");*/}
       		;
 
@@ -146,18 +165,16 @@ reqStatement: %empty
 			}
 			;
 statement: LEFT_BRACKET reqStatement RIGHT_BRACKET{
-				$$ = new Node("statement", $2, yylineno);
+				$$ = new Node("statement", "", yylineno);
 			}
-			| IDENTIFIER EQUAL expression SEMI_COLON {
-				$$ = new Node("AssignmentStatement", "", yylineno);
-				
-
+			| INT IDENTIFIER ASSIGN INTEGER_LITERAL SEMI_COLON { /* int x = 5; */
+				$$ = new Node("AssignmentStatement", "", yylineno); /* come back later (WTF IS THIS) */				
+				$$->children.push_back(new Node("IDENTIFIER", $2, yylineno)); // Identifier: x
 			}
 			;
 
-goal: 
 
-reqclassdeclaration: %empty
+/* reqclassdeclaration: %empty
 					| reqclassdeclaration classdeclaration
 
 classdeclaration: CLASS identifier LEFT_CURLY vardeclaration methodDeclaration RIGHT_CURLY
@@ -172,19 +189,15 @@ reqmethodDeclaration: %empty
 
 methodDeclaration: 
 
-mainclass: classdeclaration
+mainclass: classdeclaration */
 
-identifier: IDENTIFIER {
-			$$ = new Node("identifier", "", yylineno);
-		}
-		;
 
 /* ez */
-type: INT LEFT_BRACKET RIGHT_BRACKET
+/* type: INT LEFT_BRACKET RIGHT_BRACKET
 	| BOOLEAN
 	| INT
 	| identifier
-	;
+	; */	
 
 factor:     INT           {  $$ = new Node("Int", $1, yylineno); /* printf("r5 ");  Here we create a leaf node Int. The value of the leaf node is $1 */}
 			 
