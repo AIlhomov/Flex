@@ -30,7 +30,7 @@
 %token <std::string> ASSIGN MORE_THAN_EQUAL LESS_THAN_EQUAL UNDER_SCORE BOOLEAN CLASS ELSE IF MAIN PUBLIC STRING VOID SYSTEM_OUT_PRINTLN WHILE EXTENDS
 %token <std::string> RETURN STATIC LEFT_CURLY RIGHT_CURLY SEMI_COLON COMMA DIVIDE 
 %token <std::string> IDENTIFIER
-%token <int> INTEGER_LITERAL /* how could i forget this */
+%token <std::string> INTEGER_LITERAL /* how could i forget this */
 %token END 0 "end of file"
 
 /* Operator precedence and associativity rules */
@@ -54,8 +54,7 @@
 /* Grammar rules section */
 /* This section defines the production rules for the language being parsed */
 %%
-root:       statement {root = $1;}
-			| root statement { /* Req* to handle multiple */ }
+root:       expression {root = $1;}
 			;
 
 identifier: IDENTIFIER { $$ = new Node("identifier", $1, yylineno); }
@@ -145,12 +144,7 @@ expression: expression PLUSOP expression {      /*
 				$$->children.push_back($1); /* expression */
 				$$->children.push_back($3); /* expression */
 			}
-			| expression DOT IDENTIFIER LP expression RP {
-				$$ = new Node("exp DOT identifier LP exp RP", "", yylineno);
-				$$->children.push_back($1); /* expression */
-				$$->children.push_back($3); /* identifier */
-				$$->children.push_back($5); /* expression */
-			}
+			
 			| INT {
 				$$ = new Node("INT", "", yylineno);
 			}
@@ -199,7 +193,7 @@ mainclass: classdeclaration */
 	| identifier
 	; */	
 
-factor:     INT           {  $$ = new Node("Int", $1, yylineno); /* printf("r5 ");  Here we create a leaf node Int. The value of the leaf node is $1 */}
+factor:     INTEGER_LITERAL           {  $$ = new Node("Int", $1, yylineno); /* printf("r5 ");  Here we create a leaf node Int. The value of the leaf node is $1 */}
 			 
             | LP expression RP { $$ = $2; /* printf("r6 ");  simply return the expression */}
     ;
