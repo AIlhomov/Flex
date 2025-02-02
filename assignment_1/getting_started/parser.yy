@@ -155,14 +155,18 @@ expression: expression PLUSOP expression {      /*
 				$$ = new Node("EXCLAMATION_MARK expression", "", yylineno);
 				$$->children.push_back($2);
 			}
-			| LEFT_CURLY expression RIGHT_CURLY {
+
+			/* should i have this ? (it exists in factor already) */
+			/* | LP expression RP {
 				$$ = new Node("LEFT_CURLY expression RIGHT_CURLY", "", yylineno);
 				$$->children.push_back($2);
-			}
+			} */
+
 			/* Regular Expressions */
-      		| factor      {$$ = $1; /* printf("r4 ");*/} /* for integers */
+      		| factor      { $$ = $1; /* printf("r4 ");*/ } /* for integers */
 			| identifier  { $$ = $1; /* printf("r5 "); */} /* for identifiers/chars */
       		;
+
 
 
 identifier: IDENTIFIER { $$ = new Node("identifier", $1, yylineno); }
