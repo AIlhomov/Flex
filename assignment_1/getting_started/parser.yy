@@ -25,12 +25,14 @@
 /* Tokens represent the smallest units of the language, like operators and parentheses */
 %token <std::string> PLUSOP MINUSOP MULTOP INT LP RP AND OR LESS_THAN MORE_THAN EQUAL TRUE FALSE THIS NEW LEFT_BRACKET RIGHT_BRACKET
 	    /* make */
-%token <std::string> DOT LENGTH EXCLAMATION_MARK
+%token <std::string> DOT LENGTH EXCLAMATION_MARK LEFT_CURLY RIGHT_CURLY
 /* not done */
 %token <std::string> ASSIGN MORE_THAN_EQUAL LESS_THAN_EQUAL UNDER_SCORE BOOLEAN CLASS ELSE IF MAIN PUBLIC STRING VOID SYSTEM_OUT_PRINTLN WHILE EXTENDS
-%token <std::string> RETURN STATIC LEFT_CURLY RIGHT_CURLY SEMI_COLON COMMA DIVIDE 
+%token <std::string> RETURN STATIC SEMI_COLON COMMA DIVIDE
+/* Regular Expressions: (REGEX) */
 %token <std::string> IDENTIFIER
 %token <std::string> INTEGER_LITERAL /* how could i forget this */
+
 %token END 0 "end of file"
 
 /* Operator precedence and associativity rules */
@@ -121,7 +123,10 @@ expression: expression PLUSOP expression {      /*
 
 			/* fix this later */
 			/* | Expression " . " Identifier " ( " ( Expression ( " ," Expression ) * ) ? " ) " */
-			/* | < INTEGER_LITERAL > */
+
+
+
+			/* | < INTEGER_LITERAL > */ /* done ? (down below) */
 
 			| TRUE {
 				$$ = new Node("TRUE", "", yylineno);
@@ -131,7 +136,9 @@ expression: expression PLUSOP expression {      /*
 			}
 
 			/* fix this later */
-			/* | Identifier */
+			/* | identifier {
+				$$ = new Node("Identifier", "", yylineno);
+			} */
 
 			| THIS {
 				$$ = new Node("THIS", "", yylineno);
@@ -152,11 +159,13 @@ expression: expression PLUSOP expression {      /*
 				$$ = new Node("LEFT_CURLY expression RIGHT_CURLY", "", yylineno);
 				$$->children.push_back($2);
 			}
-      		| factor      {$$ = $1; /* printf("r4 ");*/}
+			/* Regular Expressions */
+      		| factor      {$$ = $1; /* printf("r4 ");*/} /* for integers */
+			| identifier  { $$ = $1; /* printf("r5 "); */} /* for identifiers/chars */
       		;
 
 
-identifier: IDENTIFIER { $$ = new Node("identifier", "", yylineno); }
+identifier: IDENTIFIER { $$ = new Node("identifier", $1, yylineno); }
 		    ; 
 
 
