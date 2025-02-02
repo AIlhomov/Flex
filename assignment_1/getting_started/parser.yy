@@ -51,15 +51,20 @@
 
 /* Specify types for non-terminals in the grammar */
 /* The type specifies the data type of the values associated with these non-terminals */
-%type <Node *> root expression factor identifier 
+%type <Node *> root expression factor identifier type
 
 /* Grammar rules section */
 /* This section defines the production rules for the language being parsed */
 %%
 root:       expression {root = $1;}
+			| type {root = $1; }
 			;
 
-
+type: INT LEFT_BRACKET RIGHT_BRACKET { $$ = new Node("INT LB RB", "", yylineno); }
+	| BOOLEAN { $$ = new Node("BOOLEAN", "", yylineno); }
+	| INT { $$ = new Node("INT", "", yylineno); }
+	| identifier { }
+	;
 
 /* LEFT_BRACKET statement RIGHT_BRACKET */
 
@@ -111,6 +116,8 @@ expression: expression PLUSOP expression {      /*
 				$$->children.push_back($1);
 				$$->children.push_back($3);
 			}
+			
+
 			| expression LEFT_BRACKET expression RIGHT_BRACKET {
 				$$ = new Node("expression LEFT_BRACKET expression RIGHT_BRACKET", "", yylineno);
 				$$->children.push_back($1);
@@ -120,9 +127,6 @@ expression: expression PLUSOP expression {      /*
 				$$ = new Node("expression DOT LENGTH", "", yylineno);
 				$$->children.push_back($1);
 			}
-
-			/* fix this later */
-			/* | Expression " . " Identifier " ( " ( Expression ( " ," Expression ) * ) ? " ) " */
 
 
 
@@ -135,7 +139,7 @@ expression: expression PLUSOP expression {      /*
 				$$ = new Node("FALSE", "", yylineno);
 			}
 
-			/* fix this later */
+			/* fix this later (idk) */
 			/* | identifier {
 				$$ = new Node("Identifier", "", yylineno);
 			} */
@@ -147,9 +151,13 @@ expression: expression PLUSOP expression {      /*
 				$$ = new Node("NEW INT LEFT_BRACKET expression RIGHT_BRACKET", "", yylineno);
 				$$->children.push_back($4);
 			}
-
-			/* fix this later */
+			
+			/* fixed? */
 			/* | " new " Identifier " ( " " ) " */
+			| NEW identifier LP RP { $$ = new Node("NEW identifier LP RP", "", yylineno);
+									 $$->children.push_back($2);
+			}
+
 
 			| EXCLAMATION_MARK expression {
 				$$ = new Node("EXCLAMATION_MARK expression", "", yylineno);
@@ -164,9 +172,18 @@ expression: expression PLUSOP expression {      /*
 
 			/* Regular Expressions */
       		| factor      { $$ = $1; /* printf("r4 ");*/ } /* for integers */
-			| identifier  { $$ = $1; /* printf("r5 "); */} /* for identifiers/chars */
+			| identifier { /* empty because we have it in root */ } /* for chars */
+
+			/* fix this later */
+			/* | Expression " . " Identifier " ( " ( Expression ( " ," Expression ) * ) ? " ) " */
+			| expression DOT identifier LP //wtf will happen now (req or smthn)
+			expression reqExpression RP {
+				$$ = new Node("exp DOT ident LP exp COMMA exp RP", "", yylineno);
+			}
+			/* hello.a(2,b,a,f,d,s,1,2,4,a,s) */
       		;
 
+reqExpression: %empty | reqExpression COMMA expression {  }; /* arguments in a function */
 
 
 identifier: IDENTIFIER { $$ = new Node("identifier", $1, yylineno); }
