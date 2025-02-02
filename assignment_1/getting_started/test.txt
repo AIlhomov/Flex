@@ -1,1 +1,5 @@
-hello.a(2,b,a,f,d,s,1,2,4,a,s)
+public class UnknownSymbol {
+    public static void main(String[] args) {
+        System.out.println(new MyClass().Pen(1, 2));
+    }
+}

@@ -51,20 +51,81 @@
 
 /* Specify types for non-terminals in the grammar */
 /* The type specifies the data type of the values associated with these non-terminals */
-%type <Node *> root expression factor identifier type
+%type <Node *> root expression factor identifier type statement reqStatement mainClass
 
 /* Grammar rules section */
 /* This section defines the production rules for the language being parsed */
 %%
 root:       expression {root = $1;}
 			| type {root = $1; }
+			| statement {root = $1; }
+			| mainClass {root = $1; }
 			;
 
 type: INT LEFT_BRACKET RIGHT_BRACKET { $$ = new Node("INT LB RB", "", yylineno); }
 	| BOOLEAN { $$ = new Node("BOOLEAN", "", yylineno); }
 	| INT { $$ = new Node("INT", "", yylineno); }
-	| identifier { }
+	| identifier { $$ = new Node("typechar", "", yylineno); $$->children.push_back($1); }
 	;
+/* { } DO NOT USE EMPTY BRACKETS (leads to segmentation faults) */
+
+/*
+
+	LEFT_BRACKET [
+	RIGHT_BRACKET ]
+	LEFT_CURLY {
+	RIGHT_CURLY }
+	LP (
+	RP )
+
+*/
+
+mainClass: PUBLIC CLASS identifier LEFT_CURLY PUBLIC STATIC VOID MAIN LP STRING /* main class */
+		   LEFT_BRACKET RIGHT_BRACKET identifier RP LEFT_CURLY statement reqStatement RIGHT_CURLY RIGHT_CURLY {
+				$$ = new Node("MAIN CLASS", "", yylineno);
+		   }
+		   ;
+
+
+
+statement: LEFT_CURLY reqStatement RIGHT_CURLY { /* recursive "*" */
+				$$ = new Node("LC statement RC", "", yylineno);
+			}
+			| IF LP expression RP statement ELSE statement { /* special with "?" ? */
+				$$ = new Node("IF LP expression RP statement ELSE statement", "", yylineno);
+				$$->children.push_back($3);
+				$$->children.push_back($5);
+				$$->children.push_back($7);
+			}
+			| WHILE LP expression RP statement {
+				$$ = new Node("WHILE LP expression RP statement", "", yylineno);
+				$$->children.push_back($3);
+				$$->children.push_back($5);
+			}
+			| SYSTEM_OUT_PRINTLN LP expression RP SEMI_COLON {
+				$$ = new Node("SIMPLE PRINT LOL", "", yylineno);
+				$$->children.push_back($3);
+			}
+			| identifier ASSIGN expression SEMI_COLON {
+				$$ = new Node("SOMETHING ASSIGNED = TO SOMETHING", "", yylineno);
+				$$->children.push_back($1);
+				$$->children.push_back($3);
+			}
+			| identifier LEFT_BRACKET expression RIGHT_BRACKET ASSIGN expression SEMI_COLON {
+				$$ = new Node("SOMETHING [ASSIGNED] = TO SOMETHING", "", yylineno);
+				$$->children.push_back($1);
+				$$->children.push_back($3);
+				$$->children.push_back($6);
+			}
+			;
+
+reqStatement: %empty 
+			| reqStatement statement {
+				/* $$ = new Node("statement", "", yylineno);
+				$$->children.push_back($1);
+				$$->children.push_back($2); */
+			}
+			;
 
 /* LEFT_BRACKET statement RIGHT_BRACKET */
 
