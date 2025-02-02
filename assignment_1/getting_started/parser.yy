@@ -1,3 +1,14 @@
+
+/* 
+
+my own lexicon of errors:
+
+segmentation faults: { } DO NOT USE EMPTY BRACKETS
+warning: nonterminal useless in grammar: does not appear in any other rule, and is thus not needed for the grammar.
+perhaps mention it ? like at the root.
+
+*/
+
 /* Skeleton and definitions for generating a LALR(1) parser in C++ */
 %skeleton "lalr1.cc" 
 %defines
@@ -51,23 +62,27 @@
 
 /* Specify types for non-terminals in the grammar */
 /* The type specifies the data type of the values associated with these non-terminals */
-%type <Node *> root expression factor identifier type statement reqStatement mainClass
-
+%type <Node *> root expression factor identifier type statement reqStatement mainClass varDeclaration
+%type <Node *> methodDeclaration reqVarDeclaration classDeclaration
 /* Grammar rules section */
 /* This section defines the production rules for the language being parsed */
 %%
-root:       expression {root = $1;}
+root:       expression {root = $1;} /* remove these later (debug only), have only mainClass left */
 			| type {root = $1; }
 			| statement {root = $1; }
 			| mainClass {root = $1; }
+			| varDeclaration {root = $1; }
+			| methodDeclaration {root = $1; }
+			| classDeclaration {root = $1; }
 			;
+		
 
 type: INT LEFT_BRACKET RIGHT_BRACKET { $$ = new Node("INT LB RB", "", yylineno); }
 	| BOOLEAN { $$ = new Node("BOOLEAN", "", yylineno); }
 	| INT { $$ = new Node("INT", "", yylineno); }
 	| identifier { $$ = new Node("typechar", "", yylineno); $$->children.push_back($1); }
 	;
-/* { } DO NOT USE EMPTY BRACKETS (leads to segmentation faults) */
+
 
 /*
 
@@ -80,13 +95,46 @@ type: INT LEFT_BRACKET RIGHT_BRACKET { $$ = new Node("INT LB RB", "", yylineno);
 
 */
 
+/* done */
 mainClass: PUBLIC CLASS identifier LEFT_CURLY PUBLIC STATIC VOID MAIN LP STRING /* main class */
 		   LEFT_BRACKET RIGHT_BRACKET identifier RP LEFT_CURLY statement reqStatement RIGHT_CURLY RIGHT_CURLY {
 				$$ = new Node("MAIN CLASS", "", yylineno);
 		   }
 		   ;
 
+classDeclaration: CLASS identifier LEFT_CURLY varDeclaration reqVarDeclaration 
+				methodDeclaration reqMethodDeclaration RIGHT_CURLY {
+					$$ = new Node("classDeclaration", "", yylineno);
+				}
 
+varDeclaration: type identifier SEMI_COLON {
+				$$ = new Node("var declaration", "", yylineno);
+				$$->children.push_back($1);
+				$$->children.push_back($2);
+			}
+			;
+			
+reqVarDeclaration: %empty
+				| reqVarDeclaration varDeclaration { }
+				;
+
+methodDeclaration: PUBLIC type identifier LP type identifier
+					methodDeclaration reqMethodDeclaration RP LEFT_CURLY varDeclaration reqVarDeclaration 
+					RETURN expression SEMI_COLON RIGHT_CURLY
+					{
+						$$ = new Node("METHODDECLARATION VARDECLARATION", "", yylineno);
+					}
+
+					| PUBLIC type identifier LP type identifier 
+					methodDeclaration reqMethodDeclaration RP LEFT_CURLY statement reqStatement
+					RETURN expression SEMI_COLON RIGHT_CURLY 
+					{ 
+						$$ = new Node("METHODDECLARATION STATEMENT", "", yylineno);
+					}
+	
+reqMethodDeclaration: %empty
+					| reqMethodDeclaration methodDeclaration COMMA type identifier { } 
+					;
 
 statement: LEFT_CURLY reqStatement RIGHT_CURLY { /* recursive "*" */
 				$$ = new Node("LC statement RC", "", yylineno);
