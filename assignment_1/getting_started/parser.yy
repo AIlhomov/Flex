@@ -63,17 +63,12 @@ perhaps mention it ? like at the root.
 /* Specify types for non-terminals in the grammar */
 /* The type specifies the data type of the values associated with these non-terminals */
 %type <Node *> root expression factor identifier type statement reqStatement mainClass varDeclaration
-%type <Node *> methodDeclaration reqVarDeclaration classDeclaration
+%type <Node *> methodDeclaration reqVarDeclaration classDeclaration parameters parameter_list
 /* Grammar rules section */
 /* This section defines the production rules for the language being parsed */
 %%
-root:       expression {root = $1;} /* remove these later (debug only), have only mainClass left */
-			| type {root = $1; }
-			| statement {root = $1; }
-			| mainClass {root = $1; }
-			| varDeclaration {root = $1; }
-			| methodDeclaration {root = $1; }
-			| classDeclaration {root = $1; }
+root:        /* remove these later (debug only), have only classDeclaration left */
+			 classDeclaration {root = $1; }
 			;
 		
 
@@ -97,16 +92,30 @@ type: INT LEFT_BRACKET RIGHT_BRACKET { $$ = new Node("INT LB RB", "", yylineno);
 
 /* done */
 mainClass: PUBLIC CLASS identifier LEFT_CURLY PUBLIC STATIC VOID MAIN LP STRING /* main class */
-		   LEFT_BRACKET RIGHT_BRACKET identifier RP LEFT_CURLY statement reqStatement RIGHT_CURLY RIGHT_CURLY {
+		   LEFT_BRACKET RIGHT_BRACKET identifier RP LEFT_CURLY statement reqStatement RIGHT_CURLY RIGHT_CURLY 
+		   {
 				$$ = new Node("MAIN CLASS", "", yylineno);
 		   }
 		   ;
-
-classDeclaration: CLASS identifier LEFT_CURLY varDeclaration reqVarDeclaration 
+				/* 
+				class fac { 
+					int a; 
+					
+					public int a(int b, int c){
+						int d;
+						return false;
+					}
+				} 
+				*/
+				
+classDeclaration: CLASS identifier LEFT_CURLY reqVarDeclaration 
 				methodDeclaration reqMethodDeclaration RIGHT_CURLY {
 					$$ = new Node("classDeclaration", "", yylineno);
 				}
-
+				| classDeclaration mainClass { $$ = new Node("classDeclaration", "", yylineno); } /* allow main class */
+				| classDeclaration classDeclaration { $$ = new Node("classDeclaration", "", yylineno); } /* allow nested classes */
+				| %empty							/* allow empty classes */
+				;
 varDeclaration: type identifier SEMI_COLON {
 				$$ = new Node("var declaration", "", yylineno);
 				$$->children.push_back($1);
@@ -118,8 +127,8 @@ reqVarDeclaration: %empty
 				| reqVarDeclaration varDeclaration { }
 				;
 
-methodDeclaration: PUBLIC type identifier LP type identifier
-					methodDeclaration reqMethodDeclaration RP LEFT_CURLY varDeclaration reqVarDeclaration 
+methodDeclaration: PUBLIC type identifier LP parameters
+					RP LEFT_CURLY reqVarDeclaration reqStatement
 					RETURN expression SEMI_COLON RIGHT_CURLY
 					{
 						$$ = new Node("METHODDECLARATION VARDECLARATION", "", yylineno);
@@ -131,13 +140,40 @@ methodDeclaration: PUBLIC type identifier LP type identifier
 					{ 
 						$$ = new Node("METHODDECLARATION STATEMENT", "", yylineno);
 					}
-	
+
+
+
+
+
+parameters: %empty
+          | parameter_list
+          ;
+
+parameter_list: type identifier
+              | parameter_list COMMA type identifier
+              ;
+
+
+
+
+
+
+
+
+
+
 reqMethodDeclaration: %empty
-					| reqMethodDeclaration methodDeclaration COMMA type identifier { } 
+					| reqMethodDeclaration COMMA type identifier methodDeclaration { } 
 					;
 
 statement: LEFT_CURLY reqStatement RIGHT_CURLY { /* recursive "*" */
 				$$ = new Node("LC statement RC", "", yylineno);
+			}
+
+			| IF LP expression RP expression {/* if without else */
+				$$ = new Node("IF LP expression RP statement", "", yylineno);
+            	$$->children.push_back($3);
+            	$$->children.push_back($5);
 			}
 			| IF LP expression RP statement ELSE statement { /* special with "?" ? */
 				$$ = new Node("IF LP expression RP statement ELSE statement", "", yylineno);
