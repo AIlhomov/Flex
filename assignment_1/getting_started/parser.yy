@@ -67,8 +67,8 @@ perhaps mention it ? like at the root.
 /* Grammar rules section */
 /* This section defines the production rules for the language being parsed */
 %%
-root:        /* remove these later (debug only), have only classDeclaration left */
-			 classDeclaration {root = $1; }
+root:        /* remove these later (debug only), have only goal left */
+			goal {root = $1; }
 			;
 		
 goal: mainClass reqClassDeclaration END { $$ = new Node("goal", "", yylineno); }
@@ -123,8 +123,7 @@ classDeclaration: CLASS identifier LEFT_CURLY reqVarDeclaration
 				| classDeclaration mainClass { $$ = new Node("classDeclaration", "", yylineno); } /* allow main class */
 
 				/* parser.yy: warning: 4 reduce/reduce conflicts [-Wconflicts-rr] */
-				| classDeclaration classDeclaration { $$ = new Node("classDeclaration", "", yylineno); } /* allow nested classes */
-				| %empty
+				
 				;
 
 
