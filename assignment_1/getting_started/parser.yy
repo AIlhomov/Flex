@@ -121,9 +121,14 @@ classDeclaration: CLASS identifier LEFT_CURLY reqVarDeclaration
 					$$ = new Node("classDeclaration", "", yylineno);
 				}
 				| classDeclaration mainClass { $$ = new Node("classDeclaration", "", yylineno); } /* allow main class */
+
+				/* parser.yy: warning: 4 reduce/reduce conflicts [-Wconflicts-rr] */
 				| classDeclaration classDeclaration { $$ = new Node("classDeclaration", "", yylineno); } /* allow nested classes */
-				| %empty							/* allow empty classes */
+				| %empty
 				;
+
+
+
 varDeclaration: type identifier SEMI_COLON {
 				$$ = new Node("var declaration", "", yylineno);
 				$$->children.push_back($1);

@@ -1,0 +1,2079 @@
+Nonterminals useless in grammar
+
+    goal
+    reqClassDeclaration
+    reqExpression
+
+
+Terminals unused in grammar
+
+    MORE_THAN_EQUAL
+    LESS_THAN_EQUAL
+    UNDER_SCORE
+    EXTENDS
+    DIVIDE
+
+
+Rules useless in grammar
+
+   59 goal: mainClass reqClassDeclaration "end of file"
+
+   60 reqClassDeclaration: ε
+   61                    | reqClassDeclaration classDeclaration
+
+   62 reqExpression: ε
+   63              | reqExpression COMMA expression
+
+
+State 0 conflicts: 1 shift/reduce
+State 3 conflicts: 2 shift/reduce, 1 reduce/reduce
+State 9 conflicts: 2 shift/reduce, 3 reduce/reduce
+State 84 conflicts: 10 shift/reduce
+State 105 conflicts: 1 shift/reduce
+State 106 conflicts: 1 shift/reduce
+State 107 conflicts: 1 shift/reduce
+State 108 conflicts: 1 shift/reduce
+State 109 conflicts: 1 shift/reduce
+State 110 conflicts: 1 shift/reduce
+State 111 conflicts: 1 shift/reduce
+State 112 conflicts: 1 shift/reduce
+State 120 conflicts: 1 shift/reduce
+
+
+Grammar
+
+    0 $accept: root "end of file"
+
+    1 root: classDeclaration
+
+    2 type: INT LEFT_BRACKET RIGHT_BRACKET
+    3     | BOOLEAN
+    4     | INT
+    5     | identifier
+
+    6 mainClass: PUBLIC CLASS identifier LEFT_CURLY PUBLIC STATIC VOID MAIN LP STRING LEFT_BRACKET RIGHT_BRACKET identifier RP LEFT_CURLY statement reqStatement RIGHT_CURLY RIGHT_CURLY
+
+    7 classDeclaration: CLASS identifier LEFT_CURLY reqVarDeclaration methodDeclaration reqMethodDeclaration RIGHT_CURLY
+    8                 | classDeclaration mainClass
+    9                 | classDeclaration classDeclaration
+   10                 | ε
+
+   11 varDeclaration: type identifier SEMI_COLON
+
+   12 reqVarDeclaration: ε
+   13                  | reqVarDeclaration varDeclaration
+
+   14 methodDeclaration: PUBLIC type identifier LP parameters RP LEFT_CURLY reqVarOrStmt RETURN expression SEMI_COLON RIGHT_CURLY
+
+   15 reqVarOrStmt: ε
+   16             | reqVarOrStmt varDeclaration
+   17             | reqVarOrStmt statement
+
+   18 parameters: ε
+   19           | parameter_list
+
+   20 parameter_list: type identifier
+   21               | parameter_list COMMA type identifier
+
+   22 reqMethodDeclaration: ε
+   23                     | reqMethodDeclaration methodDeclaration
+
+   24 statement: LEFT_CURLY reqStatement RIGHT_CURLY
+   25          | IF LP expression RP statement
+   26          | IF LP expression RP statement ELSE statement
+   27          | WHILE LP expression RP statement
+   28          | SYSTEM_OUT_PRINTLN LP expression RP SEMI_COLON
+   29          | identifier ASSIGN expression SEMI_COLON
+   30          | identifier LEFT_BRACKET expression RIGHT_BRACKET ASSIGN expression SEMI_COLON
+
+   31 reqStatement: ε
+   32             | reqStatement statement
+
+   33 expression: expression PLUSOP expression
+   34           | expression MINUSOP expression
+   35           | expression MULTOP expression
+   36           | expression AND expression
+   37           | expression OR expression
+   38           | expression LESS_THAN expression
+   39           | expression MORE_THAN expression
+   40           | expression EQUAL expression
+   41           | expression LEFT_BRACKET expression RIGHT_BRACKET
+   42           | expression DOT LENGTH
+   43           | TRUE
+   44           | FALSE
+   45           | THIS
+   46           | NEW INT LEFT_BRACKET expression RIGHT_BRACKET
+   47           | NEW identifier LP RP
+   48           | EXCLAMATION_MARK expression
+   49           | factor
+   50           | identifier
+   51           | expression DOT identifier LP arguments RP
+
+   52 arguments: ε
+   53          | argument_list
+
+   54 argument_list: expression
+   55              | argument_list COMMA expression
+
+   56 identifier: IDENTIFIER
+
+   57 factor: INTEGER_LITERAL
+   58       | LP expression RP
+
+
+Terminals, with rules where they appear
+
+    "end of file" (0) 0
+    error (256)
+    PLUSOP <std::string> (258) 33
+    MINUSOP <std::string> (259) 34
+    MULTOP <std::string> (260) 35
+    INT <std::string> (261) 2 4 46
+    LP <std::string> (262) 6 14 25 26 27 28 47 51 58
+    RP <std::string> (263) 6 14 25 26 27 28 47 51 58
+    AND <std::string> (264) 36
+    OR <std::string> (265) 37
+    LESS_THAN <std::string> (266) 38
+    MORE_THAN <std::string> (267) 39
+    EQUAL <std::string> (268) 40
+    TRUE <std::string> (269) 43
+    FALSE <std::string> (270) 44
+    THIS <std::string> (271) 45
+    NEW <std::string> (272) 46 47
+    LEFT_BRACKET <std::string> (273) 2 6 30 41 46
+    RIGHT_BRACKET <std::string> (274) 2 6 30 41 46
+    DOT <std::string> (275) 42 51
+    LENGTH <std::string> (276) 42
+    EXCLAMATION_MARK <std::string> (277) 48
+    LEFT_CURLY <std::string> (278) 6 7 14 24
+    RIGHT_CURLY <std::string> (279) 6 7 14 24
+    ASSIGN <std::string> (280) 29 30
+    MORE_THAN_EQUAL <std::string> (281)
+    LESS_THAN_EQUAL <std::string> (282)
+    UNDER_SCORE <std::string> (283)
+    BOOLEAN <std::string> (284) 3
+    CLASS <std::string> (285) 6 7
+    ELSE <std::string> (286) 26
+    IF <std::string> (287) 25 26
+    MAIN <std::string> (288) 6
+    PUBLIC <std::string> (289) 6 14
+    STRING <std::string> (290) 6
+    VOID <std::string> (291) 6
+    SYSTEM_OUT_PRINTLN <std::string> (292) 28
+    WHILE <std::string> (293) 27
+    EXTENDS <std::string> (294)
+    RETURN <std::string> (295) 14
+    STATIC <std::string> (296) 6
+    SEMI_COLON <std::string> (297) 11 14 28 29 30
+    COMMA <std::string> (298) 21 55
+    DIVIDE <std::string> (299)
+    IDENTIFIER <std::string> (300) 56
+    INTEGER_LITERAL <std::string> (301) 57
+
+
+Nonterminals, with rules where they appear
+
+    $accept (47)
+        on left: 0
+    root <Node *> (48)
+        on left: 1
+        on right: 0
+    type <Node *> (49)
+        on left: 2 3 4 5
+        on right: 11 14 20 21
+    mainClass <Node *> (50)
+        on left: 6
+        on right: 8
+    classDeclaration <Node *> (51)
+        on left: 7 8 9 10
+        on right: 1 8 9
+    varDeclaration <Node *> (52)
+        on left: 11
+        on right: 13 16
+    reqVarDeclaration <Node *> (53)
+        on left: 12 13
+        on right: 7 13
+    methodDeclaration <Node *> (54)
+        on left: 14
+        on right: 7 23
+    reqVarOrStmt (55)
+        on left: 15 16 17
+        on right: 14 16 17
+    parameters <Node *> (56)
+        on left: 18 19
+        on right: 14
+    parameter_list <Node *> (57)
+        on left: 20 21
+        on right: 19 21
+    reqMethodDeclaration (58)
+        on left: 22 23
+        on right: 7 23
+    statement <Node *> (59)
+        on left: 24 25 26 27 28 29 30
+        on right: 6 17 25 26 27 32
+    reqStatement <Node *> (60)
+        on left: 31 32
+        on right: 6 24 32
+    expression <Node *> (61)
+        on left: 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51
+        on right: 14 25 26 27 28 29 30 33 34 35 36 37 38 39 40 41 42 46 48 51 54 55 58
+    arguments (62)
+        on left: 52 53
+        on right: 51
+    argument_list (63)
+        on left: 54 55
+        on right: 53 55
+    identifier <Node *> (64)
+        on left: 56
+        on right: 5 6 7 11 14 20 21 29 30 47 50 51
+    factor <Node *> (65)
+        on left: 57 58
+        on right: 49
+
+
+State 0
+
+    0 $accept: • root "end of file"
+
+    CLASS  shift, and go to state 1
+
+    CLASS     [reduce using rule 10 (classDeclaration)]
+    $default  reduce using rule 10 (classDeclaration)
+
+    root              go to state 2
+    classDeclaration  go to state 3
+
+
+State 1
+
+    7 classDeclaration: CLASS • identifier LEFT_CURLY reqVarDeclaration methodDeclaration reqMethodDeclaration RIGHT_CURLY
+
+    IDENTIFIER  shift, and go to state 4
+
+    identifier  go to state 5
+
+
+State 2
+
+    0 $accept: root • "end of file"
+
+    "end of file"  shift, and go to state 6
+
+
+State 3
+
+    1 root: classDeclaration •
+    8 classDeclaration: classDeclaration • mainClass
+    9                 | classDeclaration • classDeclaration
+
+    CLASS   shift, and go to state 1
+    PUBLIC  shift, and go to state 7
+
+    "end of file"  reduce using rule 1 (root)
+    "end of file"  [reduce using rule 10 (classDeclaration)]
+    CLASS          [reduce using rule 10 (classDeclaration)]
+    PUBLIC         [reduce using rule 10 (classDeclaration)]
+    $default       reduce using rule 1 (root)
+
+    mainClass         go to state 8
+    classDeclaration  go to state 9
+
+
+State 4
+
+   56 identifier: IDENTIFIER •
+
+    $default  reduce using rule 56 (identifier)
+
+
+State 5
+
+    7 classDeclaration: CLASS identifier • LEFT_CURLY reqVarDeclaration methodDeclaration reqMethodDeclaration RIGHT_CURLY
+
+    LEFT_CURLY  shift, and go to state 10
+
+
+State 6
+
+    0 $accept: root "end of file" •
+
+    $default  accept
+
+
+State 7
+
+    6 mainClass: PUBLIC • CLASS identifier LEFT_CURLY PUBLIC STATIC VOID MAIN LP STRING LEFT_BRACKET RIGHT_BRACKET identifier RP LEFT_CURLY statement reqStatement RIGHT_CURLY RIGHT_CURLY
+
+    CLASS  shift, and go to state 11
+
+
+State 8
+
+    8 classDeclaration: classDeclaration mainClass •
+
+    $default  reduce using rule 8 (classDeclaration)
+
+
+State 9
+
+    8 classDeclaration: classDeclaration • mainClass
+    9                 | classDeclaration • classDeclaration
+    9                 | classDeclaration classDeclaration •
+
+    CLASS   shift, and go to state 1
+    PUBLIC  shift, and go to state 7
+
+    "end of file"  reduce using rule 9 (classDeclaration)
+    "end of file"  [reduce using rule 10 (classDeclaration)]
+    CLASS          [reduce using rule 9 (classDeclaration)]
+    CLASS          [reduce using rule 10 (classDeclaration)]
+    PUBLIC         [reduce using rule 9 (classDeclaration)]
+    PUBLIC         [reduce using rule 10 (classDeclaration)]
+    $default       reduce using rule 9 (classDeclaration)
+
+    mainClass         go to state 8
+    classDeclaration  go to state 9
+
+
+State 10
+
+    7 classDeclaration: CLASS identifier LEFT_CURLY • reqVarDeclaration methodDeclaration reqMethodDeclaration RIGHT_CURLY
+
+    $default  reduce using rule 12 (reqVarDeclaration)
+
+    reqVarDeclaration  go to state 12
+
+
+State 11
+
+    6 mainClass: PUBLIC CLASS • identifier LEFT_CURLY PUBLIC STATIC VOID MAIN LP STRING LEFT_BRACKET RIGHT_BRACKET identifier RP LEFT_CURLY statement reqStatement RIGHT_CURLY RIGHT_CURLY
+
+    IDENTIFIER  shift, and go to state 4
+
+    identifier  go to state 13
+
+
+State 12
+
+    7 classDeclaration: CLASS identifier LEFT_CURLY reqVarDeclaration • methodDeclaration reqMethodDeclaration RIGHT_CURLY
+   13 reqVarDeclaration: reqVarDeclaration • varDeclaration
+
+    INT         shift, and go to state 14
+    BOOLEAN     shift, and go to state 15
+    PUBLIC      shift, and go to state 16
+    IDENTIFIER  shift, and go to state 4
+
+    type               go to state 17
+    varDeclaration     go to state 18
+    methodDeclaration  go to state 19
+    identifier         go to state 20
+
+
+State 13
+
+    6 mainClass: PUBLIC CLASS identifier • LEFT_CURLY PUBLIC STATIC VOID MAIN LP STRING LEFT_BRACKET RIGHT_BRACKET identifier RP LEFT_CURLY statement reqStatement RIGHT_CURLY RIGHT_CURLY
+
+    LEFT_CURLY  shift, and go to state 21
+
+
+State 14
+
+    2 type: INT • LEFT_BRACKET RIGHT_BRACKET
+    4     | INT •
+
+    LEFT_BRACKET  shift, and go to state 22
+
+    $default  reduce using rule 4 (type)
+
+
+State 15
+
+    3 type: BOOLEAN •
+
+    $default  reduce using rule 3 (type)
+
+
+State 16
+
+   14 methodDeclaration: PUBLIC • type identifier LP parameters RP LEFT_CURLY reqVarOrStmt RETURN expression SEMI_COLON RIGHT_CURLY
+
+    INT         shift, and go to state 14
+    BOOLEAN     shift, and go to state 15
+    IDENTIFIER  shift, and go to state 4
+
+    type        go to state 23
+    identifier  go to state 20
+
+
+State 17
+
+   11 varDeclaration: type • identifier SEMI_COLON
+
+    IDENTIFIER  shift, and go to state 4
+
+    identifier  go to state 24
+
+
+State 18
+
+   13 reqVarDeclaration: reqVarDeclaration varDeclaration •
+
+    $default  reduce using rule 13 (reqVarDeclaration)
+
+
+State 19
+
+    7 classDeclaration: CLASS identifier LEFT_CURLY reqVarDeclaration methodDeclaration • reqMethodDeclaration RIGHT_CURLY
+
+    $default  reduce using rule 22 (reqMethodDeclaration)
+
+    reqMethodDeclaration  go to state 25
+
+
+State 20
+
+    5 type: identifier •
+
+    $default  reduce using rule 5 (type)
+
+
+State 21
+
+    6 mainClass: PUBLIC CLASS identifier LEFT_CURLY • PUBLIC STATIC VOID MAIN LP STRING LEFT_BRACKET RIGHT_BRACKET identifier RP LEFT_CURLY statement reqStatement RIGHT_CURLY RIGHT_CURLY
+
+    PUBLIC  shift, and go to state 26
+
+
+State 22
+
+    2 type: INT LEFT_BRACKET • RIGHT_BRACKET
+
+    RIGHT_BRACKET  shift, and go to state 27
+
+
+State 23
+
+   14 methodDeclaration: PUBLIC type • identifier LP parameters RP LEFT_CURLY reqVarOrStmt RETURN expression SEMI_COLON RIGHT_CURLY
+
+    IDENTIFIER  shift, and go to state 4
+
+    identifier  go to state 28
+
+
+State 24
+
+   11 varDeclaration: type identifier • SEMI_COLON
+
+    SEMI_COLON  shift, and go to state 29
+
+
+State 25
+
+    7 classDeclaration: CLASS identifier LEFT_CURLY reqVarDeclaration methodDeclaration reqMethodDeclaration • RIGHT_CURLY
+   23 reqMethodDeclaration: reqMethodDeclaration • methodDeclaration
+
+    RIGHT_CURLY  shift, and go to state 30
+    PUBLIC       shift, and go to state 16
+
+    methodDeclaration  go to state 31
+
+
+State 26
+
+    6 mainClass: PUBLIC CLASS identifier LEFT_CURLY PUBLIC • STATIC VOID MAIN LP STRING LEFT_BRACKET RIGHT_BRACKET identifier RP LEFT_CURLY statement reqStatement RIGHT_CURLY RIGHT_CURLY
+
+    STATIC  shift, and go to state 32
+
+
+State 27
+
+    2 type: INT LEFT_BRACKET RIGHT_BRACKET •
+
+    $default  reduce using rule 2 (type)
+
+
+State 28
+
+   14 methodDeclaration: PUBLIC type identifier • LP parameters RP LEFT_CURLY reqVarOrStmt RETURN expression SEMI_COLON RIGHT_CURLY
+
+    LP  shift, and go to state 33
+
+
+State 29
+
+   11 varDeclaration: type identifier SEMI_COLON •
+
+    $default  reduce using rule 11 (varDeclaration)
+
+
+State 30
+
+    7 classDeclaration: CLASS identifier LEFT_CURLY reqVarDeclaration methodDeclaration reqMethodDeclaration RIGHT_CURLY •
+
+    $default  reduce using rule 7 (classDeclaration)
+
+
+State 31
+
+   23 reqMethodDeclaration: reqMethodDeclaration methodDeclaration •
+
+    $default  reduce using rule 23 (reqMethodDeclaration)
+
+
+State 32
+
+    6 mainClass: PUBLIC CLASS identifier LEFT_CURLY PUBLIC STATIC • VOID MAIN LP STRING LEFT_BRACKET RIGHT_BRACKET identifier RP LEFT_CURLY statement reqStatement RIGHT_CURLY RIGHT_CURLY
+
+    VOID  shift, and go to state 34
+
+
+State 33
+
+   14 methodDeclaration: PUBLIC type identifier LP • parameters RP LEFT_CURLY reqVarOrStmt RETURN expression SEMI_COLON RIGHT_CURLY
+
+    INT         shift, and go to state 14
+    BOOLEAN     shift, and go to state 15
+    IDENTIFIER  shift, and go to state 4
+
+    $default  reduce using rule 18 (parameters)
+
+    type            go to state 35
+    parameters      go to state 36
+    parameter_list  go to state 37
+    identifier      go to state 20
+
+
+State 34
+
+    6 mainClass: PUBLIC CLASS identifier LEFT_CURLY PUBLIC STATIC VOID • MAIN LP STRING LEFT_BRACKET RIGHT_BRACKET identifier RP LEFT_CURLY statement reqStatement RIGHT_CURLY RIGHT_CURLY
+
+    MAIN  shift, and go to state 38
+
+
+State 35
+
+   20 parameter_list: type • identifier
+
+    IDENTIFIER  shift, and go to state 4
+
+    identifier  go to state 39
+
+
+State 36
+
+   14 methodDeclaration: PUBLIC type identifier LP parameters • RP LEFT_CURLY reqVarOrStmt RETURN expression SEMI_COLON RIGHT_CURLY
+
+    RP  shift, and go to state 40
+
+
+State 37
+
+   19 parameters: parameter_list •
+   21 parameter_list: parameter_list • COMMA type identifier
+
+    COMMA  shift, and go to state 41
+
+    $default  reduce using rule 19 (parameters)
+
+
+State 38
+
+    6 mainClass: PUBLIC CLASS identifier LEFT_CURLY PUBLIC STATIC VOID MAIN • LP STRING LEFT_BRACKET RIGHT_BRACKET identifier RP LEFT_CURLY statement reqStatement RIGHT_CURLY RIGHT_CURLY
+
+    LP  shift, and go to state 42
+
+
+State 39
+
+   20 parameter_list: type identifier •
+
+    $default  reduce using rule 20 (parameter_list)
+
+
+State 40
+
+   14 methodDeclaration: PUBLIC type identifier LP parameters RP • LEFT_CURLY reqVarOrStmt RETURN expression SEMI_COLON RIGHT_CURLY
+
+    LEFT_CURLY  shift, and go to state 43
+
+
+State 41
+
+   21 parameter_list: parameter_list COMMA • type identifier
+
+    INT         shift, and go to state 14
+    BOOLEAN     shift, and go to state 15
+    IDENTIFIER  shift, and go to state 4
+
+    type        go to state 44
+    identifier  go to state 20
+
+
+State 42
+
+    6 mainClass: PUBLIC CLASS identifier LEFT_CURLY PUBLIC STATIC VOID MAIN LP • STRING LEFT_BRACKET RIGHT_BRACKET identifier RP LEFT_CURLY statement reqStatement RIGHT_CURLY RIGHT_CURLY
+
+    STRING  shift, and go to state 45
+
+
+State 43
+
+   14 methodDeclaration: PUBLIC type identifier LP parameters RP LEFT_CURLY • reqVarOrStmt RETURN expression SEMI_COLON RIGHT_CURLY
+
+    $default  reduce using rule 15 (reqVarOrStmt)
+
+    reqVarOrStmt  go to state 46
+
+
+State 44
+
+   21 parameter_list: parameter_list COMMA type • identifier
+
+    IDENTIFIER  shift, and go to state 4
+
+    identifier  go to state 47
+
+
+State 45
+
+    6 mainClass: PUBLIC CLASS identifier LEFT_CURLY PUBLIC STATIC VOID MAIN LP STRING • LEFT_BRACKET RIGHT_BRACKET identifier RP LEFT_CURLY statement reqStatement RIGHT_CURLY RIGHT_CURLY
+
+    LEFT_BRACKET  shift, and go to state 48
+
+
+State 46
+
+   14 methodDeclaration: PUBLIC type identifier LP parameters RP LEFT_CURLY reqVarOrStmt • RETURN expression SEMI_COLON RIGHT_CURLY
+   16 reqVarOrStmt: reqVarOrStmt • varDeclaration
+   17             | reqVarOrStmt • statement
+
+    INT                 shift, and go to state 14
+    LEFT_CURLY          shift, and go to state 49
+    BOOLEAN             shift, and go to state 15
+    IF                  shift, and go to state 50
+    SYSTEM_OUT_PRINTLN  shift, and go to state 51
+    WHILE               shift, and go to state 52
+    RETURN              shift, and go to state 53
+    IDENTIFIER          shift, and go to state 4
+
+    type            go to state 17
+    varDeclaration  go to state 54
+    statement       go to state 55
+    identifier      go to state 56
+
+
+State 47
+
+   21 parameter_list: parameter_list COMMA type identifier •
+
+    $default  reduce using rule 21 (parameter_list)
+
+
+State 48
+
+    6 mainClass: PUBLIC CLASS identifier LEFT_CURLY PUBLIC STATIC VOID MAIN LP STRING LEFT_BRACKET • RIGHT_BRACKET identifier RP LEFT_CURLY statement reqStatement RIGHT_CURLY RIGHT_CURLY
+
+    RIGHT_BRACKET  shift, and go to state 57
+
+
+State 49
+
+   24 statement: LEFT_CURLY • reqStatement RIGHT_CURLY
+
+    $default  reduce using rule 31 (reqStatement)
+
+    reqStatement  go to state 58
+
+
+State 50
+
+   25 statement: IF • LP expression RP statement
+   26          | IF • LP expression RP statement ELSE statement
+
+    LP  shift, and go to state 59
+
+
+State 51
+
+   28 statement: SYSTEM_OUT_PRINTLN • LP expression RP SEMI_COLON
+
+    LP  shift, and go to state 60
+
+
+State 52
+
+   27 statement: WHILE • LP expression RP statement
+
+    LP  shift, and go to state 61
+
+
+State 53
+
+   14 methodDeclaration: PUBLIC type identifier LP parameters RP LEFT_CURLY reqVarOrStmt RETURN • expression SEMI_COLON RIGHT_CURLY
+
+    LP                shift, and go to state 62
+    TRUE              shift, and go to state 63
+    FALSE             shift, and go to state 64
+    THIS              shift, and go to state 65
+    NEW               shift, and go to state 66
+    EXCLAMATION_MARK  shift, and go to state 67
+    IDENTIFIER        shift, and go to state 4
+    INTEGER_LITERAL   shift, and go to state 68
+
+    expression  go to state 69
+    identifier  go to state 70
+    factor      go to state 71
+
+
+State 54
+
+   16 reqVarOrStmt: reqVarOrStmt varDeclaration •
+
+    $default  reduce using rule 16 (reqVarOrStmt)
+
+
+State 55
+
+   17 reqVarOrStmt: reqVarOrStmt statement •
+
+    $default  reduce using rule 17 (reqVarOrStmt)
+
+
+State 56
+
+    5 type: identifier •
+   29 statement: identifier • ASSIGN expression SEMI_COLON
+   30          | identifier • LEFT_BRACKET expression RIGHT_BRACKET ASSIGN expression SEMI_COLON
+
+    LEFT_BRACKET  shift, and go to state 72
+    ASSIGN        shift, and go to state 73
+
+    $default  reduce using rule 5 (type)
+
+
+State 57
+
+    6 mainClass: PUBLIC CLASS identifier LEFT_CURLY PUBLIC STATIC VOID MAIN LP STRING LEFT_BRACKET RIGHT_BRACKET • identifier RP LEFT_CURLY statement reqStatement RIGHT_CURLY RIGHT_CURLY
+
+    IDENTIFIER  shift, and go to state 4
+
+    identifier  go to state 74
+
+
+State 58
+
+   24 statement: LEFT_CURLY reqStatement • RIGHT_CURLY
+   32 reqStatement: reqStatement • statement
+
+    LEFT_CURLY          shift, and go to state 49
+    RIGHT_CURLY         shift, and go to state 75
+    IF                  shift, and go to state 50
+    SYSTEM_OUT_PRINTLN  shift, and go to state 51
+    WHILE               shift, and go to state 52
+    IDENTIFIER          shift, and go to state 4
+
+    statement   go to state 76
+    identifier  go to state 77
+
+
+State 59
+
+   25 statement: IF LP • expression RP statement
+   26          | IF LP • expression RP statement ELSE statement
+
+    LP                shift, and go to state 62
+    TRUE              shift, and go to state 63
+    FALSE             shift, and go to state 64
+    THIS              shift, and go to state 65
+    NEW               shift, and go to state 66
+    EXCLAMATION_MARK  shift, and go to state 67
+    IDENTIFIER        shift, and go to state 4
+    INTEGER_LITERAL   shift, and go to state 68
+
+    expression  go to state 78
+    identifier  go to state 70
+    factor      go to state 71
+
+
+State 60
+
+   28 statement: SYSTEM_OUT_PRINTLN LP • expression RP SEMI_COLON
+
+    LP                shift, and go to state 62
+    TRUE              shift, and go to state 63
+    FALSE             shift, and go to state 64
+    THIS              shift, and go to state 65
+    NEW               shift, and go to state 66
+    EXCLAMATION_MARK  shift, and go to state 67
+    IDENTIFIER        shift, and go to state 4
+    INTEGER_LITERAL   shift, and go to state 68
+
+    expression  go to state 79
+    identifier  go to state 70
+    factor      go to state 71
+
+
+State 61
+
+   27 statement: WHILE LP • expression RP statement
+
+    LP                shift, and go to state 62
+    TRUE              shift, and go to state 63
+    FALSE             shift, and go to state 64
+    THIS              shift, and go to state 65
+    NEW               shift, and go to state 66
+    EXCLAMATION_MARK  shift, and go to state 67
+    IDENTIFIER        shift, and go to state 4
+    INTEGER_LITERAL   shift, and go to state 68
+
+    expression  go to state 80
+    identifier  go to state 70
+    factor      go to state 71
+
+
+State 62
+
+   58 factor: LP • expression RP
+
+    LP                shift, and go to state 62
+    TRUE              shift, and go to state 63
+    FALSE             shift, and go to state 64
+    THIS              shift, and go to state 65
+    NEW               shift, and go to state 66
+    EXCLAMATION_MARK  shift, and go to state 67
+    IDENTIFIER        shift, and go to state 4
+    INTEGER_LITERAL   shift, and go to state 68
+
+    expression  go to state 81
+    identifier  go to state 70
+    factor      go to state 71
+
+
+State 63
+
+   43 expression: TRUE •
+
+    $default  reduce using rule 43 (expression)
+
+
+State 64
+
+   44 expression: FALSE •
+
+    $default  reduce using rule 44 (expression)
+
+
+State 65
+
+   45 expression: THIS •
+
+    $default  reduce using rule 45 (expression)
+
+
+State 66
+
+   46 expression: NEW • INT LEFT_BRACKET expression RIGHT_BRACKET
+   47           | NEW • identifier LP RP
+
+    INT         shift, and go to state 82
+    IDENTIFIER  shift, and go to state 4
+
+    identifier  go to state 83
+
+
+State 67
+
+   48 expression: EXCLAMATION_MARK • expression
+
+    LP                shift, and go to state 62
+    TRUE              shift, and go to state 63
+    FALSE             shift, and go to state 64
+    THIS              shift, and go to state 65
+    NEW               shift, and go to state 66
+    EXCLAMATION_MARK  shift, and go to state 67
+    IDENTIFIER        shift, and go to state 4
+    INTEGER_LITERAL   shift, and go to state 68
+
+    expression  go to state 84
+    identifier  go to state 70
+    factor      go to state 71
+
+
+State 68
+
+   57 factor: INTEGER_LITERAL •
+
+    $default  reduce using rule 57 (factor)
+
+
+State 69
+
+   14 methodDeclaration: PUBLIC type identifier LP parameters RP LEFT_CURLY reqVarOrStmt RETURN expression • SEMI_COLON RIGHT_CURLY
+   33 expression: expression • PLUSOP expression
+   34           | expression • MINUSOP expression
+   35           | expression • MULTOP expression
+   36           | expression • AND expression
+   37           | expression • OR expression
+   38           | expression • LESS_THAN expression
+   39           | expression • MORE_THAN expression
+   40           | expression • EQUAL expression
+   41           | expression • LEFT_BRACKET expression RIGHT_BRACKET
+   42           | expression • DOT LENGTH
+   51           | expression • DOT identifier LP arguments RP
+
+    PLUSOP        shift, and go to state 85
+    MINUSOP       shift, and go to state 86
+    MULTOP        shift, and go to state 87
+    AND           shift, and go to state 88
+    OR            shift, and go to state 89
+    LESS_THAN     shift, and go to state 90
+    MORE_THAN     shift, and go to state 91
+    EQUAL         shift, and go to state 92
+    LEFT_BRACKET  shift, and go to state 93
+    DOT           shift, and go to state 94
+    SEMI_COLON    shift, and go to state 95
+
+
+State 70
+
+   50 expression: identifier •
+
+    $default  reduce using rule 50 (expression)
+
+
+State 71
+
+   49 expression: factor •
+
+    $default  reduce using rule 49 (expression)
+
+
+State 72
+
+   30 statement: identifier LEFT_BRACKET • expression RIGHT_BRACKET ASSIGN expression SEMI_COLON
+
+    LP                shift, and go to state 62
+    TRUE              shift, and go to state 63
+    FALSE             shift, and go to state 64
+    THIS              shift, and go to state 65
+    NEW               shift, and go to state 66
+    EXCLAMATION_MARK  shift, and go to state 67
+    IDENTIFIER        shift, and go to state 4
+    INTEGER_LITERAL   shift, and go to state 68
+
+    expression  go to state 96
+    identifier  go to state 70
+    factor      go to state 71
+
+
+State 73
+
+   29 statement: identifier ASSIGN • expression SEMI_COLON
+
+    LP                shift, and go to state 62
+    TRUE              shift, and go to state 63
+    FALSE             shift, and go to state 64
+    THIS              shift, and go to state 65
+    NEW               shift, and go to state 66
+    EXCLAMATION_MARK  shift, and go to state 67
+    IDENTIFIER        shift, and go to state 4
+    INTEGER_LITERAL   shift, and go to state 68
+
+    expression  go to state 97
+    identifier  go to state 70
+    factor      go to state 71
+
+
+State 74
+
+    6 mainClass: PUBLIC CLASS identifier LEFT_CURLY PUBLIC STATIC VOID MAIN LP STRING LEFT_BRACKET RIGHT_BRACKET identifier • RP LEFT_CURLY statement reqStatement RIGHT_CURLY RIGHT_CURLY
+
+    RP  shift, and go to state 98
+
+
+State 75
+
+   24 statement: LEFT_CURLY reqStatement RIGHT_CURLY •
+
+    $default  reduce using rule 24 (statement)
+
+
+State 76
+
+   32 reqStatement: reqStatement statement •
+
+    $default  reduce using rule 32 (reqStatement)
+
+
+State 77
+
+   29 statement: identifier • ASSIGN expression SEMI_COLON
+   30          | identifier • LEFT_BRACKET expression RIGHT_BRACKET ASSIGN expression SEMI_COLON
+
+    LEFT_BRACKET  shift, and go to state 72
+    ASSIGN        shift, and go to state 73
+
+
+State 78
+
+   25 statement: IF LP expression • RP statement
+   26          | IF LP expression • RP statement ELSE statement
+   33 expression: expression • PLUSOP expression
+   34           | expression • MINUSOP expression
+   35           | expression • MULTOP expression
+   36           | expression • AND expression
+   37           | expression • OR expression
+   38           | expression • LESS_THAN expression
+   39           | expression • MORE_THAN expression
+   40           | expression • EQUAL expression
+   41           | expression • LEFT_BRACKET expression RIGHT_BRACKET
+   42           | expression • DOT LENGTH
+   51           | expression • DOT identifier LP arguments RP
+
+    PLUSOP        shift, and go to state 85
+    MINUSOP       shift, and go to state 86
+    MULTOP        shift, and go to state 87
+    RP            shift, and go to state 99
+    AND           shift, and go to state 88
+    OR            shift, and go to state 89
+    LESS_THAN     shift, and go to state 90
+    MORE_THAN     shift, and go to state 91
+    EQUAL         shift, and go to state 92
+    LEFT_BRACKET  shift, and go to state 93
+    DOT           shift, and go to state 94
+
+
+State 79
+
+   28 statement: SYSTEM_OUT_PRINTLN LP expression • RP SEMI_COLON
+   33 expression: expression • PLUSOP expression
+   34           | expression • MINUSOP expression
+   35           | expression • MULTOP expression
+   36           | expression • AND expression
+   37           | expression • OR expression
+   38           | expression • LESS_THAN expression
+   39           | expression • MORE_THAN expression
+   40           | expression • EQUAL expression
+   41           | expression • LEFT_BRACKET expression RIGHT_BRACKET
+   42           | expression • DOT LENGTH
+   51           | expression • DOT identifier LP arguments RP
+
+    PLUSOP        shift, and go to state 85
+    MINUSOP       shift, and go to state 86
+    MULTOP        shift, and go to state 87
+    RP            shift, and go to state 100
+    AND           shift, and go to state 88
+    OR            shift, and go to state 89
+    LESS_THAN     shift, and go to state 90
+    MORE_THAN     shift, and go to state 91
+    EQUAL         shift, and go to state 92
+    LEFT_BRACKET  shift, and go to state 93
+    DOT           shift, and go to state 94
+
+
+State 80
+
+   27 statement: WHILE LP expression • RP statement
+   33 expression: expression • PLUSOP expression
+   34           | expression • MINUSOP expression
+   35           | expression • MULTOP expression
+   36           | expression • AND expression
+   37           | expression • OR expression
+   38           | expression • LESS_THAN expression
+   39           | expression • MORE_THAN expression
+   40           | expression • EQUAL expression
+   41           | expression • LEFT_BRACKET expression RIGHT_BRACKET
+   42           | expression • DOT LENGTH
+   51           | expression • DOT identifier LP arguments RP
+
+    PLUSOP        shift, and go to state 85
+    MINUSOP       shift, and go to state 86
+    MULTOP        shift, and go to state 87
+    RP            shift, and go to state 101
+    AND           shift, and go to state 88
+    OR            shift, and go to state 89
+    LESS_THAN     shift, and go to state 90
+    MORE_THAN     shift, and go to state 91
+    EQUAL         shift, and go to state 92
+    LEFT_BRACKET  shift, and go to state 93
+    DOT           shift, and go to state 94
+
+
+State 81
+
+   33 expression: expression • PLUSOP expression
+   34           | expression • MINUSOP expression
+   35           | expression • MULTOP expression
+   36           | expression • AND expression
+   37           | expression • OR expression
+   38           | expression • LESS_THAN expression
+   39           | expression • MORE_THAN expression
+   40           | expression • EQUAL expression
+   41           | expression • LEFT_BRACKET expression RIGHT_BRACKET
+   42           | expression • DOT LENGTH
+   51           | expression • DOT identifier LP arguments RP
+   58 factor: LP expression • RP
+
+    PLUSOP        shift, and go to state 85
+    MINUSOP       shift, and go to state 86
+    MULTOP        shift, and go to state 87
+    RP            shift, and go to state 102
+    AND           shift, and go to state 88
+    OR            shift, and go to state 89
+    LESS_THAN     shift, and go to state 90
+    MORE_THAN     shift, and go to state 91
+    EQUAL         shift, and go to state 92
+    LEFT_BRACKET  shift, and go to state 93
+    DOT           shift, and go to state 94
+
+
+State 82
+
+   46 expression: NEW INT • LEFT_BRACKET expression RIGHT_BRACKET
+
+    LEFT_BRACKET  shift, and go to state 103
+
+
+State 83
+
+   47 expression: NEW identifier • LP RP
+
+    LP  shift, and go to state 104
+
+
+State 84
+
+   33 expression: expression • PLUSOP expression
+   34           | expression • MINUSOP expression
+   35           | expression • MULTOP expression
+   36           | expression • AND expression
+   37           | expression • OR expression
+   38           | expression • LESS_THAN expression
+   39           | expression • MORE_THAN expression
+   40           | expression • EQUAL expression
+   41           | expression • LEFT_BRACKET expression RIGHT_BRACKET
+   42           | expression • DOT LENGTH
+   48           | EXCLAMATION_MARK expression •
+   51           | expression • DOT identifier LP arguments RP
+
+    PLUSOP        shift, and go to state 85
+    MINUSOP       shift, and go to state 86
+    MULTOP        shift, and go to state 87
+    AND           shift, and go to state 88
+    OR            shift, and go to state 89
+    LESS_THAN     shift, and go to state 90
+    MORE_THAN     shift, and go to state 91
+    EQUAL         shift, and go to state 92
+    LEFT_BRACKET  shift, and go to state 93
+    DOT           shift, and go to state 94
+
+    PLUSOP        [reduce using rule 48 (expression)]
+    MINUSOP       [reduce using rule 48 (expression)]
+    MULTOP        [reduce using rule 48 (expression)]
+    AND           [reduce using rule 48 (expression)]
+    OR            [reduce using rule 48 (expression)]
+    LESS_THAN     [reduce using rule 48 (expression)]
+    MORE_THAN     [reduce using rule 48 (expression)]
+    EQUAL         [reduce using rule 48 (expression)]
+    LEFT_BRACKET  [reduce using rule 48 (expression)]
+    DOT           [reduce using rule 48 (expression)]
+    $default      reduce using rule 48 (expression)
+
+
+State 85
+
+   33 expression: expression PLUSOP • expression
+
+    LP                shift, and go to state 62
+    TRUE              shift, and go to state 63
+    FALSE             shift, and go to state 64
+    THIS              shift, and go to state 65
+    NEW               shift, and go to state 66
+    EXCLAMATION_MARK  shift, and go to state 67
+    IDENTIFIER        shift, and go to state 4
+    INTEGER_LITERAL   shift, and go to state 68
+
+    expression  go to state 105
+    identifier  go to state 70
+    factor      go to state 71
+
+
+State 86
+
+   34 expression: expression MINUSOP • expression
+
+    LP                shift, and go to state 62
+    TRUE              shift, and go to state 63
+    FALSE             shift, and go to state 64
+    THIS              shift, and go to state 65
+    NEW               shift, and go to state 66
+    EXCLAMATION_MARK  shift, and go to state 67
+    IDENTIFIER        shift, and go to state 4
+    INTEGER_LITERAL   shift, and go to state 68
+
+    expression  go to state 106
+    identifier  go to state 70
+    factor      go to state 71
+
+
+State 87
+
+   35 expression: expression MULTOP • expression
+
+    LP                shift, and go to state 62
+    TRUE              shift, and go to state 63
+    FALSE             shift, and go to state 64
+    THIS              shift, and go to state 65
+    NEW               shift, and go to state 66
+    EXCLAMATION_MARK  shift, and go to state 67
+    IDENTIFIER        shift, and go to state 4
+    INTEGER_LITERAL   shift, and go to state 68
+
+    expression  go to state 107
+    identifier  go to state 70
+    factor      go to state 71
+
+
+State 88
+
+   36 expression: expression AND • expression
+
+    LP                shift, and go to state 62
+    TRUE              shift, and go to state 63
+    FALSE             shift, and go to state 64
+    THIS              shift, and go to state 65
+    NEW               shift, and go to state 66
+    EXCLAMATION_MARK  shift, and go to state 67
+    IDENTIFIER        shift, and go to state 4
+    INTEGER_LITERAL   shift, and go to state 68
+
+    expression  go to state 108
+    identifier  go to state 70
+    factor      go to state 71
+
+
+State 89
+
+   37 expression: expression OR • expression
+
+    LP                shift, and go to state 62
+    TRUE              shift, and go to state 63
+    FALSE             shift, and go to state 64
+    THIS              shift, and go to state 65
+    NEW               shift, and go to state 66
+    EXCLAMATION_MARK  shift, and go to state 67
+    IDENTIFIER        shift, and go to state 4
+    INTEGER_LITERAL   shift, and go to state 68
+
+    expression  go to state 109
+    identifier  go to state 70
+    factor      go to state 71
+
+
+State 90
+
+   38 expression: expression LESS_THAN • expression
+
+    LP                shift, and go to state 62
+    TRUE              shift, and go to state 63
+    FALSE             shift, and go to state 64
+    THIS              shift, and go to state 65
+    NEW               shift, and go to state 66
+    EXCLAMATION_MARK  shift, and go to state 67
+    IDENTIFIER        shift, and go to state 4
+    INTEGER_LITERAL   shift, and go to state 68
+
+    expression  go to state 110
+    identifier  go to state 70
+    factor      go to state 71
+
+
+State 91
+
+   39 expression: expression MORE_THAN • expression
+
+    LP                shift, and go to state 62
+    TRUE              shift, and go to state 63
+    FALSE             shift, and go to state 64
+    THIS              shift, and go to state 65
+    NEW               shift, and go to state 66
+    EXCLAMATION_MARK  shift, and go to state 67
+    IDENTIFIER        shift, and go to state 4
+    INTEGER_LITERAL   shift, and go to state 68
+
+    expression  go to state 111
+    identifier  go to state 70
+    factor      go to state 71
+
+
+State 92
+
+   40 expression: expression EQUAL • expression
+
+    LP                shift, and go to state 62
+    TRUE              shift, and go to state 63
+    FALSE             shift, and go to state 64
+    THIS              shift, and go to state 65
+    NEW               shift, and go to state 66
+    EXCLAMATION_MARK  shift, and go to state 67
+    IDENTIFIER        shift, and go to state 4
+    INTEGER_LITERAL   shift, and go to state 68
+
+    expression  go to state 112
+    identifier  go to state 70
+    factor      go to state 71
+
+
+State 93
+
+   41 expression: expression LEFT_BRACKET • expression RIGHT_BRACKET
+
+    LP                shift, and go to state 62
+    TRUE              shift, and go to state 63
+    FALSE             shift, and go to state 64
+    THIS              shift, and go to state 65
+    NEW               shift, and go to state 66
+    EXCLAMATION_MARK  shift, and go to state 67
+    IDENTIFIER        shift, and go to state 4
+    INTEGER_LITERAL   shift, and go to state 68
+
+    expression  go to state 113
+    identifier  go to state 70
+    factor      go to state 71
+
+
+State 94
+
+   42 expression: expression DOT • LENGTH
+   51           | expression DOT • identifier LP arguments RP
+
+    LENGTH      shift, and go to state 114
+    IDENTIFIER  shift, and go to state 4
+
+    identifier  go to state 115
+
+
+State 95
+
+   14 methodDeclaration: PUBLIC type identifier LP parameters RP LEFT_CURLY reqVarOrStmt RETURN expression SEMI_COLON • RIGHT_CURLY
+
+    RIGHT_CURLY  shift, and go to state 116
+
+
+State 96
+
+   30 statement: identifier LEFT_BRACKET expression • RIGHT_BRACKET ASSIGN expression SEMI_COLON
+   33 expression: expression • PLUSOP expression
+   34           | expression • MINUSOP expression
+   35           | expression • MULTOP expression
+   36           | expression • AND expression
+   37           | expression • OR expression
+   38           | expression • LESS_THAN expression
+   39           | expression • MORE_THAN expression
+   40           | expression • EQUAL expression
+   41           | expression • LEFT_BRACKET expression RIGHT_BRACKET
+   42           | expression • DOT LENGTH
+   51           | expression • DOT identifier LP arguments RP
+
+    PLUSOP         shift, and go to state 85
+    MINUSOP        shift, and go to state 86
+    MULTOP         shift, and go to state 87
+    AND            shift, and go to state 88
+    OR             shift, and go to state 89
+    LESS_THAN      shift, and go to state 90
+    MORE_THAN      shift, and go to state 91
+    EQUAL          shift, and go to state 92
+    LEFT_BRACKET   shift, and go to state 93
+    RIGHT_BRACKET  shift, and go to state 117
+    DOT            shift, and go to state 94
+
+
+State 97
+
+   29 statement: identifier ASSIGN expression • SEMI_COLON
+   33 expression: expression • PLUSOP expression
+   34           | expression • MINUSOP expression
+   35           | expression • MULTOP expression
+   36           | expression • AND expression
+   37           | expression • OR expression
+   38           | expression • LESS_THAN expression
+   39           | expression • MORE_THAN expression
+   40           | expression • EQUAL expression
+   41           | expression • LEFT_BRACKET expression RIGHT_BRACKET
+   42           | expression • DOT LENGTH
+   51           | expression • DOT identifier LP arguments RP
+
+    PLUSOP        shift, and go to state 85
+    MINUSOP       shift, and go to state 86
+    MULTOP        shift, and go to state 87
+    AND           shift, and go to state 88
+    OR            shift, and go to state 89
+    LESS_THAN     shift, and go to state 90
+    MORE_THAN     shift, and go to state 91
+    EQUAL         shift, and go to state 92
+    LEFT_BRACKET  shift, and go to state 93
+    DOT           shift, and go to state 94
+    SEMI_COLON    shift, and go to state 118
+
+
+State 98
+
+    6 mainClass: PUBLIC CLASS identifier LEFT_CURLY PUBLIC STATIC VOID MAIN LP STRING LEFT_BRACKET RIGHT_BRACKET identifier RP • LEFT_CURLY statement reqStatement RIGHT_CURLY RIGHT_CURLY
+
+    LEFT_CURLY  shift, and go to state 119
+
+
+State 99
+
+   25 statement: IF LP expression RP • statement
+   26          | IF LP expression RP • statement ELSE statement
+
+    LEFT_CURLY          shift, and go to state 49
+    IF                  shift, and go to state 50
+    SYSTEM_OUT_PRINTLN  shift, and go to state 51
+    WHILE               shift, and go to state 52
+    IDENTIFIER          shift, and go to state 4
+
+    statement   go to state 120
+    identifier  go to state 77
+
+
+State 100
+
+   28 statement: SYSTEM_OUT_PRINTLN LP expression RP • SEMI_COLON
+
+    SEMI_COLON  shift, and go to state 121
+
+
+State 101
+
+   27 statement: WHILE LP expression RP • statement
+
+    LEFT_CURLY          shift, and go to state 49
+    IF                  shift, and go to state 50
+    SYSTEM_OUT_PRINTLN  shift, and go to state 51
+    WHILE               shift, and go to state 52
+    IDENTIFIER          shift, and go to state 4
+
+    statement   go to state 122
+    identifier  go to state 77
+
+
+State 102
+
+   58 factor: LP expression RP •
+
+    $default  reduce using rule 58 (factor)
+
+
+State 103
+
+   46 expression: NEW INT LEFT_BRACKET • expression RIGHT_BRACKET
+
+    LP                shift, and go to state 62
+    TRUE              shift, and go to state 63
+    FALSE             shift, and go to state 64
+    THIS              shift, and go to state 65
+    NEW               shift, and go to state 66
+    EXCLAMATION_MARK  shift, and go to state 67
+    IDENTIFIER        shift, and go to state 4
+    INTEGER_LITERAL   shift, and go to state 68
+
+    expression  go to state 123
+    identifier  go to state 70
+    factor      go to state 71
+
+
+State 104
+
+   47 expression: NEW identifier LP • RP
+
+    RP  shift, and go to state 124
+
+
+State 105
+
+   33 expression: expression • PLUSOP expression
+   33           | expression PLUSOP expression •
+   34           | expression • MINUSOP expression
+   35           | expression • MULTOP expression
+   36           | expression • AND expression
+   37           | expression • OR expression
+   38           | expression • LESS_THAN expression
+   39           | expression • MORE_THAN expression
+   40           | expression • EQUAL expression
+   41           | expression • LEFT_BRACKET expression RIGHT_BRACKET
+   42           | expression • DOT LENGTH
+   51           | expression • DOT identifier LP arguments RP
+
+    MULTOP        shift, and go to state 87
+    LEFT_BRACKET  shift, and go to state 93
+    DOT           shift, and go to state 94
+
+    DOT       [reduce using rule 33 (expression)]
+    $default  reduce using rule 33 (expression)
+
+
+State 106
+
+   33 expression: expression • PLUSOP expression
+   34           | expression • MINUSOP expression
+   34           | expression MINUSOP expression •
+   35           | expression • MULTOP expression
+   36           | expression • AND expression
+   37           | expression • OR expression
+   38           | expression • LESS_THAN expression
+   39           | expression • MORE_THAN expression
+   40           | expression • EQUAL expression
+   41           | expression • LEFT_BRACKET expression RIGHT_BRACKET
+   42           | expression • DOT LENGTH
+   51           | expression • DOT identifier LP arguments RP
+
+    MULTOP        shift, and go to state 87
+    LEFT_BRACKET  shift, and go to state 93
+    DOT           shift, and go to state 94
+
+    DOT       [reduce using rule 34 (expression)]
+    $default  reduce using rule 34 (expression)
+
+
+State 107
+
+   33 expression: expression • PLUSOP expression
+   34           | expression • MINUSOP expression
+   35           | expression • MULTOP expression
+   35           | expression MULTOP expression •
+   36           | expression • AND expression
+   37           | expression • OR expression
+   38           | expression • LESS_THAN expression
+   39           | expression • MORE_THAN expression
+   40           | expression • EQUAL expression
+   41           | expression • LEFT_BRACKET expression RIGHT_BRACKET
+   42           | expression • DOT LENGTH
+   51           | expression • DOT identifier LP arguments RP
+
+    LEFT_BRACKET  shift, and go to state 93
+    DOT           shift, and go to state 94
+
+    DOT       [reduce using rule 35 (expression)]
+    $default  reduce using rule 35 (expression)
+
+
+State 108
+
+   33 expression: expression • PLUSOP expression
+   34           | expression • MINUSOP expression
+   35           | expression • MULTOP expression
+   36           | expression • AND expression
+   36           | expression AND expression •
+   37           | expression • OR expression
+   38           | expression • LESS_THAN expression
+   39           | expression • MORE_THAN expression
+   40           | expression • EQUAL expression
+   41           | expression • LEFT_BRACKET expression RIGHT_BRACKET
+   42           | expression • DOT LENGTH
+   51           | expression • DOT identifier LP arguments RP
+
+    PLUSOP        shift, and go to state 85
+    MINUSOP       shift, and go to state 86
+    MULTOP        shift, and go to state 87
+    LESS_THAN     shift, and go to state 90
+    MORE_THAN     shift, and go to state 91
+    EQUAL         shift, and go to state 92
+    LEFT_BRACKET  shift, and go to state 93
+    DOT           shift, and go to state 94
+
+    DOT       [reduce using rule 36 (expression)]
+    $default  reduce using rule 36 (expression)
+
+
+State 109
+
+   33 expression: expression • PLUSOP expression
+   34           | expression • MINUSOP expression
+   35           | expression • MULTOP expression
+   36           | expression • AND expression
+   37           | expression • OR expression
+   37           | expression OR expression •
+   38           | expression • LESS_THAN expression
+   39           | expression • MORE_THAN expression
+   40           | expression • EQUAL expression
+   41           | expression • LEFT_BRACKET expression RIGHT_BRACKET
+   42           | expression • DOT LENGTH
+   51           | expression • DOT identifier LP arguments RP
+
+    PLUSOP        shift, and go to state 85
+    MINUSOP       shift, and go to state 86
+    MULTOP        shift, and go to state 87
+    AND           shift, and go to state 88
+    LESS_THAN     shift, and go to state 90
+    MORE_THAN     shift, and go to state 91
+    EQUAL         shift, and go to state 92
+    LEFT_BRACKET  shift, and go to state 93
+    DOT           shift, and go to state 94
+
+    DOT       [reduce using rule 37 (expression)]
+    $default  reduce using rule 37 (expression)
+
+
+State 110
+
+   33 expression: expression • PLUSOP expression
+   34           | expression • MINUSOP expression
+   35           | expression • MULTOP expression
+   36           | expression • AND expression
+   37           | expression • OR expression
+   38           | expression • LESS_THAN expression
+   38           | expression LESS_THAN expression •
+   39           | expression • MORE_THAN expression
+   40           | expression • EQUAL expression
+   41           | expression • LEFT_BRACKET expression RIGHT_BRACKET
+   42           | expression • DOT LENGTH
+   51           | expression • DOT identifier LP arguments RP
+
+    PLUSOP        shift, and go to state 85
+    MINUSOP       shift, and go to state 86
+    MULTOP        shift, and go to state 87
+    LEFT_BRACKET  shift, and go to state 93
+    DOT           shift, and go to state 94
+
+    DOT       [reduce using rule 38 (expression)]
+    $default  reduce using rule 38 (expression)
+
+
+State 111
+
+   33 expression: expression • PLUSOP expression
+   34           | expression • MINUSOP expression
+   35           | expression • MULTOP expression
+   36           | expression • AND expression
+   37           | expression • OR expression
+   38           | expression • LESS_THAN expression
+   39           | expression • MORE_THAN expression
+   39           | expression MORE_THAN expression •
+   40           | expression • EQUAL expression
+   41           | expression • LEFT_BRACKET expression RIGHT_BRACKET
+   42           | expression • DOT LENGTH
+   51           | expression • DOT identifier LP arguments RP
+
+    PLUSOP        shift, and go to state 85
+    MINUSOP       shift, and go to state 86
+    MULTOP        shift, and go to state 87
+    LEFT_BRACKET  shift, and go to state 93
+    DOT           shift, and go to state 94
+
+    DOT       [reduce using rule 39 (expression)]
+    $default  reduce using rule 39 (expression)
+
+
+State 112
+
+   33 expression: expression • PLUSOP expression
+   34           | expression • MINUSOP expression
+   35           | expression • MULTOP expression
+   36           | expression • AND expression
+   37           | expression • OR expression
+   38           | expression • LESS_THAN expression
+   39           | expression • MORE_THAN expression
+   40           | expression • EQUAL expression
+   40           | expression EQUAL expression •
+   41           | expression • LEFT_BRACKET expression RIGHT_BRACKET
+   42           | expression • DOT LENGTH
+   51           | expression • DOT identifier LP arguments RP
+
+    PLUSOP        shift, and go to state 85
+    MINUSOP       shift, and go to state 86
+    MULTOP        shift, and go to state 87
+    LESS_THAN     shift, and go to state 90
+    MORE_THAN     shift, and go to state 91
+    LEFT_BRACKET  shift, and go to state 93
+    DOT           shift, and go to state 94
+
+    DOT       [reduce using rule 40 (expression)]
+    $default  reduce using rule 40 (expression)
+
+
+State 113
+
+   33 expression: expression • PLUSOP expression
+   34           | expression • MINUSOP expression
+   35           | expression • MULTOP expression
+   36           | expression • AND expression
+   37           | expression • OR expression
+   38           | expression • LESS_THAN expression
+   39           | expression • MORE_THAN expression
+   40           | expression • EQUAL expression
+   41           | expression • LEFT_BRACKET expression RIGHT_BRACKET
+   41           | expression LEFT_BRACKET expression • RIGHT_BRACKET
+   42           | expression • DOT LENGTH
+   51           | expression • DOT identifier LP arguments RP
+
+    PLUSOP         shift, and go to state 85
+    MINUSOP        shift, and go to state 86
+    MULTOP         shift, and go to state 87
+    AND            shift, and go to state 88
+    OR             shift, and go to state 89
+    LESS_THAN      shift, and go to state 90
+    MORE_THAN      shift, and go to state 91
+    EQUAL          shift, and go to state 92
+    LEFT_BRACKET   shift, and go to state 93
+    RIGHT_BRACKET  shift, and go to state 125
+    DOT            shift, and go to state 94
+
+
+State 114
+
+   42 expression: expression DOT LENGTH •
+
+    $default  reduce using rule 42 (expression)
+
+
+State 115
+
+   51 expression: expression DOT identifier • LP arguments RP
+
+    LP  shift, and go to state 126
+
+
+State 116
+
+   14 methodDeclaration: PUBLIC type identifier LP parameters RP LEFT_CURLY reqVarOrStmt RETURN expression SEMI_COLON RIGHT_CURLY •
+
+    $default  reduce using rule 14 (methodDeclaration)
+
+
+State 117
+
+   30 statement: identifier LEFT_BRACKET expression RIGHT_BRACKET • ASSIGN expression SEMI_COLON
+
+    ASSIGN  shift, and go to state 127
+
+
+State 118
+
+   29 statement: identifier ASSIGN expression SEMI_COLON •
+
+    $default  reduce using rule 29 (statement)
+
+
+State 119
+
+    6 mainClass: PUBLIC CLASS identifier LEFT_CURLY PUBLIC STATIC VOID MAIN LP STRING LEFT_BRACKET RIGHT_BRACKET identifier RP LEFT_CURLY • statement reqStatement RIGHT_CURLY RIGHT_CURLY
+
+    LEFT_CURLY          shift, and go to state 49
+    IF                  shift, and go to state 50
+    SYSTEM_OUT_PRINTLN  shift, and go to state 51
+    WHILE               shift, and go to state 52
+    IDENTIFIER          shift, and go to state 4
+
+    statement   go to state 128
+    identifier  go to state 77
+
+
+State 120
+
+   25 statement: IF LP expression RP statement •
+   26          | IF LP expression RP statement • ELSE statement
+
+    ELSE  shift, and go to state 129
+
+    ELSE      [reduce using rule 25 (statement)]
+    $default  reduce using rule 25 (statement)
+
+
+State 121
+
+   28 statement: SYSTEM_OUT_PRINTLN LP expression RP SEMI_COLON •
+
+    $default  reduce using rule 28 (statement)
+
+
+State 122
+
+   27 statement: WHILE LP expression RP statement •
+
+    $default  reduce using rule 27 (statement)
+
+
+State 123
+
+   33 expression: expression • PLUSOP expression
+   34           | expression • MINUSOP expression
+   35           | expression • MULTOP expression
+   36           | expression • AND expression
+   37           | expression • OR expression
+   38           | expression • LESS_THAN expression
+   39           | expression • MORE_THAN expression
+   40           | expression • EQUAL expression
+   41           | expression • LEFT_BRACKET expression RIGHT_BRACKET
+   42           | expression • DOT LENGTH
+   46           | NEW INT LEFT_BRACKET expression • RIGHT_BRACKET
+   51           | expression • DOT identifier LP arguments RP
+
+    PLUSOP         shift, and go to state 85
+    MINUSOP        shift, and go to state 86
+    MULTOP         shift, and go to state 87
+    AND            shift, and go to state 88
+    OR             shift, and go to state 89
+    LESS_THAN      shift, and go to state 90
+    MORE_THAN      shift, and go to state 91
+    EQUAL          shift, and go to state 92
+    LEFT_BRACKET   shift, and go to state 93
+    RIGHT_BRACKET  shift, and go to state 130
+    DOT            shift, and go to state 94
+
+
+State 124
+
+   47 expression: NEW identifier LP RP •
+
+    $default  reduce using rule 47 (expression)
+
+
+State 125
+
+   41 expression: expression LEFT_BRACKET expression RIGHT_BRACKET •
+
+    $default  reduce using rule 41 (expression)
+
+
+State 126
+
+   51 expression: expression DOT identifier LP • arguments RP
+
+    LP                shift, and go to state 62
+    TRUE              shift, and go to state 63
+    FALSE             shift, and go to state 64
+    THIS              shift, and go to state 65
+    NEW               shift, and go to state 66
+    EXCLAMATION_MARK  shift, and go to state 67
+    IDENTIFIER        shift, and go to state 4
+    INTEGER_LITERAL   shift, and go to state 68
+
+    $default  reduce using rule 52 (arguments)
+
+    expression     go to state 131
+    arguments      go to state 132
+    argument_list  go to state 133
+    identifier     go to state 70
+    factor         go to state 71
+
+
+State 127
+
+   30 statement: identifier LEFT_BRACKET expression RIGHT_BRACKET ASSIGN • expression SEMI_COLON
+
+    LP                shift, and go to state 62
+    TRUE              shift, and go to state 63
+    FALSE             shift, and go to state 64
+    THIS              shift, and go to state 65
+    NEW               shift, and go to state 66
+    EXCLAMATION_MARK  shift, and go to state 67
+    IDENTIFIER        shift, and go to state 4
+    INTEGER_LITERAL   shift, and go to state 68
+
+    expression  go to state 134
+    identifier  go to state 70
+    factor      go to state 71
+
+
+State 128
+
+    6 mainClass: PUBLIC CLASS identifier LEFT_CURLY PUBLIC STATIC VOID MAIN LP STRING LEFT_BRACKET RIGHT_BRACKET identifier RP LEFT_CURLY statement • reqStatement RIGHT_CURLY RIGHT_CURLY
+
+    $default  reduce using rule 31 (reqStatement)
+
+    reqStatement  go to state 135
+
+
+State 129
+
+   26 statement: IF LP expression RP statement ELSE • statement
+
+    LEFT_CURLY          shift, and go to state 49
+    IF                  shift, and go to state 50
+    SYSTEM_OUT_PRINTLN  shift, and go to state 51
+    WHILE               shift, and go to state 52
+    IDENTIFIER          shift, and go to state 4
+
+    statement   go to state 136
+    identifier  go to state 77
+
+
+State 130
+
+   46 expression: NEW INT LEFT_BRACKET expression RIGHT_BRACKET •
+
+    $default  reduce using rule 46 (expression)
+
+
+State 131
+
+   33 expression: expression • PLUSOP expression
+   34           | expression • MINUSOP expression
+   35           | expression • MULTOP expression
+   36           | expression • AND expression
+   37           | expression • OR expression
+   38           | expression • LESS_THAN expression
+   39           | expression • MORE_THAN expression
+   40           | expression • EQUAL expression
+   41           | expression • LEFT_BRACKET expression RIGHT_BRACKET
+   42           | expression • DOT LENGTH
+   51           | expression • DOT identifier LP arguments RP
+   54 argument_list: expression •
+
+    PLUSOP        shift, and go to state 85
+    MINUSOP       shift, and go to state 86
+    MULTOP        shift, and go to state 87
+    AND           shift, and go to state 88
+    OR            shift, and go to state 89
+    LESS_THAN     shift, and go to state 90
+    MORE_THAN     shift, and go to state 91
+    EQUAL         shift, and go to state 92
+    LEFT_BRACKET  shift, and go to state 93
+    DOT           shift, and go to state 94
+
+    $default  reduce using rule 54 (argument_list)
+
+
+State 132
+
+   51 expression: expression DOT identifier LP arguments • RP
+
+    RP  shift, and go to state 137
+
+
+State 133
+
+   53 arguments: argument_list •
+   55 argument_list: argument_list • COMMA expression
+
+    COMMA  shift, and go to state 138
+
+    $default  reduce using rule 53 (arguments)
+
+
+State 134
+
+   30 statement: identifier LEFT_BRACKET expression RIGHT_BRACKET ASSIGN expression • SEMI_COLON
+   33 expression: expression • PLUSOP expression
+   34           | expression • MINUSOP expression
+   35           | expression • MULTOP expression
+   36           | expression • AND expression
+   37           | expression • OR expression
+   38           | expression • LESS_THAN expression
+   39           | expression • MORE_THAN expression
+   40           | expression • EQUAL expression
+   41           | expression • LEFT_BRACKET expression RIGHT_BRACKET
+   42           | expression • DOT LENGTH
+   51           | expression • DOT identifier LP arguments RP
+
+    PLUSOP        shift, and go to state 85
+    MINUSOP       shift, and go to state 86
+    MULTOP        shift, and go to state 87
+    AND           shift, and go to state 88
+    OR            shift, and go to state 89
+    LESS_THAN     shift, and go to state 90
+    MORE_THAN     shift, and go to state 91
+    EQUAL         shift, and go to state 92
+    LEFT_BRACKET  shift, and go to state 93
+    DOT           shift, and go to state 94
+    SEMI_COLON    shift, and go to state 139
+
+
+State 135
+
+    6 mainClass: PUBLIC CLASS identifier LEFT_CURLY PUBLIC STATIC VOID MAIN LP STRING LEFT_BRACKET RIGHT_BRACKET identifier RP LEFT_CURLY statement reqStatement • RIGHT_CURLY RIGHT_CURLY
+   32 reqStatement: reqStatement • statement
+
+    LEFT_CURLY          shift, and go to state 49
+    RIGHT_CURLY         shift, and go to state 140
+    IF                  shift, and go to state 50
+    SYSTEM_OUT_PRINTLN  shift, and go to state 51
+    WHILE               shift, and go to state 52
+    IDENTIFIER          shift, and go to state 4
+
+    statement   go to state 76
+    identifier  go to state 77
+
+
+State 136
+
+   26 statement: IF LP expression RP statement ELSE statement •
+
+    $default  reduce using rule 26 (statement)
+
+
+State 137
+
+   51 expression: expression DOT identifier LP arguments RP •
+
+    $default  reduce using rule 51 (expression)
+
+
+State 138
+
+   55 argument_list: argument_list COMMA • expression
+
+    LP                shift, and go to state 62
+    TRUE              shift, and go to state 63
+    FALSE             shift, and go to state 64
+    THIS              shift, and go to state 65
+    NEW               shift, and go to state 66
+    EXCLAMATION_MARK  shift, and go to state 67
+    IDENTIFIER        shift, and go to state 4
+    INTEGER_LITERAL   shift, and go to state 68
+
+    expression  go to state 141
+    identifier  go to state 70
+    factor      go to state 71
+
+
+State 139
+
+   30 statement: identifier LEFT_BRACKET expression RIGHT_BRACKET ASSIGN expression SEMI_COLON •
+
+    $default  reduce using rule 30 (statement)
+
+
+State 140
+
+    6 mainClass: PUBLIC CLASS identifier LEFT_CURLY PUBLIC STATIC VOID MAIN LP STRING LEFT_BRACKET RIGHT_BRACKET identifier RP LEFT_CURLY statement reqStatement RIGHT_CURLY • RIGHT_CURLY
+
+    RIGHT_CURLY  shift, and go to state 142
+
+
+State 141
+
+   33 expression: expression • PLUSOP expression
+   34           | expression • MINUSOP expression
+   35           | expression • MULTOP expression
+   36           | expression • AND expression
+   37           | expression • OR expression
+   38           | expression • LESS_THAN expression
+   39           | expression • MORE_THAN expression
+   40           | expression • EQUAL expression
+   41           | expression • LEFT_BRACKET expression RIGHT_BRACKET
+   42           | expression • DOT LENGTH
+   51           | expression • DOT identifier LP arguments RP
+   55 argument_list: argument_list COMMA expression •
+
+    PLUSOP        shift, and go to state 85
+    MINUSOP       shift, and go to state 86
+    MULTOP        shift, and go to state 87
+    AND           shift, and go to state 88
+    OR            shift, and go to state 89
+    LESS_THAN     shift, and go to state 90
+    MORE_THAN     shift, and go to state 91
+    EQUAL         shift, and go to state 92
+    LEFT_BRACKET  shift, and go to state 93
+    DOT           shift, and go to state 94
+
+    $default  reduce using rule 55 (argument_list)
+
+
+State 142
+
+    6 mainClass: PUBLIC CLASS identifier LEFT_CURLY PUBLIC STATIC VOID MAIN LP STRING LEFT_BRACKET RIGHT_BRACKET identifier RP LEFT_CURLY statement reqStatement RIGHT_CURLY RIGHT_CURLY •
+
+    $default  reduce using rule 6 (mainClass)
