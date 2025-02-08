@@ -51,6 +51,7 @@ perhaps mention it ? like at the root.
 
 /* Sätt den med högst pritority längst ner */
 
+%right ASSIGN
 %left OR /* bitwise OR */
 %left AND /* logical AND */
 %left EQUAL /* equality */
@@ -62,8 +63,8 @@ perhaps mention it ? like at the root.
 
 /* Specify types for non-terminals in the grammar */
 /* The type specifies the data type of the values associated with these non-terminals */
-%type <Node *> root expression factor identifier type statement reqStatement mainClass varDeclaration
-%type <Node *> methodDeclaration reqVarDeclaration classDeclaration parameters parameter_list goal reqClassDeclaration
+%type <Node *> root expression factor identifier type statement reqStatement mainClass varDeclaration reqVarOrStmt reqMethodDeclaration argument_list
+%type <Node *> methodDeclaration reqVarDeclaration classDeclaration parameters parameter_list goal reqClassDeclaration arguments reqExpression
 /* Grammar rules section */
 /* This section defines the production rules for the language being parsed */
 %%
@@ -71,13 +72,20 @@ root:        /* remove these later (debug only), have only goal left */
 			goal {root = $1; }
 			;
 		
-goal: mainClass reqClassDeclaration END { $$ = new Node("goal", "", yylineno); }
+goal: mainClass reqClassDeclaration END { 
+		$$ = new Node("goal", "", yylineno); 
+		$$->children.push_back($1);
+		$$->children.push_back($2);
+	}
 	;
 
 
-
-reqClassDeclaration: %empty
-					| reqClassDeclaration classDeclaration { }
+reqClassDeclaration: %empty { $$ = new Node("empty reqClassDeclaration", "", yylineno);  }
+					| reqClassDeclaration classDeclaration { 
+						$$ = new Node("reqClassDeclaration", "", yylineno); 
+						$$->children.push_back($1);
+						$$->children.push_back($2);
+					}
 					;
 
 type: INT LEFT_BRACKET RIGHT_BRACKET { $$ = new Node("INT LB RB", "", yylineno); }
@@ -103,6 +111,10 @@ mainClass: PUBLIC CLASS identifier LEFT_CURLY PUBLIC STATIC VOID MAIN LP STRING 
 		   LEFT_BRACKET RIGHT_BRACKET identifier RP LEFT_CURLY statement reqStatement RIGHT_CURLY RIGHT_CURLY 
 		   {
 				$$ = new Node("MAIN CLASS", "", yylineno);
+				$$->children.push_back($3);
+				$$->children.push_back($13);
+				$$->children.push_back($16);
+				$$->children.push_back($17);
 		   }
 		   ;
 				/* 
@@ -117,12 +129,21 @@ mainClass: PUBLIC CLASS identifier LEFT_CURLY PUBLIC STATIC VOID MAIN LP STRING 
 				*/
 				
 classDeclaration: CLASS identifier LEFT_CURLY reqVarDeclaration 
-				methodDeclaration reqMethodDeclaration RIGHT_CURLY {
+				reqMethodDeclaration RIGHT_CURLY {
 					$$ = new Node("classDeclaration", "", yylineno);
+					$$->children.push_back($2);
+					$$->children.push_back($4);
+					$$->children.push_back($5);
 				}
-				| classDeclaration mainClass { $$ = new Node("classDeclaration", "", yylineno); } /* allow main class */
+				| classDeclaration mainClass { 
+					$$ = new Node("classDeclaration", "", yylineno); 
+					$$->children.push_back($1);
+					$$->children.push_back($2);
+
+				} /* allow main class */
 
 				/* parser.yy: warning: 4 reduce/reduce conflicts [-Wconflicts-rr] */
+				
 				
 				;
 
@@ -135,8 +156,12 @@ varDeclaration: type identifier SEMI_COLON {
 			}
 			;
 			
-reqVarDeclaration: %empty
-				| reqVarDeclaration varDeclaration { }
+reqVarDeclaration: %empty { $$ = new Node("reqVarDeclaration empty", "", yylineno); }
+				| reqVarDeclaration varDeclaration { 
+					$$ = new Node("reqVarDeclaration", "", yylineno); 
+					$$->children.push_back($1);
+					$$->children.push_back($2);
+				}
 				;
 
 methodDeclaration: PUBLIC type identifier LP parameters
@@ -144,23 +169,51 @@ methodDeclaration: PUBLIC type identifier LP parameters
 					RETURN expression SEMI_COLON RIGHT_CURLY
 					{
 						$$ = new Node("METHODDECLARATION VARDECLARATION", "", yylineno);
+
+						$$->children.push_back($2);
+						$$->children.push_back($3);
+						$$->children.push_back($5);
+						$$->children.push_back($8);
+						$$->children.push_back($10);
+
 					}
 					;
 
 /* the "?" is answered here, thank you */
-reqVarOrStmt: %empty
-            | reqVarOrStmt varDeclaration
-            | reqVarOrStmt statement
+reqVarOrStmt: %empty {	$$ = new Node("empty reqVarOrStmt", "", yylineno); }
+            | reqVarOrStmt varDeclaration { 
+				$$ = new Node("reqVarOrStmt varDeclaration", "", yylineno); 
+
+				$$->children.push_back($1);
+				$$->children.push_back($2);
+			}
+            | reqVarOrStmt statement { 
+				$$ = new Node("reqVarOrStmt statement", "", yylineno); 
+
+				$$->children.push_back($1);
+				$$->children.push_back($2);
+			}
             ;
 
 
 
-parameters: %empty
-          | parameter_list
+parameters: %empty { $$ = new Node("empty parameters", "", yylineno);  }
+          | parameter_list { $$ = new Node("empty parameters", "", yylineno); $$->children.push_back($1);}
           ;
 
-parameter_list: type identifier
-              | parameter_list COMMA type identifier
+parameter_list: type identifier { 
+				$$ = new Node("type identifier", "", yylineno); 
+				$$->children.push_back($1);
+				$$->children.push_back($2);
+			}
+              | parameter_list COMMA type identifier { 
+				$$ = new Node("parameter_list COMMA type identifier", "", yylineno); 
+
+				$$->children.push_back($1);
+				$$->children.push_back($3);
+				$$->children.push_back($4);
+
+			  }
               ;
 
 
@@ -172,12 +225,20 @@ parameter_list: type identifier
 
 
 
-reqMethodDeclaration: %empty 
-					| reqMethodDeclaration methodDeclaration { }
+reqMethodDeclaration: %empty {	$$ = new Node("reqMethodDeclaration", "", yylineno);  }
+					| reqMethodDeclaration methodDeclaration { 
+
+						$$ = new Node("reqMethodDeclaration methodDeclaration", "", yylineno);
+
+						$$->children.push_back($1);
+						$$->children.push_back($2);
+
+					}
 					;
 
 statement: LEFT_CURLY reqStatement RIGHT_CURLY { /* recursive "*" */
 				$$ = new Node("LC statement RC", "", yylineno);
+				$$->children.push_back($2);
 			}
 
 			| IF LP expression RP statement {/* if without else */
@@ -214,8 +275,13 @@ statement: LEFT_CURLY reqStatement RIGHT_CURLY { /* recursive "*" */
 			;
 
 
-reqStatement: %empty 
+reqStatement: %empty { 	$$ = new Node("empty reqStatement statement", "", yylineno);}
 			| reqStatement statement {
+				
+				$$ = new Node("reqStatement statement", "", yylineno);
+				$$->children.push_back($1);
+				$$->children.push_back($2);
+
 				/* $$ = new Node("statement", "", yylineno);
 				$$->children.push_back($1);
 				$$->children.push_back($2); */
@@ -328,7 +394,7 @@ expression: expression PLUSOP expression {      /*
 
 			/* Regular Expressions */
       		| factor      { $$ = $1; /* printf("r4 ");*/ } /* for integers */
-			| identifier { /* empty because we have it in root */ } /* for chars */
+			| identifier { /* empty because we have it in root */ $$ = $1;  } /* for chars */
 
 			/* fix this later */
 			/* | Expression " . " Identifier " ( " ( Expression ( " ," Expression ) * ) ? " ) " */
@@ -337,20 +403,29 @@ expression: expression PLUSOP expression {      /*
 				$$ = new Node("exp DOT ident LP exp COMMA exp RP", "", yylineno);
 				$$->children.push_back($1); /* `new A()` */
         		$$->children.push_back($3); /* `a2` */
+				$$->children.push_back($5);
 				
 			}
 			/* hello.a(2,b,a,f,d,s,1,2,4,a,s) */
       		;
 
-arguments: %empty
-         | argument_list
+arguments: %empty { $$ = new Node("empty arguments", "", yylineno); }
+         | argument_list { $$ = new Node("argument_list", "", yylineno); $$->children.push_back($1); }
          ;
 
-argument_list: expression
-             | argument_list COMMA expression
+argument_list: expression { $$ = new Node("exp", "", yylineno);  $$->children.push_back($1);}
+             | argument_list COMMA expression {
+				$$ = new Node("argument_list COMMA expression", "", yylineno);
+				$$->children.push_back($1);
+				$$->children.push_back($3);
+			 }
              ;
 
-reqExpression: %empty | reqExpression COMMA expression {  }; /* arguments in a function */
+reqExpression: %empty { $$ = new Node("empty reqExpression", "", yylineno); }
+			| reqExpression COMMA expression { $$ = new Node("reqExpression COMMA expression", "", yylineno); /* arguments in a function */
+				$$->children.push_back($1);
+				$$->children.push_back($3);
+			}; 
 
 
 identifier: IDENTIFIER { $$ = new Node("identifier", $1, yylineno); }
@@ -364,6 +439,5 @@ factor:     INTEGER_LITERAL           {  $$ = new Node("Int", $1, yylineno); /* 
 			 
             | LP expression RP { $$ = $2; /* printf("r6 ");  simply return the expression */}
     ;
-
 
 

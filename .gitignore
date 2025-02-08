@@ -19,3 +19,4 @@ fb3-2.tab.c
 fb3-2.lex.c
 
 compiler
+.vscode/
