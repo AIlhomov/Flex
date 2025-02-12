@@ -1,90 +1,33 @@
-#   include <stdio.h>
-#   include <stdlib.h>
-#   include <stdarg.h>
-#   include <string.h>
-#   include <math.h>
-#   include "Node.h"
+#include <list>
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <string>
 
-struct symbol symtab[NHASH];
+using namespace std;
 
-struct symbol *lookup(char *s) {
-    struct symbol *sp;
-    for (sp = &symtab[hash(s)]; sp >= symtab; sp--) {
-        if (sp->name && !strcmp(sp->name, s)) {
-            return sp;
-        }
-        if (sp->name == 0) {
-            sp->name = strdup(s);
-            sp->value = 0;
-            return sp;
-        }
-    }
-    yyerror("symbol table overflow\n");
-    abort();
-}
+struct symbol {
+    string name;
+    string type;
+    int size; /* int = 2 bytes ? char = 1 byte ?*/
+    int dimension = 0; /* 0 for primitive/scalar, 1 for 1D arrays and so on.. */
+    int line_no; /* line of declaration */
 
-void yyerror(char *s, ...) {
-    va_list ap;
-    va_start(ap, s);
-    fprintf(stderr, "%d: error: ", yylineno);
-    vfprintf(stderr, s, ap);
-    fprintf(stderr, "\n");
-}
+    /* list<int> line_of_usage; store a linked list of line numbers where the symbol is used (line_of_usage) */
+    
+    string adress;
+};
 
-int hash(char *s) {
-    int hashval;
-    for (hashval = 0; *s; s++) {
-        hashval = *s + 31 * hashval;
-    }
-    return hashval % NHASH;
-}
+/* functions to be used: 
 
-void init() {
-    struct symbol *sp;
-    for (sp = symtab + NHASH - 1; sp >= symtab; sp--) {
-        sp->name = 0;
-    }
-}
+    always:
+    insert()
+    lookup()
 
-void dump() {
-    struct symbol *sp;
-    for (sp = symtab + NHASH - 1; sp >= symtab; sp--) {
-        if (sp->name) {
-            printf("name: %s, value: %f\n", sp->name, sp->value);
-        }
-    }
-}
-
-void setval(struct symbol *sp, double d) {
-    sp->value = d;
-}
-
-double getval(struct symbol *sp) {
-    return sp->value;
-}
-
-void yyerror(char *s, ...);
-
-int yylex();
-
-int yyparse();
-
-void init();
-
-void dump();
-
-struct symbol *lookup(char *s);
-
-void setval(struct symbol *sp, double d);
-
-double getval(struct symbol *sp);
-
-int hash(char *s);
-
-int main() {
-    init();
-    yyparse();
-    dump();
-    return 0;
-}
+    for scopes: 
+    set()
+    reset()
+*/
 
