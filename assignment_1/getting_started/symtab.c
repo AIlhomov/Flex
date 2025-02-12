@@ -8,16 +8,22 @@
 
 using namespace std;
 
-struct symbol {
+enum SymbolKind { CLASS, METHOD, VARIABLE }; 
+
+struct Symbol {
     string name;
-    string type;
-    int size; /* int = 2 bytes ? char = 1 byte ?*/
+    SymbolKind kind;
+    string type; /* Return type for methods, data type for variables */
+
     int dimension = 0; /* 0 for primitive/scalar, 1 for 1D arrays and so on.. */
     int line_no; /* line of declaration */
+    vector<string> param_types; /* for methods (parameters) */
 
-    /* list<int> line_of_usage; store a linked list of line numbers where the symbol is used (line_of_usage) */
+    Symbol* parent_scope; /* scope hierarchy */
+
+    /* list<int> line_of_usage; store a linked list of line numbers where the symbol is used (line_of_usage) scopes? */
     
-    string adress;
+    /* string adress; */
 };
 
 /* functions to be used: 
