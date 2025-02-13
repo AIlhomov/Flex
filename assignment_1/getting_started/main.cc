@@ -1,6 +1,7 @@
 #include <iostream>
 #include "parser.tab.hh"
-
+# include "symtab.h"
+# include "ast_visitor.hh"
 extern Node *root;
 extern FILE *yyin;
 extern int yylineno;
@@ -61,6 +62,22 @@ int main(int argc, char **argv)
 			printf("\nPrint Tree:  \n");
 			try
 			{
+				//new:
+				// Build the Symbol Table
+				SymbolTable symtab;
+				ASTVisitor visitor(symtab);
+				visitor.visit(root);
+
+				if (symtab.get_error_count() > 0)
+				{
+					errCode = errCodes::SEMANTIC_ERROR;
+					std::cerr << "\nSemantic errors found!" 
+							  << symtab.get_error_count() 
+							  << " errors DETECTED!!! " << std::endl;
+				} else {
+					std::cerr << "\nSymbol table constructed successfully!\n" << std::endl;
+				}
+				//old:
 				root->print_tree();
 				root->generate_tree();
 			}
