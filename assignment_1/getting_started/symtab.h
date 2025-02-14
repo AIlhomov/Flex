@@ -19,6 +19,9 @@ struct Symbol {
     SymbolKind kind;
     string type; /* Return type for methods, data type for variables */
     int line_no; /* line of declaration */
+
+
+
     //Symbol* parent_scope; /* scope hierarchy */
     vector<string> param_types; /* for methods (parameters) */
     int dimension = 0; /* 0 for primitive/scalar, 1 for 1D arrays and so on.. */
@@ -78,7 +81,7 @@ public:
     bool add_symbol(const Symbol& sym){
         if (!current_scope->add_symbol(sym)){
             cerr << "\nASSSSSSAAAA   YESSSSS Semantic error @ line " << sym.line_no << ": Duplicate symbol " << sym.name 
-            << " in scope " << current_scope->get_name() << endl;
+            << " in scope " << current_scope->get_name() << endl << "EXTRA: type: " << sym.type << "kind: "<< sym.kind <<  endl;
             error_count++;
             return false;
         }

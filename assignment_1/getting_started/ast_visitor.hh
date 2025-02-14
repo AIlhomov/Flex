@@ -45,12 +45,26 @@ private:
     // }
 
     void handle_variable(Node* var_node) {
+
+        if (var_node->children.size() < 2) { /* we know for a FACT that the pdf file (tree) generated a variable 
+            declaration with 2 children under */
+            std::cerr << "Malformed variable declaration at line " << var_node->lineno << std::endl;
+            return;
+        }
+
+        Node* type_node = var_node->children.front(); // nah.
+        Node* id_node = *std::next(var_node->children.begin()); // WORKS.
+
         Symbol var_sym{
-            var_node->value,  // Variable name
-            VARIABLE,
-            var_node->children.front()->value,  // Type
-            var_node->lineno
+            id_node->value,  // Variable name (should be to the right child) 
+            VARIABLE,       // kind
+            type_node->value,  // Type (should be to the left child) (do this !)
+            var_node->lineno // line_no
         };
+
+        // if (type_node->children.size() > 0) {
+        //     var_sym.dimension = count_array_dimensions(type_node);
+        // }
 
         symtab.add_symbol(var_sym);
     }

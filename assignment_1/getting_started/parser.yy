@@ -151,8 +151,8 @@ classDeclaration: CLASS identifier LEFT_CURLY reqVarDeclaration
 
 varDeclaration: type identifier SEMI_COLON {
 				$$ = new Node("var declaration", "", yylineno);
-				$$->children.push_back($1);
-				$$->children.push_back($2);
+				$$->children.push_back($1); // type (INT)
+				$$->children.push_back($2); // identifier (a)
 			}
 			;
 			
