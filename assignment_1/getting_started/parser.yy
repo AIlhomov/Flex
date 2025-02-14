@@ -69,7 +69,7 @@ perhaps mention it ? like at the root.
 /* This section defines the production rules for the language being parsed */
 %%
 root:        /* remove these later (debug only), have only goal left */
-			varDeclaration {root = $1; }
+			goal {root = $1; }
 			;
 		
 goal: mainClass reqClassDeclaration END { 

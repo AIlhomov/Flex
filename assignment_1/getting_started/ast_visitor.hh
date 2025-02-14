@@ -51,7 +51,7 @@ private:
             var_node->children.front()->value,  // Type
             var_node->lineno
         };
-        
+
         symtab.add_symbol(var_sym);
     }
     

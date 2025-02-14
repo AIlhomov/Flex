@@ -62,6 +62,9 @@ int main(int argc, char **argv)
 			printf("\nPrint Tree:  \n");
 			try
 			{
+				//old:
+				root->print_tree();
+				root->generate_tree();
 				//new:
 				// Build the Symbol Table
 				SymbolTable symtab;
@@ -71,15 +74,13 @@ int main(int argc, char **argv)
 				if (symtab.get_error_count() > 0)
 				{
 					errCode = errCodes::SEMANTIC_ERROR;
-					std::cerr << "\nSemantic errors found!" 
+					std::cerr << "\n\nSemantic errors found!\n" 
 							  << symtab.get_error_count() 
 							  << " errors DETECTED!!! " << std::endl;
 				} else {
-					std::cerr << "\nSymbol table constructed successfully!\n" << std::endl;
+					std::cerr << "\n\nSymbol table constructed successfully!\n" << std::endl;
 				}
-				//old:
-				root->print_tree();
-				root->generate_tree();
+				
 			}
 			catch (...)
 			{
