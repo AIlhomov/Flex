@@ -1,6 +1,12 @@
 # include "Node.h"
 # include "symtab.h"
 
+
+ /*
+ My own lexicon of errors:  
+ Node* id_node = *std::next(var_node->children.begin(), 2000); gives segmentation fault if the child/node does not exist.
+ 
+ */
 class ASTVisitor {
 private:
     SymbolTable &symtab;
@@ -8,7 +14,7 @@ private:
 public:
     ASTVisitor(SymbolTable &st) : symtab(st) {}
 
-    void visit(Node* node){
+    void visit(Node* node){ /* VISIT ALL THE NODES IN THE AST (pdf file or smthn)*/
         if (!node) return;
 
         if (node->type == "var declaration") handle_variable(node);
@@ -58,10 +64,9 @@ private:
         Symbol var_sym{
             id_node->value,  // Variable name (should be to the right child) 
             VARIABLE,       // kind
-            type_node->value,  // Type (should be to the left child) (do this !)
+            type_node->type,  // Type (should be to the left child) (do this !)
             var_node->lineno // line_no
         };
-
         // if (type_node->children.size() > 0) {
         //     var_sym.dimension = count_array_dimensions(type_node);
         // }

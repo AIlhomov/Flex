@@ -34,8 +34,8 @@ struct Symbol {
 class Scope {
 public: /* Public makes "parent" accessible */
     string name; /* "Global", "Classname", "MethodName" */
-    unordered_map<string, Symbol> symbols;
-    Scope* parent;
+    unordered_map<string, Symbol> symbols; /* all symbols in current scope */
+    Scope* parent; 
 
 public:
     Scope() : name("Global"), parent(nullptr) {}
@@ -81,7 +81,9 @@ public:
     bool add_symbol(const Symbol& sym){
         if (!current_scope->add_symbol(sym)){
             cerr << "\nASSSSSSAAAA   YESSSSS Semantic error @ line " << sym.line_no << ": Duplicate symbol " << sym.name 
-            << " in scope " << current_scope->get_name() << endl << "EXTRA: type: " << sym.type << "kind: "<< sym.kind <<  endl;
+            << " in scope " << current_scope->get_name() << endl 
+            << "EXTRA: type: " << sym.type << " kind: "<< sym.kind 
+            << " (2 for var)" << endl;
             error_count++;
             return false;
         }

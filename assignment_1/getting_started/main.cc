@@ -1,7 +1,7 @@
 #include <iostream>
 #include "parser.tab.hh"
 # include "symtab.h"
-# include "ast_visitor.hh"
+# include "ast_visitor.h"
 extern Node *root;
 extern FILE *yyin;
 extern int yylineno;
