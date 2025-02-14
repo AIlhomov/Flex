@@ -12,7 +12,7 @@
 
 using namespace std;
 
-enum SymbolKind { CLASS, METHOD, VARIABLE }; 
+enum SymbolKind { CLASS, METHOD, VARIABLE, PARAMETER }; 
 
 struct Symbol {
     string name;
