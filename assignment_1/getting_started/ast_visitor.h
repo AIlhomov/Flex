@@ -10,7 +10,7 @@
 class ASTVisitor {
 private:
     SymbolTable &symtab;
-
+    
 public:
     ASTVisitor(SymbolTable &st) : symtab(st) {}
 
@@ -21,6 +21,7 @@ public:
 
         // unsure:
         if (node->type == "METHODDECLARATION VARDECLARATION") handle_method(node);
+        if (node->type == "classDeclaration") handle_class(node);
 
         for (auto child : node->children) visit(child);
     }
@@ -38,6 +39,8 @@ private:
         Node* type_node = var_node->children.front(); // yo. WORKS.
         Node* id_node = *std::next(var_node->children.begin()); // WORKS.
 
+        
+
         Symbol var_sym{
             id_node->value,  // Variable name (should be to the right child) 
             VARIABLE,       // kind
@@ -51,57 +54,104 @@ private:
         symtab.add_symbol(var_sym);
     }
 
-    void handle_parameter(Node* param_node, Symbol& method_sym){
-        if (param_node->children.size() < 2) return; // malformed parameter
-
-        // 2 children: type and id
-        Node* type_node = param_node->children.front(); // left
-        Node* id_node = *std::next(param_node->children.begin()); // right
-
-        method_sym.param_types.push_back(type_node->type);
-
+    void handle_parameter(Node* param_node, Symbol& method_sym) {
+        if (param_node->children.size() < 2) return;
+    
+        Node* type_node = param_node->children.front();
+        Node* id_node = *std::next(param_node->children.begin());
+    
+        
+    
         Symbol param_sym{
             id_node->value,
             PARAMETER,
             type_node->type,
-            param_node->lineno
+            id_node->lineno  // Parameter's actual line number
         };
-
         symtab.add_symbol(param_sym);
     }
-    
-    void handle_method(Node* method_node){
-        // if method_node has children: [ReturnType, Parameters, Body]
-
-        Symbol method_sym{
-            method_node->value, // Method name
-            METHOD,
-            method_node->children.front()->type, // Return type
-            method_node->lineno
-        };
-
-        if (method_node->children.size() > 1) {
-            auto it = std::next(method_node->children.begin(), 1);
-            Node* params_node = (it != method_node->children.end()) ? *it : nullptr;
-            for (auto param : params_node->children){
-                method_sym.param_types.push_back(param->children.front()->type);
-                //handle_parameter(param, method_sym);
-            }
-        }
-
-
-        if (!symtab.add_symbol(method_sym)){
-            std::cerr << "Duplicate method declaration at line " << method_node->lineno << std::endl;
+    void handle_method(Node* method_node) {
+        if (method_node->children.size() < 3) {
+            std::cerr << "Malformed method declaration at line " << method_node->lineno << std::endl;
             return;
         }
-        symtab.enter_scope(method_node->value);
-
-        // wild guess:
-        for (auto param_node : method_node->children){
-            handle_parameter(param_node, method_sym);
+    
+        // Extract method components from AST structure
+        Node* return_type_node = method_node->children.front();
+        Node* method_name_node = *std::next(method_node->children.begin());
+        Node* params_node = *std::next(method_node->children.begin(), 2);
+        
+        
+        // Create method symbol with proper line number
+        Symbol method_sym{
+            method_name_node->value,  // Method name from identifier node
+            METHOD,
+            return_type_node->type,   // Return type from type node
+            method_name_node->lineno  // Use identifier's line number
+        };
+    
+        // Process parameters
+        if (params_node->type == "parameters") {
+            for (auto param : params_node->children) {
+                if (param->type == "parameter_list") {
+                    for (auto param_child : param->children) {
+                        handle_parameter(param_child, method_sym);
+                    }
+                }
+            }
         }
+    
+        // Add method to symbol table
+        if (!symtab.add_symbol(method_sym)) {
+            std::cerr << "Duplicate method '" << method_sym.name 
+                      << "' declaration at line " << method_name_node->lineno << std::endl;
+            return;
+        }
+    
+        // Enter method scope
+        symtab.enter_scope(method_sym.name);
+    
+        // Process parameters in method scope
+        if (params_node->type == "parameters") {
+            for (auto param : params_node->children) {
+                if (param->type == "parameter_list") {
+                    for (auto param_child : param->children) {
+                        handle_parameter(param_child, method_sym);
+                    }
+                }
+            }
+        }
+    
+        // Process method body
+        // ...
+    
+        symtab.exit_scope();
+    }
 
-        symtab.add_symbol(method_sym);
+    void handle_class(Node* class_node){
+        if (class_node->children.empty()) return;
+    
+        Node* class_name_node = class_node->children.front();
+        Symbol class_sym{
+            class_name_node->value,
+            CLASS,
+            "class",
+            class_name_node->lineno  // Use identifier's line number
+        };
+        
+
+        //remove ?
+        if (!symtab.add_symbol(class_sym)) {
+            std::cerr << "Semantic error @ line " << class_name_node->lineno 
+                    << ": Duplicate class '" << class_sym.name << "'\n";
+            return;
+        }
+        
+        symtab.enter_scope(class_sym.name);
+
+        // Process class body
+        // ...
+
     }
 };
 

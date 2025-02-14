@@ -60,9 +60,10 @@ public:
 
 class SymbolTable {
 private:
-    Scope* current_scope;
     Scope* global_scope;
+public:
     int error_count = 0;
+    Scope* current_scope;
 public:
     SymbolTable() {
         global_scope = new Scope("Global");
@@ -80,10 +81,10 @@ public:
 
     bool add_symbol(const Symbol& sym){
         if (!current_scope->add_symbol(sym)){
-            cerr << "\nASSSSSSAAAA   YESSSSS Semantic error @ line " << sym.line_no << ": Duplicate symbol " << sym.name 
+            cerr << "\nSemantic error @ line " << sym.line_no << ": Duplicate symbol " << sym.name 
             << " in scope " << current_scope->get_name() << endl 
             << "EXTRA: type: " << sym.type << " kind: "<< sym.kind 
-            << " (2 for var)" << endl;
+            << " " << endl;
             error_count++;
             return false;
         }
