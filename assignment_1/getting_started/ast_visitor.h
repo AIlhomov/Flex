@@ -48,9 +48,9 @@ private:
         };
 
         if (!symtab.add_symbol(class_sym)) {
-            std::cerr << "Semantic error @ line " << class_name_node->lineno
-                    << ": Duplicate class '" << class_sym.name << "'\n";
-            return;
+            // std::cerr << "Semantic error @ line " << class_name_node->lineno
+            //         << ": Duplicate class '" << class_sym.name << "'\n";
+            // return;
         }
 
         // Enter class scope
@@ -97,8 +97,8 @@ private:
         Node* type_node = param_node->children.front();
         Node* id_node = *std::next(param_node->children.begin());
     
-        
-    
+        /* spot if there is 3 children if so solve it recursevely */
+
         Symbol param_sym{
             id_node->value,
             PARAMETER,
@@ -124,10 +124,10 @@ private:
         };
         
         if (!symtab.add_symbol(method_sym)) {
-            std::cerr << "Semantic error @ line " << method_name_node->lineno
-                      << ": Duplicate method '" << method_sym.name
-                      << "' in class '" << symtab.current_scope->get_name() << "'\n";
-            return;
+            // std::cerr << "Semantic error @ line " << method_name_node->lineno
+            //           << ": Duplicate method '" << method_sym.name
+            //           << "' in class '" << symtab.current_scope->get_name() << "'\n";
+            // return;
         }
     
         // Enter METHOD scope
@@ -135,8 +135,10 @@ private:
     
         // Process parameters
         if (params_node->type == "parameters" || params_node->type == "empty parameters") {
+            
             for (auto param_child : params_node->children) {
-                if (param_child->type == "parameter_list") {
+
+                if (param_child->type == "parameter_list COMMA type identifier") {
                     handle_parameter_list(param_child, method_sym);
                 }
                 else if (param_child->type == "type identifier") {
@@ -165,15 +167,27 @@ private:
             class_name_node->lineno
         };
 
+
         // Add class to global scope
         if (!symtab.add_symbol(class_sym)) {
-            std::cerr << "Semantic error @ line " << class_name_node->lineno
-                    << ": Duplicate class '" << class_sym.name << "'\n";
-            return; // Skip processing body for duplicates
+            // std::cerr << "Semantic error @ line " << class_name_node->lineno
+            //         << ": Duplicate class '" << class_sym.name << "'\n";
         }
 
         symtab.enter_scope(class_sym.name);
         
+        // // Process parameters
+        // if (params_node->type == "parameters" || params_node->type == "empty parameters") {
+        //     for (auto param_child : params_node->children) {
+        //         if (param_child->type == "parameter_list") {
+        //             handle_parameter_list(param_child, method_sym);
+        //         }
+        //         else if (param_child->type == "type identifier") {
+        //             handle_parameter(param_child, method_sym);
+        //         }
+        //     }
+        // }
+
         // Explicitly process class body nodes
         for (auto it = std::next(class_node->children.begin()); 
             it != class_node->children.end(); ++it) {
@@ -184,8 +198,13 @@ private:
     }
 
     void handle_parameter_list(Node* param_list, Symbol& method_sym) {
-        if (!param_list || param_list->type != "parameter_list") return;
-    
+
+
+
+
+        if (!param_list) return;
+
+
         // Base case: type identifier
         if (param_list->children.size() == 2) {
             Node* type_node = param_list->children.front();
@@ -197,9 +216,15 @@ private:
             handle_parameter_list(param_list->children.front(), method_sym);
             Node* type_node = *std::next(param_list->children.begin(), 1);
             Node* id_node = *std::next(param_list->children.begin(), 2);
+            
             add_parameter(id_node, type_node, method_sym);
         }
     }
+    /*
+     public int Pen(int param, int param) {// @error - semantic (Already Declared parameter: 'param')
+        return 1;
+    }
+    */
 
     void add_parameter(Node* id_node, Node* type_node, Symbol& method_sym) {
         Symbol param_sym{
@@ -209,11 +234,10 @@ private:
             id_node->lineno
         };
         if (!symtab.add_symbol(param_sym)) {
-            std::cerr << "Semantic error @ line " << id_node->lineno
-                      << ": Duplicate parameter '" << id_node->value
-                      << "' in method '" << method_sym.name << "'\n";
+            // std::cerr << "Semantic error @ line " << id_node->lineno
+            //           << ": Duplicate parameter '" << id_node->value
+            //           << "' in method '" << method_sym.name << "'\n";
         }
     }
 
 };
-

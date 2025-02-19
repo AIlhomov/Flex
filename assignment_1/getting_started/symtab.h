@@ -81,10 +81,16 @@ public:
 
     bool add_symbol(const Symbol& sym){
         if (!current_scope->add_symbol(sym)){
-            cerr << "\nSemantic error @ line " << sym.line_no << ": Duplicate symbol " << sym.name 
+
+            // cerr << "@error at line " << sym.line_no << ": semantic (Already Declared " << sym.kind
+            // << ": \'" << sym.name << "\')\n";
+
+            //DEBUG:
+            cerr << "\n@error at line " << sym.line_no << ": Duplicate symbol " << sym.name 
             << " in scope " << current_scope->get_name() << endl 
             << "EXTRA: type: " << sym.type << " kind: "<< sym.kind 
             << " " << endl;
+            
             error_count++;
             return false;
         }
