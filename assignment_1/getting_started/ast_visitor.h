@@ -33,6 +33,8 @@ public:
             handle_main_class(node);
             handled = true;
         }
+        else if (node->type == "SOMETHING [ASSIGNED] = TO SOMETHING") { handle_array_access(node); }
+        else if (node->type == "DOT LENGTH") handle_array_length(node);
 
         if (!handled) for (auto child : node->children) visit(child);
     }
@@ -152,7 +154,21 @@ private:
             Node* body_node = *std::next(method_node->children.begin(), 3);
             visit(body_node);
         }
-    
+
+        // // Check return type
+        // if (method_node->children.size() > 3) {
+        //     Node* return_node = find_return_statement(method_node);
+        //     if (return_node) {
+        //         string actual_type = get_exp_type(return_node);
+        //         if (actual_type != method_sym.type) {
+        //             std::cerr << "Semantic error @ line " << return_node->lineno
+        //                     << ": Return type mismatch. Expected '" 
+        //                     << method_sym.type << "', got '" 
+        //                     << actual_type << "'\n";
+        //             symtab.error_count++;
+        //         }
+        //     }
+        // }
         symtab.exit_scope();
     }
 
@@ -240,4 +256,99 @@ private:
         }
     }
 
+    /* InvalidArrayInteger.java (handle arrays access) */
+    void handle_array_access(Node* array_access){
+        if (array_access->children.size() < 2) return;
+
+        Node* array_node = array_access->children.front();
+        Node* index_node = *std::next(array_access->children.begin());
+        Node* third_assigned_to_or_length = *std::next(array_access->children.begin(), 2);
+        //cout << index_node->type << endl;
+        string array_type = get_exp_type(index_node);
+
+        // if (array_type.rfind("[]") != array_type.size() - 2) { /* similiar to ends_with("[]")*/
+        //     std::cerr << "Semantic error @ line " << index_node->lineno
+        //           << ": Invalid array access on non-array type '" << array_type << "'\n";
+        //     symtab.error_count++;
+        // }
+
+        string index_type = get_exp_type(index_node);
+        cout << index_type << endl;
+        if (index_type != "int") {
+            std::cerr << "Semantic error @ line " << index_node->lineno
+                  << ": Invalid array index type '" << index_type 
+                  << "', expected 'int'\n";
+            symtab.error_count++;
+        }
+
+        // if (third_assigned_to_or_length->type == "") CONTINUE HERE
+         
+
+
+    }
+    void handle_array_length(Node* length_node) {
+        Node* array_node = length_node->children.front();
+        string array_type = get_exp_type(array_node);
+        
+        if (array_type.size() < 2 || array_type.substr(array_type.size() - 2) != "[]") {
+            std::cerr << "Semantic error @ line " << array_node->lineno
+                      << ": .length used on non-array type '" 
+                      << array_type << "'\n";
+            symtab.error_count++;
+        }
+    }
+
+    string get_exp_type(Node* exp_node) {
+        /* handle literals */
+        
+        if (exp_node->type == "FALSE" || exp_node->type == "TRUE") return "boolean";
+        if (exp_node->type == "Int") return "int";
+        
+
+
+        /* handle identifiers */
+        if (exp_node->type == "identifier") {
+            Symbol* sym = symtab.lookup(exp_node->value);
+            if (sym) return sym->type;
+            return "unknown"; // Identifier not found
+        }   
+        // Handle method calls
+        if (exp_node->type == "MethodCall") {
+            Node* method_name_node = exp_node->children.front();
+            Symbol* sym = symtab.lookup(method_name_node->value);
+            return sym ? sym->type : "unknown";
+        }
+
+        // Handle .length
+        if (exp_node->type == "expression DOT LENGTH") {
+            Node* array_node = exp_node->children.front();
+            string array_type = get_exp_type(array_node);
+            if (array_type.rfind("[]") != array_type.size() - 2) {
+                std::cerr << "Semantic error @ line " << exp_node->lineno
+                        << ": .length used on non-array type '" 
+                        << array_type << "'\n";
+                symtab.error_count++;
+            }
+            return "int";
+        }
+
+        // UNSURE:
+        /* handle array accesses recursively */
+        // Recursive handling for complex expressions
+        for (auto child : exp_node->children) {
+            string child_type = get_exp_type(child);
+            if (child_type != "unknown") return child_type;
+        }
+        /* TODO: more cases */
+
+        return "unknown";
+    }
+    Node* find_return_statement(Node* method_node) {
+        for (auto child : method_node->children) {
+            if (child->type == "RETURN") return child;
+            Node* found = find_return_statement(child);
+            if (found) return found;
+        }
+        return nullptr;
+    }
 };
