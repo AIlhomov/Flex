@@ -34,8 +34,9 @@ public:
             handled = true;
         }
         else if (node->type == "SOMETHING [ASSIGNED] = TO SOMETHING") { handle_array_access(node); }
+        else if (node->type == "expression LEFT_BRACKET expression RIGHT_BRACKET") { handle_array_access(node); }
 
-        else if (node->type == "expression LEFT_BRACKET expression RIGHT_BRACKET") { handle_expr_lb_expr_rb(node); }
+        //else if (node->type == "expression LEFT_BRACKET expression RIGHT_BRACKET") { handle_expr_lb_expr_rb(node); }
 
         if (!handled) for (auto child : node->children) visit(child);
     }
@@ -276,13 +277,31 @@ private:
 
     /* InvalidArrayInteger.java (handle arrays access) */
     void handle_array_access(Node* array_access){
+
+        if (array_access->children.size() == 3){ // SOMETHING [ASSIGNED] = TO SOMETHING with expression DOT LENGTH:
+            Node* array_node = array_access->children.front();
+            Node* index_node = *std::next(array_access->children.begin());
+            Node* third_assigned_to_or_length = *std::next(array_access->children.begin(), 2);
+
+            // num_aux[3] = num.length; // @error - semantic (member .length is used incorrectly)
+            if (third_assigned_to_or_length->type == "expression DOT LENGTH") {
+                string array_type = get_exp_type(array_node);
+                if (array_type.rfind("[]") == string::npos) {
+                    std::cerr << "Semantic error @ line " << array_node->lineno
+                          << ": Member '.length' used on non-array type '" 
+                          << array_type << "', expected an array type\n";
+                    symtab.error_count++;
+                }
+            }
+        }   
+
         if (array_access->children.size() < 2) return;
 
         Node* array_node = array_access->children.front();
         Node* index_node = *std::next(array_access->children.begin());
-        Node* third_assigned_to_or_length = *std::next(array_access->children.begin(), 2);
+        //Node* third_assigned_to_or_length = *std::next(array_access->children.begin(), 2);
         //cout << index_node->type << endl;
-        string array_type = get_exp_type(index_node);
+        string array_type = get_exp_type(array_node);
 
         // if (array_type.rfind("[]") != array_type.size() - 2) { /* similiar to ends_with("[]")*/
         //     std::cerr << "Semantic error @ line " << index_node->lineno
@@ -290,15 +309,15 @@ private:
         //     symtab.error_count++;
         // }
 
-        string index_type = get_exp_type(index_node);
-        cout << index_type << endl;
+        string index_type = get_exp_type(index_node); // exp DOT ident LP exp COMMA exp RP
+        //cout << index_type << endl;
         if (index_type != "int") {
             std::cerr << "Semantic error @ line " << index_node->lineno
                   << ": Invalid array index type '" << index_type 
                   << "', expected 'int'\n";
             symtab.error_count++;
         }
-
+        
         // if (third_assigned_to_or_length->type == "") CONTINUE HERE
          
 
@@ -313,7 +332,7 @@ private:
         if (exp_node->type == "FALSE" || exp_node->type == "TRUE") return "boolean";
         if (exp_node->type == "Int") return "int";
         
-
+        //cout << "yo " << exp_node->type << endl;
 
         /* handle identifiers */
         if (exp_node->type == "identifier") {
@@ -340,7 +359,20 @@ private:
             }
         }
         // Handle .length
+        
         if (exp_node->type == "expression DOT LENGTH") {
+            // Retrieve the expression on which .length is applied.
+            Node* lhs = exp_node->children.front();
+            string lhs_type = get_exp_type(lhs);
+            cout << "DBNWAOIDWNAODNWADINWADOIAW" << endl;
+            // Check if the type is an array type (i.e. ends with "[]")
+            if (lhs_type.size() < 2 || lhs_type.substr(lhs_type.size()-2) != "[]") {
+                 std::cerr << "Semantic error @ line " << exp_node->lineno
+                           << ": Member '.length' used on non-array type '" 
+                           << lhs_type << "', expected an array type\n";
+                 symtab.error_count++;
+                 return "unknown";
+            }
             return "int";
         }
 
