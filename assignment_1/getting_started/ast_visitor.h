@@ -34,7 +34,8 @@ public:
             handled = true;
         }
         else if (node->type == "SOMETHING [ASSIGNED] = TO SOMETHING") { handle_array_access(node); }
-        else if (node->type == "DOT LENGTH") handle_array_length(node);
+
+        else if (node->type == "expression LEFT_BRACKET expression RIGHT_BRACKET") { handle_expr_lb_expr_rb(node); }
 
         if (!handled) for (auto child : node->children) visit(child);
     }
@@ -125,11 +126,28 @@ private:
             method_name_node->lineno
         };
         
-        if (!symtab.add_symbol(method_sym)) {
-            // std::cerr << "Semantic error @ line " << method_name_node->lineno
-            //           << ": Duplicate method '" << method_sym.name
-            //           << "' in class '" << symtab.current_scope->get_name() << "'\n";
-            // return;
+        // Instead of calling symtab.add_symbol directly, check for a duplicate.
+        // If a symbol with the same name already exists (e.g. a field), store
+        // the method symbol under a mangled key.
+        // Check if a symbol with the same name already exists in the current class scope.
+        auto it = symtab.current_scope->symbols.find(method_name_node->value);
+        if (it != symtab.current_scope->symbols.end()) {
+            // If the existing symbol is a method, then this is a duplicate function declaration.
+            if (it->second.kind == METHOD) {
+                std::cerr << "\n@error at line " << method_name_node->lineno
+                        << ": Duplicate function '" << method_name_node->value 
+                        << "' in class " << symtab.current_scope->get_name() << "\n";
+                symtab.error_count++;
+                return; // Do not add the duplicate function.
+            }
+            else {
+                // If the existing symbol is a field (or something else), mangle the method key.
+                symtab.current_scope->symbols[method_name_node->value + "$m"] = method_sym;
+            }
+        }
+        else {
+            // No conflict; add the method normally.
+            symtab.current_scope->symbols[method_name_node->value] = method_sym;
         }
     
         // Enter METHOD scope
@@ -286,19 +304,10 @@ private:
 
 
     }
-    void handle_array_length(Node* length_node) {
-        Node* array_node = length_node->children.front();
-        string array_type = get_exp_type(array_node);
-        
-        if (array_type.size() < 2 || array_type.substr(array_type.size() - 2) != "[]") {
-            std::cerr << "Semantic error @ line " << array_node->lineno
-                      << ": .length used on non-array type '" 
-                      << array_type << "'\n";
-            symtab.error_count++;
-        }
-    }
+    
 
     string get_exp_type(Node* exp_node) {
+        if (!exp_node) return "unknown";
         /* handle literals */
         
         if (exp_node->type == "FALSE" || exp_node->type == "TRUE") return "boolean";
@@ -312,23 +321,26 @@ private:
             if (sym) return sym->type;
             return "unknown"; // Identifier not found
         }   
-        // Handle method calls
-        if (exp_node->type == "MethodCall") {
-            Node* method_name_node = exp_node->children.front();
+        // Handle method calls (both direct and through 'this')
+        if (exp_node->type == "exp DOT ident LP exp COMMA exp RP") {
+            Node* method_name_node = *std::next(exp_node->children.begin());
             Symbol* sym = symtab.lookup(method_name_node->value);
-            return sym ? sym->type : "unknown";
+            if (!sym) {
+                // Try the mangled key if the plain lookup failed.
+                sym = symtab.lookup(method_name_node->value + "$m");
+            }
+            if (sym) return sym->type;
         }
-
+        // Handle array access
+        if (exp_node->type == "expression LEFT_BRACKET expression RIGHT_BRACKET") {
+            Node* array_node = exp_node->children.front();
+            string base_type = get_exp_type(array_node);
+            if (base_type.rfind("[]") != string::npos) {
+                return base_type.substr(0, base_type.length() - 2); // Remove [] from type
+            }
+        }
         // Handle .length
         if (exp_node->type == "expression DOT LENGTH") {
-            Node* array_node = exp_node->children.front();
-            string array_type = get_exp_type(array_node);
-            if (array_type.rfind("[]") != array_type.size() - 2) {
-                std::cerr << "Semantic error @ line " << exp_node->lineno
-                        << ": .length used on non-array type '" 
-                        << array_type << "'\n";
-                symtab.error_count++;
-            }
             return "int";
         }
 
@@ -350,5 +362,60 @@ private:
             if (found) return found;
         }
         return nullptr;
+    }
+
+    void handle_expr_lb_expr_rb(Node* node){
+
+        Node* array_node = node->children.front(); // identifier:num_aux
+        Node* index_node = *std::next(node->children.begin()); // exp DOT ident LP exp COMMA exp RP: (ROOT)
+
+        Node* index_node2 = *std::next(index_node->children.begin()); // identifier:a2
+
+        //symtab.lookup(array_node->value);
+        //Symbol* symlookup = symtab.lookup(index_node2->value);
+
+        Symbol* array_sym = symtab.lookup(array_node->value);
+        if (array_sym) {
+            if (array_sym->type.find("[]") == string::npos) {
+                std::cerr << "Semantic error @ line " << array_node->lineno
+                      << ": Attempting to use array access on non-array variable '" 
+                      << array_node->value << "'\n";
+                symtab.error_count++;
+                return;
+            }
+        }
+
+        string index_type = get_exp_type(index_node);
+        
+        if (index_node->type == "exp DOT ident LP exp COMMA exp RP") {
+            Node* method_name_node = *std::next(index_node->children.begin()); // Get method name node
+            Symbol* method_sym = symtab.lookup(method_name_node->value);
+            
+            if (method_sym) {
+                // Check if method return type is not int
+                if (method_sym->type != "int") {
+                    std::cerr << "Semantic error @ line " << index_node->lineno
+                          << ": Invalid array index type '" << method_sym->type 
+                          << "', expected 'int'\n";
+                    symtab.error_count++;
+                }
+            }
+        } 
+        else if (index_type != "int") {
+            std::cerr << "Semantic error @ line " << index_node->lineno
+                  << ": Invalid array index type '" << index_type 
+                  << "', expected 'int'\n";
+            symtab.error_count++;
+        }
+
+        // if (symlookup == nullptr) {
+        //     std::cerr << "Semantic error @ line " << index_node2->lineno
+        //           << ": Invalid array index type '" << index_node2->value 
+        //           << "', expected 'int'\n";
+        //     symtab.error_count++;
+        // }
+
+
+        //cout << symlookup->name << endl; segmentation fault if symlookup is null
     }
 };

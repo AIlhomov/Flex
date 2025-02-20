@@ -47,12 +47,15 @@ public:
         return true;
     }
 
+    
+
     Symbol *lookup(const string& name){
         auto it = symbols.find(name);
         if (it != symbols.end()) return &it->second;
         if (parent) return parent->lookup(name);
         return nullptr;
     }
+
 
     const string& get_name() const { return name; }
 
@@ -97,6 +100,7 @@ public:
         return true;
     }
 
+ 
     Symbol* lookup(const string& name){
         return current_scope->lookup(name);
     }
