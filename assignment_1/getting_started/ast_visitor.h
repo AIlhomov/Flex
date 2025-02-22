@@ -317,10 +317,15 @@ private:
                   << "', expected 'int'\n";
             symtab.error_count++;
         }
-        
+        //cout << array_node->value << endl;
         // if (third_assigned_to_or_length->type == "") CONTINUE HERE
-         
-
+        Symbol* symlookup = symtab.lookup(array_node->value);
+        cout << symlookup->type << endl;
+        if (symlookup->type == "INT") {
+            std::cerr << "Semantic error @ line " << array_node->lineno
+                  << ": Invalid array access on non-array type '" << array_type << "'\n";
+            symtab.error_count++;
+        }
 
     }
     
@@ -387,15 +392,14 @@ private:
 
         return "unknown";
     }
-    Node* find_return_statement(Node* method_node) {
-        for (auto child : method_node->children) {
-            if (child->type == "RETURN") return child;
-            Node* found = find_return_statement(child);
-            if (found) return found;
-        }
-        return nullptr;
+    
+    // helper function
+    string get_type_name(Node* type_node) {
+        if (type_node->type == "INT LB RB") return "int[]";
+        if (type_node->type == "INT") return "int";
+        if (type_node->type == "BOOLEAN") return "boolean";
+        return type_node->type;  // for class types
     }
-
     void handle_expr_lb_expr_rb(Node* node){
 
         Node* array_node = node->children.front(); // identifier:num_aux
