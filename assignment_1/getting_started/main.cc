@@ -70,6 +70,9 @@ int main(int argc, char **argv)
 				SymbolTable symtab;
 				ASTVisitor visitor(symtab);
 				visitor.visit(root);
+				
+				// Print the Symbol Table
+				visitor.printCorrect();
 
 				if (symtab.get_error_count() > 0)
 				{

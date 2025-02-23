@@ -64,7 +64,8 @@ perhaps mention it ? like at the root.
 /* Specify types for non-terminals in the grammar */
 /* The type specifies the data type of the values associated with these non-terminals */
 %type <Node *> root expression factor identifier type statement reqStatement mainClass varDeclaration reqVarOrStmt reqMethodDeclaration argument_list
-%type <Node *> methodDeclaration reqVarDeclaration classDeclaration parameters parameter_list goal reqClassDeclaration arguments reqExpression
+%type <Node *> methodDeclaration reqVarDeclaration classDeclaration parameters parameter_list goal reqClassDeclaration arguments 
+%type <Node *> retSTMT
 /* Grammar rules section */
 /* This section defines the production rules for the language being parsed */
 %%
@@ -164,9 +165,19 @@ reqVarDeclaration: %empty { $$ = new Node("reqVarDeclaration empty", "", yylinen
 				}
 				;
 
+
+retSTMT: RETURN  { $$ = new Node("RETURN SEMI_COLON", "", yylineno); }
+		| 
+			RETURN expression SEMI_COLON { 
+			$$ = new Node("RETURN", "", yylineno);
+			$$->children.push_back($2);
+		}
+		| %empty { $$ = new Node("empty retSTMT", "", yylineno); }
+		;
+
 methodDeclaration: PUBLIC type identifier LP parameters
 					RP LEFT_CURLY reqVarOrStmt 
-					RETURN expression SEMI_COLON RIGHT_CURLY
+					retSTMT RIGHT_CURLY
 					{
 						$$ = new Node("METHODDECLARATION VARDECLARATION", "", yylineno);
 
@@ -174,7 +185,7 @@ methodDeclaration: PUBLIC type identifier LP parameters
 						$$->children.push_back($3);
 						$$->children.push_back($5);
 						$$->children.push_back($8);
-						$$->children.push_back($10);
+						$$->children.push_back($9);
 
 					}
 					;
@@ -421,11 +432,6 @@ argument_list: expression { $$ = new Node("exp", "", yylineno);  $$->children.pu
 			 }
              ;
 
-reqExpression: %empty { $$ = new Node("empty reqExpression", "", yylineno); }
-			| reqExpression COMMA expression { $$ = new Node("reqExpression COMMA expression", "", yylineno); /* arguments in a function */
-				$$->children.push_back($1);
-				$$->children.push_back($3);
-			}; 
 
 
 identifier: IDENTIFIER { $$ = new Node("identifier", $1, yylineno); }
@@ -439,5 +445,3 @@ factor:     INTEGER_LITERAL           {  $$ = new Node("Int", $1, yylineno); /* 
 			 
             | LP expression RP { $$ = $2; /* printf("r6 ");  simply return the expression */}
     ;
-
-
