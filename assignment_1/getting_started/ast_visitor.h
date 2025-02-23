@@ -35,7 +35,8 @@ public:
             handled = true;
         }
         else if (node->type == "SOMETHING [ASSIGNED] = TO SOMETHING") { handle_array_access(node); } // num_aux[false] = 2;
-        else if (node->type == "expression LEFT_BRACKET expression RIGHT_BRACKET") { handle_array_access(node); }
+        
+        else if (node->type == "expression LEFT_BRACKET expression RIGHT_BRACKET") { handle_array_this_access(node); }
 
         //else if (node->type == "expression LEFT_BRACKET expression RIGHT_BRACKET") { handle_expr_lb_expr_rb(node); }
 
@@ -119,21 +120,27 @@ private:
         Node* return_type_node = method_node->children.front();
         Node* method_name_node = *std::next(method_node->children.begin());
         Node* params_node = *std::next(method_node->children.begin(), 2);
-        //
-        //
         Node * method_body = *std::next(method_node->children.begin(), 3);
         //Node * returnedNode = *std::next(method_node->children.begin(), 4);
 
+        // cout << "NAMEMEMME???? " << method_name_node->value << endl;
+        // cout << "return type node type ??? " << return_type_node->type << endl;
+        // cout << "line no ???? " << method_name_node->lineno << endl;
 
-    
+        // cout << "WHAT IS THIS NAME " << method_name_node->type << endl;
         // Add method to CLASS scope
         Symbol method_sym{
-            method_name_node->value,
+            method_name_node->value, // a2
             METHOD,
             return_type_node->type,
             method_name_node->lineno
         };
-        
+        //symtab.add_symbol(method_sym);
+        // Add class to global scope
+        // if (!symtab.add_symbol(method_sym)) {
+        //     // std::cerr << "semantic @error  line " << class_name_node->lineno
+        //     //         << ": Duplicate class '" << class_sym.name << "'\n";
+        // }
         // Instead of calling symtab.add_symbol directly, check for a duplicate.
         // If a symbol with the same name already exists (e.g. a field), store
         // the method symbol under a mangled key.
@@ -142,9 +149,7 @@ private:
         if (it != symtab.current_scope->symbols.end()) {
             // If the existing symbol is a method, then this is a duplicate function declaration.
             if (it->second.kind == METHOD) {
-                // std::cerr << "\n@error at line " << method_name_node->lineno
-                //         << ": Duplicate function '" << method_name_node->value 
-                //         << "' in class " << symtab.current_scope->get_name() << "\n";
+                
                 res.push_back(std::make_tuple(method_name_node->lineno, "Duplicate function '" + method_name_node->value + "' in class " + symtab.current_scope->get_name()));
                 symtab.error_count++;
                 return; // Do not add the duplicate function.
@@ -182,46 +187,22 @@ private:
             visit(body_node);
         }
 
-        // // Check return type
-        // if (method_node->children.size() > 3) {
-        //     Node* return_node = find_return_statement(method_node);
-        //     if (return_node) {
-        //         string actual_type = get_exp_type(return_node);
-        //         if (actual_type != method_sym.type) {
-        //             std::cerr << "semantic @error  line " << return_node->lineno
-        //                     << ": Return type mismatch. Expected '" 
-        //                     << method_sym.type << "', got '" 
-        //                     << actual_type << "'\n";
-        //             symtab.error_count++;
-        //         }
-        //     }
-        // }
-        
         
         if(find_return_statement(method_node) != nullptr){
             Node* returnedNode = find_return_statement(method_node)->children.front();
-            //Node* return_node = find_return_statement(method_node);
-            
-            //std::cout << "return_type_node->type: " << return_type_node->type << std::endl;
-            //std::cout << "returnedNode->value: " << returnedNode->value << std::endl;
             
             if(symtab.lookup(returnedNode->value) != nullptr){
-                //std::cout << "symtab.lookup(returnedNode->value)->type: " << symtab.lookup(returnedNode->value)->type << std::endl;
                 std::string returned_type = symtab.lookup(returnedNode->value)->type;
 
                 if (return_type_node->type != returned_type) {
-                    // std::cerr << "\n@error Line " << return_type_node->lineno
-                    //     << ": semantic (type mismatch)"  << std::endl;
-                        //<< return_type_node->type << "', got '" 
-                        //<< returned_type << "'\n";
+                   
                     res.push_back(std::make_tuple(return_type_node->lineno, "semantic (type mismatch)"));
                         symtab.error_count++;
                     }
-                    
             }
         }
-                
         symtab.exit_scope();
+        
     }
 
     void handle_class(Node* class_node) {
@@ -309,6 +290,24 @@ private:
     }
 
     /* InvalidArrayInteger.java (handle arrays access) */
+    void handle_array_this_access(Node* array_this_access){
+
+        
+        Node* array_node = array_this_access->children.front(); // identifier:num_aux
+        Node* index_node = *std::next(array_this_access->children.begin()); // exp DOT ident LP exp COMMA exp RP:
+
+        if (index_node->type == "exp DOT ident LP exp COMMA exp RP"){
+            Node* type_index_node = *std::next(index_node->children.begin()); // identifier:a2
+
+            string type_index = get_exp_type(type_index_node);
+            // run writeAllSymbols
+            cout << symtab.writeAllSymbols() << endl;
+            cout << "EHHEHEHEHEHEH " << type_index << endl;
+        }
+
+
+    }
+    
     void handle_array_access(Node* array_access){
 
         if (array_access->children.size() == 3){ // SOMETHING [ASSIGNED] = TO SOMETHING with expression DOT LENGTH:
@@ -359,46 +358,6 @@ private:
             
         }   
 
-        if (array_access->children.size() < 2) return;
-
-        Node* array_node = array_access->children.front();
-        Node* index_node = *std::next(array_access->children.begin());
-        //Node* third_assigned_to_or_length = *std::next(array_access->children.begin(), 2);
-        //cout << index_node->type << endl;
-        string array_type = get_exp_type(array_node);
-
-        // if (array_type.rfind("[]") != array_type.size() - 2) { /* similiar to ends_with("[]")*/
-        //     std::cerr << "semantic @error  line " << index_node->lineno
-        //           << ": Invalid array access on non-array type '" << array_type << "'\n";
-        //     symtab.error_count++;
-        // }
-
-        string index_type = get_exp_type(index_node); // exp DOT ident LP exp COMMA exp RP
-        cout << index_type << endl;
-        
-        
-        // if (third_assigned_to_or_length->type == "") CONTINUE HERE
-         
-
-        /* if: int a;    and a[0] = 2*/
-        Symbol* symlookup = symtab.lookup(array_node->value);
-        
-        /**
-         *    std::cout <<"symLoopUp" << std::endl;
-        std::cout<< symlookup->name << std::endl;
-        std::cout<< symlookup->type << std::endl;
-        std::cout<< symlookup->kind << std::endl;
-        std::cout<< symlookup->dimension << std::endl;
-        std::cout <<"symLoopUp END" << std::endl;
-     
-
-         * 
-         */
-     
-      
-        
-     
-
     }
     
 
@@ -413,6 +372,7 @@ private:
 
         /* handle identifiers */
         if (exp_node->type == "identifier") {
+            cout << "THIS SHOULD BE (a2)      " << exp_node->value << endl;
             Symbol* sym = symtab.lookup(exp_node->value);
             if (sym) return sym->type; // if its int or not
             return "unknown"; // Identifier not found
@@ -427,14 +387,14 @@ private:
             }
             if (sym) return sym->type;
         }
-        // Handle array access
-        if (exp_node->type == "expression LEFT_BRACKET expression RIGHT_BRACKET") {
-            Node* array_node = exp_node->children.front();
-            string base_type = get_exp_type(array_node);
-            if (base_type.rfind("[]") != string::npos) {
-                return base_type.substr(0, base_type.length() - 2); // Remove [] from type
-            }
-        }
+        // // Handle array access
+        // if (exp_node->type == "expression LEFT_BRACKET expression RIGHT_BRACKET") {
+        //     Node* array_node = exp_node->children.front();
+        //     string base_type = get_exp_type(array_node);
+        //     if (base_type.rfind("[]") != string::npos) {
+        //         return base_type.substr(0, base_type.length() - 2); // Remove [] from type
+        //     }
+        // }
         // Handle .length
         
         if (exp_node->type == "expression DOT LENGTH") {
