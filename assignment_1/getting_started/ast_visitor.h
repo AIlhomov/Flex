@@ -82,126 +82,62 @@ public:
             symtab.exit_scope();
 
         }
-        
-        /*
+
+
+        if (node->type == "parameters"){
+            for (auto child : node->children) visit_THE_WHOLE_AST_FOR_THE_SYMTAB(child);  
+        }
+        if (node->type == "parameter"){
+            Node* indentifier_parameter = *std::next(node->children.begin()); //identifier:param
+
+            Symbol param_sym {
+                indentifier_parameter->value,
+                PARAMETER,
+                indentifier_parameter->type,
+                node->lineno
+            };
+
+            symtab.add_symbol(param_sym); // ADD parameter or parameters to the symbol table.
+
+        }
+
+        if (node->type == "reqVarOrStmt varDeclaration"){
+            for (auto child : node->children) visit_THE_WHOLE_AST_FOR_THE_SYMTAB(child); //int param; // @error - semantic (Already Declared parameter: 'param')
+        }
+
         if (node->type == "MAIN CLASS"){
-            Node* class_name_node = node->children.front(); 
-            Node* main_method = *std::next(node->children.begin()); // MAIN METHOD
+            Node* main_class_name_node = node->children.front();
 
-            Symbol main_class_sym{
-                class_name_node->value,
-                CLASS,
-                "main class",
-                class_name_node->lineno
+            Symbol main_sym {
+                main_class_name_node->value,
+                MAIN,
+                main_class_name_node->type,
+                node->lineno
             };
-            symtab.add_symbol(main_class_sym);
-            symtab.enter_scope(main_class_sym.name);
 
-
-            Node* main_method_body = main_method; // THIS IS THE WHOLE BODY OF MAIN METHOD
-
-            for (auto i : main_method_body->children){
-
-                if (i->type == "identifier"){
-                    Symbol main_parameters_sym {
-                        i->value,
-                        PARAMETER,
-                        "main class method parameter",
-                        i->lineno
-                    };
-                    symtab.add_symbol(main_parameters_sym);
-                    //symtab.enter_scope(main_parameters_sym.name);
-                }
-            }
-
-            symtab.exit_scope();
-            //handled = true;
-        }
-
-        else if (node->type == "classDeclaration"){
-            //cout << "HOWDIDWEGETHERE" << endl;
-            Node* class_name_node = node->children.front();
-
-            Symbol class_sym{
-                class_name_node->value, // A
-                CLASS,
-                "class",
-                class_name_node->lineno
-            };
-            //enter the scope first and then add the symbol ?
-            symtab.add_symbol(class_sym);
-            symtab.enter_scope(class_sym.name);
-
-            // gives all children of "classDeclaration"
-            // for example identifier, reqVarDeclaration, reqMethodDeclaration methodDeclaration
-            //for (auto child : node->children) visit_THE_WHOLE_AST_FOR_THE_SYMTAB(child); 
-
+            symtab.add_symbol(main_sym);
+            symtab.enter_scope(main_sym.name);
+            for (auto child : node->children) visit_THE_WHOLE_AST_FOR_THE_SYMTAB(child);  
             symtab.exit_scope();
         }
 
-        else if (node->type == "METHODDECLARATION VARDECLARATION"){
-            // we found it now create a symbol and add it.
-            //andra child säger vilken identifier det är.
-            Node* name_method = *std::next(node->children.begin());
-
-            Symbol method_name {
-                name_method->value,
-                METHOD,
-                "method_name",
-                name_method->lineno
-            };
-            cout << "IMHERERERERER";
-            symtab.add_symbol(method_name);
-        }
-        else if (node->type == "reqMethodDeclaration methodDeclaration"){
-            // for (auto j : i->children){
-            //     Node* method_dec_found = rec_classDeclaration_all_childs(j);
-            // }
-            //Node* method_dec_found = rec_classDeclaration_all_childs(i->children);
-
-        }
-
-        // 2 diff cases: (goal)
-        // if main class,  == 1
-        // if class dec,   >= 1
-        // END
-        */
-        //if (!handled)
-
-        //for (auto child : node->children) visit_THE_WHOLE_AST_FOR_THE_SYMTAB(child);
+        
+        
     }
 
     void visit(Node* node){ /* VISIT ALL THE NODES IN THE AST (pdf file or smthn)*/
         if (!node) return;
 
-        bool handled = false;
-        // right:
-        //if (node->type == "var declaration"){ handle_variable(node); }
-
-        // if (node->type == "METHODDECLARATION VARDECLARATION") {
-        //     //handle_method(node);
-        //     //handled = true;
-        // }
-        // else if (node->type == "classDeclaration") {
-        //     //handle_class(node);
-        //     //handled = true;
-        // }
-        // else if (node->type == "MAIN CLASS") {
-        //     //handle_main_class(node);
-        //     //handled = true;
-        // }
-        // else 
-        if (node->type == "SOMETHING [ASSIGNED] = TO SOMETHING") { 
-            handle_array_access(node); 
-        } // num_aux[false] = 2;
         
-        else if (node->type == "expression LEFT_BRACKET expression RIGHT_BRACKET") { 
-            handle_array_this_access(node); 
-        }
+        // if (node->type == "SOMETHING [ASSIGNED] = TO SOMETHING") { 
+        //     handle_array_access(node); 
+        // } // num_aux[false] = 2;
+        
+        // else if (node->type == "expression LEFT_BRACKET expression RIGHT_BRACKET") { 
+        //     handle_array_this_access(node); 
+        // }
 
-        //else if (node->type == "expression LEFT_BRACKET expression RIGHT_BRACKET") { handle_expr_lb_expr_rb(node); }
-
-        //if (!handled) 
+        
         for (auto child : node->children) visit(child);
     }
 
