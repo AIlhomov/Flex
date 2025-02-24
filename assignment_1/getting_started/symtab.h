@@ -52,7 +52,7 @@ public:
             }
             if (entry.second.kind == VARIABLE && sym.kind == PARAMETER ||
                 entry.second.kind == PARAMETER && sym.kind == VARIABLE) {
-                return false; // Duplicate name+kind
+                return false; // Variable and parameter with same name
             }
         }
         

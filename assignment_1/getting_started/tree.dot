@@ -1,209 +1,165 @@
 digraph {
 n0 [label="goal:"];
 n1 [label="MAIN CLASS:"];
-n2 [label="identifier:SemanticDuplicateIdentifiersSeparateScope"];
+n2 [label="identifier:InvalidArrayInteger"];
 n1 -> n2
 n3 [label="MAIN METHOD:"];
 n4 [label="identifier:a"];
 n3 -> n4
 n5 [label="SIMPLE PRINT LOL:"];
-n6 [label="exp DOT ident LP exp COMMA exp RP:"];
-n7 [label="NEW identifier LP RP:"];
-n8 [label="identifier:A"];
-n7 -> n8
-n6 -> n7
+n6 [label="expression DOT LENGTH:"];
+n7 [label="exp DOT ident LP exp COMMA exp RP:"];
+n8 [label="NEW identifier LP RP:"];
 n9 [label="identifier:A"];
-n6 -> n9
-n10 [label="empty arguments:"];
-n6 -> n10
+n8 -> n9
+n7 -> n8
+n10 [label="identifier:a2"];
+n7 -> n10
+n11 [label="empty arguments:"];
+n7 -> n11
+n6 -> n7
 n5 -> n6
 n3 -> n5
-n11 [label="empty reqStatement statement:"];
-n3 -> n11
+n12 [label="empty reqStatement statement:"];
+n3 -> n12
 n1 -> n3
 n0 -> n1
-n12 [label="classDeclarations:"];
-n13 [label="classDeclaration:"];
-n14 [label="identifier:A"];
-n13 -> n14
-n15 [label="reqVarDeclaration:"];
+n13 [label="classDeclarations:"];
+n14 [label="classDeclaration:"];
+n15 [label="identifier:A"];
+n14 -> n15
 n16 [label="reqVarDeclaration empty:"];
-n15 -> n16
-n17 [label="var declaration:"];
-n18 [label="INT:"];
-n17 -> n18
-n19 [label="identifier:A"];
-n17 -> n19
-n15 -> n17
-n13 -> n15
-n20 [label="reqMethodDeclaration methodDeclaration:"];
-n21 [label="reqMethodDeclaration methodDeclaration:"];
-n22 [label="reqMethodDeclaration:"];
+n14 -> n16
+n17 [label="reqMethodDeclaration methodDeclaration:"];
+n18 [label="reqMethodDeclaration methodDeclaration:"];
+n19 [label="reqMethodDeclaration:"];
+n18 -> n19
+n20 [label="METHODDECLARATION VARDECLARATION:"];
+n21 [label="typechar:"];
+n22 [label="identifier:A"];
 n21 -> n22
-n23 [label="METHODDECLARATION VARDECLARATION:"];
-n24 [label="INT:"];
-n23 -> n24
-n25 [label="identifier:A"];
-n23 -> n25
-n26 [label="parameters:"];
-n23 -> n26
-n27 [label="reqVarOrStmt statement:"];
-n28 [label="reqVarOrStmt statement:"];
-n29 [label="reqVarOrStmt varDeclaration:"];
-n30 [label="empty reqVarOrStmt:"];
-n29 -> n30
-n31 [label="var declaration:"];
-n32 [label="INT:"];
-n31 -> n32
-n33 [label="identifier:A"];
-n31 -> n33
-n29 -> n31
-n28 -> n29
-n34 [label="SIMPLE PRINT LOL:"];
-n35 [label="exp DOT ident LP exp COMMA exp RP:"];
-n36 [label="THIS:"];
-n35 -> n36
-n37 [label="identifier:B"];
-n35 -> n37
-n38 [label="empty arguments:"];
-n35 -> n38
-n34 -> n35
-n28 -> n34
-n27 -> n28
-n39 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
-n40 [label="identifier:A"];
-n39 -> n40
-n41 [label="Int:1"];
-n39 -> n41
-n27 -> n39
-n23 -> n27
-n42 [label="RETURN:"];
-n43 [label="identifier:A"];
-n42 -> n43
-n23 -> n42
-n21 -> n23
 n20 -> n21
-n44 [label="METHODDECLARATION VARDECLARATION:"];
-n45 [label="INT:"];
+n23 [label="identifier:a1"];
+n20 -> n23
+n24 [label="parameters:"];
+n25 [label="parameter:"];
+n26 [label="INT:"];
+n25 -> n26
+n27 [label="identifier:num"];
+n25 -> n27
+n24 -> n25
+n20 -> n24
+n28 [label="reqVarOrStmt statement:"];
+n29 [label="reqVarOrStmt statement:"];
+n30 [label="reqVarOrStmt statement:"];
+n31 [label="reqVarOrStmt varDeclaration:"];
+n32 [label="empty reqVarOrStmt:"];
+n31 -> n32
+n33 [label="var declaration:"];
+n34 [label="INT LB RB:"];
+n33 -> n34
+n35 [label="identifier:num_aux"];
+n33 -> n35
+n31 -> n33
+n30 -> n31
+n36 [label="SOMETHING [ASSIGNED] = TO SOMETHING:"];
+n37 [label="identifier:num_aux"];
+n36 -> n37
+n38 [label="FALSE:"];
+n36 -> n38
+n39 [label="Int:2"];
+n36 -> n39
+n30 -> n36
+n29 -> n30
+n40 [label="IF LP expression RP statement ELSE statement:"];
+n41 [label="LESS_THAN:"];
+n42 [label="expression LEFT_BRACKET expression RIGHT_BRACKET:"];
+n43 [label="identifier:num_aux"];
+n42 -> n43
+n44 [label="exp DOT ident LP exp COMMA exp RP:"];
+n45 [label="THIS:"];
 n44 -> n45
-n46 [label="identifier:B"];
+n46 [label="identifier:a2"];
 n44 -> n46
-n47 [label="parameters:"];
+n47 [label="empty arguments:"];
 n44 -> n47
-n48 [label="reqVarOrStmt statement:"];
-n49 [label="reqVarOrStmt statement:"];
-n50 [label="reqVarOrStmt varDeclaration:"];
-n51 [label="empty reqVarOrStmt:"];
-n50 -> n51
-n52 [label="var declaration:"];
-n53 [label="INT:"];
-n52 -> n53
-n54 [label="identifier:B"];
-n52 -> n54
-n50 -> n52
+n42 -> n44
+n41 -> n42
+n48 [label="Int:1"];
+n41 -> n48
+n40 -> n41
+n49 [label="SOMETHING [ASSIGNED] = TO SOMETHING:"];
+n50 [label="identifier:num_aux"];
 n49 -> n50
-n55 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
-n56 [label="identifier:A"];
+n51 [label="Int:0"];
+n49 -> n51
+n52 [label="Int:1"];
+n49 -> n52
+n40 -> n49
+n53 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n54 [label="identifier:num_aux"];
+n53 -> n54
+n55 [label="exp DOT ident LP exp COMMA exp RP:"];
+n56 [label="THIS:"];
 n55 -> n56
-n57 [label="Int:5"];
+n57 [label="identifier:a2"];
 n55 -> n57
-n49 -> n55
-n48 -> n49
-n58 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
-n59 [label="identifier:B"];
-n58 -> n59
-n60 [label="exp DOT ident LP exp COMMA exp RP:"];
-n61 [label="NEW identifier LP RP:"];
-n62 [label="identifier:B"];
-n61 -> n62
-n60 -> n61
-n63 [label="identifier:B"];
-n60 -> n63
-n64 [label="empty arguments:"];
-n60 -> n64
-n58 -> n60
-n48 -> n58
-n44 -> n48
-n65 [label="RETURN:"];
-n66 [label="AddExpression:"];
-n67 [label="identifier:A"];
+n58 [label="empty arguments:"];
+n55 -> n58
+n53 -> n55
+n40 -> n53
+n29 -> n40
+n28 -> n29
+n59 [label="SOMETHING [ASSIGNED] = TO SOMETHING:"];
+n60 [label="identifier:num_aux"];
+n59 -> n60
+n61 [label="Int:3"];
+n59 -> n61
+n62 [label="expression DOT LENGTH:"];
+n63 [label="identifier:num"];
+n62 -> n63
+n59 -> n62
+n28 -> n59
+n20 -> n28
+n64 [label="RETURN:"];
+n65 [label="THIS:"];
+n64 -> n65
+n20 -> n64
+n18 -> n20
+n17 -> n18
+n66 [label="METHODDECLARATION VARDECLARATION:"];
+n67 [label="INT LB RB:"];
 n66 -> n67
-n68 [label="identifier:B"];
+n68 [label="identifier:a2"];
 n66 -> n68
-n65 -> n66
-n44 -> n65
-n20 -> n44
-n13 -> n20
-n12 -> n13
-n69 [label="classDeclaration:"];
-n70 [label="identifier:B"];
-n69 -> n70
-n71 [label="reqVarDeclaration:"];
-n72 [label="reqVarDeclaration empty:"];
+n69 [label="parameters:"];
+n66 -> n69
+n70 [label="reqVarOrStmt statement:"];
+n71 [label="reqVarOrStmt varDeclaration:"];
+n72 [label="empty reqVarOrStmt:"];
 n71 -> n72
 n73 [label="var declaration:"];
 n74 [label="INT:"];
 n73 -> n74
-n75 [label="identifier:A"];
+n75 [label="identifier:a"];
 n73 -> n75
 n71 -> n73
-n69 -> n71
-n76 [label="reqMethodDeclaration methodDeclaration:"];
-n77 [label="reqMethodDeclaration methodDeclaration:"];
-n78 [label="reqMethodDeclaration:"];
-n77 -> n78
-n79 [label="METHODDECLARATION VARDECLARATION:"];
-n80 [label="INT:"];
-n79 -> n80
-n81 [label="identifier:A"];
-n79 -> n81
-n82 [label="parameters:"];
-n83 [label="parameter:"];
-n84 [label="INT:"];
-n83 -> n84
-n85 [label="identifier:A"];
-n83 -> n85
-n82 -> n83
-n79 -> n82
-n86 [label="empty reqVarOrStmt:"];
-n79 -> n86
-n87 [label="RETURN:"];
-n88 [label="identifier:A"];
-n87 -> n88
-n79 -> n87
-n77 -> n79
+n70 -> n71
+n76 [label="SOMETHING [ASSIGNED] = TO SOMETHING:"];
+n77 [label="identifier:a"];
 n76 -> n77
-n89 [label="METHODDECLARATION VARDECLARATION:"];
-n90 [label="INT:"];
-n89 -> n90
-n91 [label="identifier:B"];
-n89 -> n91
-n92 [label="parameters:"];
-n89 -> n92
-n93 [label="reqVarOrStmt statement:"];
-n94 [label="reqVarOrStmt varDeclaration:"];
-n95 [label="empty reqVarOrStmt:"];
-n94 -> n95
-n96 [label="var declaration:"];
-n97 [label="INT:"];
-n96 -> n97
-n98 [label="identifier:B"];
-n96 -> n98
-n94 -> n96
-n93 -> n94
-n99 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
-n100 [label="identifier:B"];
-n99 -> n100
-n101 [label="Int:1"];
-n99 -> n101
-n93 -> n99
-n89 -> n93
-n102 [label="RETURN:"];
-n103 [label="identifier:B"];
-n102 -> n103
-n89 -> n102
-n76 -> n89
-n69 -> n76
-n12 -> n69
-n0 -> n12
+n78 [label="Int:0"];
+n76 -> n78
+n79 [label="Int:2"];
+n76 -> n79
+n70 -> n76
+n66 -> n70
+n80 [label="RETURN:"];
+n81 [label="identifier:a"];
+n80 -> n81
+n66 -> n80
+n17 -> n66
+n14 -> n17
+n13 -> n14
+n0 -> n13
 }

@@ -11,6 +11,21 @@
  and Use the node's own line number for OTHER CONSTRUCTS:(statements/expressions)
 
  for (auto child : node->children) visit_THE_WHOLE_AST_FOR_THE_SYMTAB(child); RUN THIS TO SEE ALL CHILDS
+ 
+ recipe:
+    add symbol
+    enter scope
+    do something
+    exit scope
+
+maybe in future problem with scoping in class.method like 
+
+class DuplicateIdentifiers {    
+    public boolean func() {
+        return true;
+    }
+}
+in this case its: "DuplicateIdentifiers.func"
  */
 class ASTVisitor {
 private:
@@ -70,7 +85,7 @@ public:
             //Node* method_type = node->children.front(); // INT RETURN TYPE (HERERERERE) open it up if it needs usage
             
             Node* indentifier_method = *std::next(node->children.begin()); // identifier:func
-
+            //cout << "TESTING " << indentifier_method->value << endl;
             string method_scope_name = curr_class_name + "." + indentifier_method->value; // Class.method
 
             Symbol method_sym {
@@ -87,7 +102,6 @@ public:
             symtab.exit_scope();
 
         }
-
 
         if (node->type == "parameters"){
             for (auto child : node->children) visit_THE_WHOLE_AST_FOR_THE_SYMTAB(child);  
@@ -133,17 +147,18 @@ public:
     void visit(Node* node){ /* VISIT ALL THE NODES IN THE AST (pdf file or smthn)*/
         if (!node) return;
 
+        // if (node->type == "goal" || node->type == "classDeclarations"){
+        //     for (auto child : node->children) visit(child);
+        // }
         
         // if (node->type == "SOMETHING [ASSIGNED] = TO SOMETHING") { 
+        //     cout << "YOOOOOOOOOOOOOOOOOOOOOOOO";
         //     handle_array_access(node); 
         // } // num_aux[false] = 2;
+        //cout << "WE ARE HERE: " << node->type << endl;
         
-        // else if (node->type == "expression LEFT_BRACKET expression RIGHT_BRACKET") { 
-        //     handle_array_this_access(node); 
-        // }
 
         
-        //for (auto child : node->children) visit(child);
     }
 
 private:
@@ -433,3 +448,22 @@ public:
         }
     }
 };
+
+/*
+        if (node->type == "reqVarOrStmt statement"){
+            for (auto child : node->children) visit_THE_WHOLE_AST_FOR_THE_SYMTAB(child);  
+        }
+        if (node->type == "SOMETHING [ASSIGNED] = TO SOMETHING"){
+            Node* identifier_arr = node->children.front(); // identifier:num_aux
+            Node* inside_arr_brackets = *std::next(node->children.begin()); // FALSE
+            Node* assigned_arr_to = *std::next(node->children.begin(), 2); // Int:2
+
+            Symbol array_sym {
+                identifier_arr->value,
+                VARIABLE,
+                "array var",
+                node->lineno
+            };
+            // SOLVE SEMANTIC MAYBE JUST IN A SEPERATE LIKE DOWN BELOW IN VISIT FOR NOW WE JUST SOLVE DUPLICATES
+            symtab.add_symbol(array_sym);
+        }*/
