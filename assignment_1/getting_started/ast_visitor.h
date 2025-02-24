@@ -7,6 +7,10 @@
  My own lexicon of errors:  
  Node* id_node = *std::next(var_node->children.begin(), 2000); gives segmentation fault if the child/node does not exist.
  
+ Use the identifier node's line number for DECLARATIONS (classes/methods/variables).
+ and Use the node's own line number for OTHER CONSTRUCTS:(statements/expressions)
+
+ for (auto child : node->children) visit_THE_WHOLE_AST_FOR_THE_SYMTAB(child); RUN THIS TO SEE ALL CHILDS
  */
 class ASTVisitor {
 private:
@@ -18,13 +22,13 @@ public:
     void visit_THE_WHOLE_AST_FOR_THE_SYMTAB(Node* node){
         if (!node) return;
 
-        // for (auto child : node->children) visit_THE_WHOLE_AST_FOR_THE_SYMTAB(child); RUN THIS TO SEE ALL CHILDS
         //bool handled = false;
         // if (node->type == "var declaration"){ //REMOVE THIS LATER JUST PUT HANDLE_VARIABLE IN BOTH MAIN CLASS AND CLASS DEC
         //     handle_variable(node);
         // }
         //cout << "AAAA " << node->type << " name: " << node->value<< endl;
         if (node->type == "goal" || node->type == "classDeclarations"){
+            
             for (auto child : node->children) visit_THE_WHOLE_AST_FOR_THE_SYMTAB(child);
         }
         if (node->type == "classDeclaration"){
@@ -34,14 +38,14 @@ public:
                 class_name_node->value,
                 CLASS,
                 "regular class",
-                node->lineno
+                class_name_node->lineno ///SDASDASDASDASD
             };
-
+            
             symtab.add_symbol(class_sym);
             symtab.enter_scope(class_sym.name);
             // identifier:DuplicateIdentifiers, reqVarDeclaration, reqMethodDeclaration methodDeclaration:
             for (auto child : node->children) visit_THE_WHOLE_AST_FOR_THE_SYMTAB(child);  
-
+            symtab.exit_scope();
         }
         
         if (node->type == "reqVarDeclaration"){
@@ -52,6 +56,33 @@ public:
             handle_variable(node);
         }
 
+        if (node->type == "reqMethodDeclaration methodDeclaration"){
+            // look for all childs until it sees something in style with "METHODDECLARATION VARDECLARATION:"
+            for (auto child : node->children) visit_THE_WHOLE_AST_FOR_THE_SYMTAB(child);
+            // THEN IT WILL GO TO AN IF STATEMENT (DOWN BELOW)
+        }
+
+        if (node->type == "METHODDECLARATION VARDECLARATION"){
+            //Node* method_type = node->children.front(); // INT RETURN TYPE (HERERERERE) open it up if it needs usage
+            
+            Node* indentifier_method = *std::next(node->children.begin()); // identifier:func
+
+            Symbol method_sym {
+                indentifier_method->value,
+                METHOD,
+                indentifier_method->type,
+                indentifier_method->lineno
+            };
+            //symtab.exit_scope();
+            symtab.add_symbol(method_sym);
+            symtab.enter_scope(method_sym.name);
+
+            
+            for (auto child : node->children) visit_THE_WHOLE_AST_FOR_THE_SYMTAB(child);  
+            symtab.exit_scope();
+
+        }
+        
         /*
         if (node->type == "MAIN CLASS"){
             Node* class_name_node = node->children.front(); 
