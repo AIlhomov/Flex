@@ -113,13 +113,13 @@ public:
             res += it->first + " ";
         }
 
-        for (auto it = current_scope->symbols.begin(); it != current_scope->symbols.end(); ++it){
-            res += it->first + " ";
-        }
+        // for (auto it = current_scope->symbols.begin(); it != current_scope->symbols.end(); ++it){
+        //     res += it->first + " ";
+        // }
 
-        for (auto it = current_scope->parent->symbols.begin(); it != current_scope->parent->symbols.end(); ++it){
-            res += it->first + " ";
-        }
+        // for (auto it = current_scope->parent->symbols.begin(); it != current_scope->parent->symbols.end(); ++it){
+        //     res += it->first + " ";
+        // }
 
        
         

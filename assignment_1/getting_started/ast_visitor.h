@@ -15,279 +15,201 @@ private:
 public:
     ASTVisitor(SymbolTable &st) : symtab(st) {}
 
+    void visit_THE_WHOLE_AST_FOR_THE_SYMTAB(Node* node){
+        if (!node) return;
+        //bool handled = false;
+        // if (node->type == "var declaration"){ //REMOVE THIS LATER JUST PUT HANDLE_VARIABLE IN BOTH MAIN CLASS AND CLASS DEC
+        //     handle_variable(node);
+        // }
+        if (node->type == "goal" || node->type == "reqClassDeclaration"){
+            for (auto child : node->children) visit_THE_WHOLE_AST_FOR_THE_SYMTAB(child);
+        }
+        if (node->type == "MAIN CLASS"){
+            Node* class_name_node = node->children.front(); 
+            Node* main_method = *std::next(node->children.begin()); // MAIN METHOD
+
+            Symbol main_class_sym{
+                class_name_node->value,
+                CLASS,
+                "main class",
+                class_name_node->lineno
+            };
+            symtab.add_symbol(main_class_sym);
+            symtab.enter_scope(main_class_sym.name);
+
+
+            Node* main_method_body = main_method; // THIS IS THE WHOLE BODY OF MAIN METHOD
+
+            for (auto i : main_method_body->children){
+
+                if (i->type == "identifier"){
+                    Symbol main_parameters_sym {
+                        i->value,
+                        PARAMETER,
+                        "main class method parameter",
+                        i->lineno
+                    };
+                    symtab.add_symbol(main_parameters_sym);
+                    //symtab.enter_scope(main_parameters_sym.name);
+                }
+            }
+
+            symtab.exit_scope();
+            //handled = true;
+        }
+
+        else if (node->type == "classDeclaration"){
+            Node* class_name_node = node->children.front();
+
+            Symbol class_sym{
+                class_name_node->value, // A
+                CLASS,
+                "class",
+                class_name_node->lineno
+            };
+            //enter the scope first and then add the symbol ?
+            symtab.add_symbol(class_sym);
+            symtab.enter_scope(class_sym.name);
+
+            // gives all children of "classDeclaration"
+            // for example identifier, reqVarDeclaration, reqMethodDeclaration methodDeclaration
+            for (auto child : node->children) visit_THE_WHOLE_AST_FOR_THE_SYMTAB(child); 
+
+            symtab.exit_scope();
+        }
+
+        else if (node->type == "METHODDECLARATION VARDECLARATION"){
+            // we found it now create a symbol and add it.
+            //andra child säger vilken identifier det är.
+            Node* name_method = *std::next(node->children.begin());
+
+            Symbol method_name {
+                name_method->value,
+                METHOD,
+                "method_name",
+                name_method->lineno
+            };
+            cout << "IMHERERERERER";
+            symtab.add_symbol(method_name);
+        }
+        else if (node->type == "reqMethodDeclaration methodDeclaration"){
+            // for (auto j : i->children){
+            //     Node* method_dec_found = rec_classDeclaration_all_childs(j);
+            // }
+            //Node* method_dec_found = rec_classDeclaration_all_childs(i->children);
+
+        }
+
+        // 2 diff cases: (goal)
+        // if main class,  == 1
+        // if class dec,   >= 1
+        // END
+
+        //if (!handled)
+        cout << "AAAA " << node->type << " name: " << node->value<< endl;
+        //for (auto child : node->children) visit_THE_WHOLE_AST_FOR_THE_SYMTAB(child);
+    }
+
     void visit(Node* node){ /* VISIT ALL THE NODES IN THE AST (pdf file or smthn)*/
         if (!node) return;
 
         bool handled = false;
         // right:
-        if (node->type == "var declaration"){ handle_variable(node); }
+        //if (node->type == "var declaration"){ handle_variable(node); }
 
-        else if (node->type == "METHODDECLARATION VARDECLARATION") {
-            handle_method(node);
-            handled = true;
-        }
-        else if (node->type == "classDeclaration") {
-            handle_class(node);
-            handled = true;
-        }
-        else if (node->type == "MAIN CLASS") {
-            handle_main_class(node);
-            handled = true;
-        }
-        else if (node->type == "SOMETHING [ASSIGNED] = TO SOMETHING") { handle_array_access(node); } // num_aux[false] = 2;
+        // if (node->type == "METHODDECLARATION VARDECLARATION") {
+        //     //handle_method(node);
+        //     //handled = true;
+        // }
+        // else if (node->type == "classDeclaration") {
+        //     //handle_class(node);
+        //     //handled = true;
+        // }
+        // else if (node->type == "MAIN CLASS") {
+        //     //handle_main_class(node);
+        //     //handled = true;
+        // }
+        // else 
+        if (node->type == "SOMETHING [ASSIGNED] = TO SOMETHING") { 
+            handle_array_access(node); 
+        } // num_aux[false] = 2;
         
-        else if (node->type == "expression LEFT_BRACKET expression RIGHT_BRACKET") { handle_array_this_access(node); }
+        else if (node->type == "expression LEFT_BRACKET expression RIGHT_BRACKET") { 
+            handle_array_this_access(node); 
+        }
 
         //else if (node->type == "expression LEFT_BRACKET expression RIGHT_BRACKET") { handle_expr_lb_expr_rb(node); }
 
-        if (!handled) for (auto child : node->children) visit(child);
+        //if (!handled) 
+        for (auto child : node->children) visit(child);
     }
 
 private:
-    void handle_main_class(Node* main_class) {
-        Node* class_name_node = main_class->children.front(); 
-        Symbol class_sym{
-            class_name_node->value,
-            CLASS,
-            "class",
-            class_name_node->lineno
-        };
-
-        if (!symtab.add_symbol(class_sym)) {
-            // std::cerr << "semantic @error  line " << class_name_node->lineno
-            //         << ": Duplicate class '" << class_sym.name << "'\n";
-            // return;
-        }
-
-        // Enter class scope
-        symtab.enter_scope(class_sym.name);
-
-        // Process main class body
-        for (auto it = std::next(main_class->children.begin()); 
-            it != main_class->children.end(); ++it) {
-            visit(*it);
-        }
-
-        symtab.exit_scope();
-    }
-    
-    void handle_variable(Node* var_node) {
-
-        if (var_node->children.size() < 2) { /* we know for a FACT that the pdf file (tree) generated a variable 
-            declaration with 2 children under */
-            std::cerr << "Malformed variable declaration at line " << var_node->lineno << std::endl;
-            return;
-        }
-
-        Node* type_node = var_node->children.front(); // yo. WORKS.
-        Node* id_node = *std::next(var_node->children.begin()); // WORKS.
-
+    //helper function:
+    //handle requsiverly
+    Node* rec_classDeclaration_all_childs(Node* child_of_method_dec){
+        //used to find METHODDECLARATION VARDECLARATION
+        // because it can be anywhere in the AST so we do it recursively until we find it. 
+        //Mark please. When found.
         
+        if (child_of_method_dec->type == "reqMethodDeclaration methodDeclaration"){
+            for (auto i : child_of_method_dec->children){
+                rec_classDeclaration_all_childs(i);
+            }
+            //rec_classDeclaration_all_childs(child_of_method_dec->children);
+        }
+        
+        else if (child_of_method_dec->type == "METHODDECLARATION VARDECLARATION"){
+            Node* children_of_METHOD_DECLARATION  = child_of_method_dec;
+
+            for (auto i : children_of_METHOD_DECLARATION->children){
+                if (i->type == "identifier"){
+                    //add it to the sym tab
+                    cout << "I ACTUALLY GOT HERE";
+                }
+            }
+        }
+
+    }
+
+    void handle_variable(Node* node){
+        Node* type_node = node->children.front(); // yo. WORKS.
+        Node* id_node = *std::next(node->children.begin()); // WORKS.
 
         Symbol var_sym{
             id_node->value,  // Variable name (should be to the right child) 
             VARIABLE,       // kind
             type_node->type,  // Type (should be to the left child) (do this !)
-            var_node->lineno // line_no
+            node->lineno // line_no
         };
-        // if (type_node->children.size() > 0) {
-        //     var_sym.dimension = count_array_dimensions(type_node);
-        // }
-
         symtab.add_symbol(var_sym);
     }
 
-    void handle_parameter(Node* param_node, Symbol& method_sym) {
-        if (param_node->children.size() < 2) return;
-    
-        Node* type_node = param_node->children.front();
-        Node* id_node = *std::next(param_node->children.begin());
-    
-        /* spot if there is 3 children if so solve it recursevely */
+    // void handle_parameter_list(Node* param_list, Symbol& method_sym) {
 
-        Symbol param_sym{
-            id_node->value,
-            PARAMETER,
-            type_node->type,
-            id_node->lineno  // Parameter's actual line number
-        };
-        symtab.add_symbol(param_sym);
-    }
-    
-    void handle_method(Node* method_node) {
-        if (method_node->children.size() < 3) return;
-    
-        Node* return_type_node = method_node->children.front();
-        Node* method_name_node = *std::next(method_node->children.begin());
-        Node* params_node = *std::next(method_node->children.begin(), 2);
-        Node * method_body = *std::next(method_node->children.begin(), 3);
-        //Node * returnedNode = *std::next(method_node->children.begin(), 4);
+    //     if (!param_list) return;
 
-        // cout << "NAMEMEMME???? " << method_name_node->value << endl;
-        // cout << "return type node type ??? " << return_type_node->type << endl;
-        // cout << "line no ???? " << method_name_node->lineno << endl;
-
-        // cout << "WHAT IS THIS NAME " << method_name_node->type << endl;
-        // Add method to CLASS scope
-        Symbol method_sym{
-            method_name_node->value, // a2
-            METHOD,
-            return_type_node->type,
-            method_name_node->lineno
-        };
-        //symtab.add_symbol(method_sym);
-        // Add class to global scope
-        // if (!symtab.add_symbol(method_sym)) {
-        //     // std::cerr << "semantic @error  line " << class_name_node->lineno
-        //     //         << ": Duplicate class '" << class_sym.name << "'\n";
-        // }
-        // Instead of calling symtab.add_symbol directly, check for a duplicate.
-        // If a symbol with the same name already exists (e.g. a field), store
-        // the method symbol under a mangled key.
-        // Check if a symbol with the same name already exists in the current class scope.
-        auto it = symtab.current_scope->symbols.find(method_name_node->value);
-        if (it != symtab.current_scope->symbols.end()) {
-            // If the existing symbol is a method, then this is a duplicate function declaration.
-            if (it->second.kind == METHOD) {
-                
-                res.push_back(std::make_tuple(method_name_node->lineno, "Duplicate function '" + method_name_node->value + "' in class " + symtab.current_scope->get_name()));
-                symtab.error_count++;
-                return; // Do not add the duplicate function.
-            }
-            else {
-                // If the existing symbol is a field (or something else), mangle the method key.
-                symtab.current_scope->symbols[method_name_node->value + "$m"] = method_sym;
-            }
-        }
-        else {
-            // No conflict; add the method normally.
-            symtab.current_scope->symbols[method_name_node->value] = method_sym;
-        }
-    
-        // Enter METHOD scope
-        symtab.enter_scope(method_sym.name);
-    
-        // Process parameters
-        if (params_node->type == "parameters" || params_node->type == "empty parameters") {
+    //     // Base case: type identifier
+    //     if (param_list->children.size() == 2) {
+    //         Node* type_node = param_list->children.front();
+    //         Node* id_node = *std::next(param_list->children.begin());
+    //         add_parameter(id_node, type_node, method_sym);
+    //     }
+    //     // Recursive case: parameter_list COMMA type identifier
+    //     else if (param_list->children.size() >= 3) {
+    //         handle_parameter_list(param_list->children.front(), method_sym);
+    //         Node* type_node = *std::next(param_list->children.begin(), 1);
+    //         Node* id_node = *std::next(param_list->children.begin(), 2);
             
-            for (auto param_child : params_node->children) {
-
-                if (param_child->type == "parameter_list COMMA type identifier") {
-                    handle_parameter_list(param_child, method_sym);
-                }
-                else if (param_child->type == "type identifier") {
-                    handle_parameter(param_child, method_sym);
-                }
-            }
-        }
-    
-        // Process method body (variables)
-        if (method_node->children.size() > 3) {
-            Node* body_node = *std::next(method_node->children.begin(), 3);
-            visit(body_node);
-        }
-
+    //         add_parameter(id_node, type_node, method_sym);
+    //     }
         
-        if(find_return_statement(method_node) != nullptr){
-            Node* returnedNode = find_return_statement(method_node)->children.front();
-            
-            if(symtab.lookup(returnedNode->value) != nullptr){
-                std::string returned_type = symtab.lookup(returnedNode->value)->type;
-
-                if (return_type_node->type != returned_type) {
-                   
-                    res.push_back(std::make_tuple(return_type_node->lineno, "semantic (type mismatch)"));
-                        symtab.error_count++;
-                    }
-            }
-        }
-        symtab.exit_scope();
-        
-    }
-
-    void handle_class(Node* class_node) {
-        if (class_node->children.empty()) return;
-
-        Node* class_name_node = class_node->children.front();
-        Symbol class_sym{
-            class_name_node->value,
-            CLASS,
-            "class",
-            class_name_node->lineno
-        };
-
-
-        // Add class to global scope
-        if (!symtab.add_symbol(class_sym)) {
-            // std::cerr << "semantic @error  line " << class_name_node->lineno
-            //         << ": Duplicate class '" << class_sym.name << "'\n";
-        }
-
-        symtab.enter_scope(class_sym.name);
-        
-        // // Process parameters
-        // if (params_node->type == "parameters" || params_node->type == "empty parameters") {
-        //     for (auto param_child : params_node->children) {
-        //         if (param_child->type == "parameter_list") {
-        //             handle_parameter_list(param_child, method_sym);
-        //         }
-        //         else if (param_child->type == "type identifier") {
-        //             handle_parameter(param_child, method_sym);
-        //         }
-        //     }
-        // }
-
-        // Explicitly process class body nodes
-        for (auto it = std::next(class_node->children.begin()); 
-            it != class_node->children.end(); ++it) {
-            visit(*it); // Process fields/methods within class scope
-        }
-        
-        symtab.exit_scope();
-    }
-
-    void handle_parameter_list(Node* param_list, Symbol& method_sym) {
-
-
-
-
-        if (!param_list) return;
-
-
-        // Base case: type identifier
-        if (param_list->children.size() == 2) {
-            Node* type_node = param_list->children.front();
-            Node* id_node = *std::next(param_list->children.begin());
-            add_parameter(id_node, type_node, method_sym);
-        }
-        // Recursive case: parameter_list COMMA type identifier
-        else if (param_list->children.size() >= 3) {
-            handle_parameter_list(param_list->children.front(), method_sym);
-            Node* type_node = *std::next(param_list->children.begin(), 1);
-            Node* id_node = *std::next(param_list->children.begin(), 2);
-            
-            add_parameter(id_node, type_node, method_sym);
-        }
-    }
+    // }
     /*
      public int Pen(int param, int param) {// @error - semantic (Already Declared parameter: 'param')
         return 1;
     }
     */
-
-    void add_parameter(Node* id_node, Node* type_node, Symbol& method_sym) {
-        Symbol param_sym{
-            id_node->value,
-            PARAMETER,
-            type_node->type,
-            id_node->lineno
-        };
-        if (!symtab.add_symbol(param_sym)) {
-            // std::cerr << "semantic @error  line " << id_node->lineno
-            //           << ": Duplicate parameter '" << id_node->value
-            //           << "' in method '" << method_sym.name << "'\n";
-        }
-    }
 
     /* InvalidArrayInteger.java (handle arrays access) */
     void handle_array_this_access(Node* array_this_access){
@@ -338,10 +260,6 @@ private:
 
                 
             }
-
-
-
-
 
             
             if (type_ == "int") return; // return directly because 2nd child is an INT
@@ -428,14 +346,14 @@ private:
 
         return "unknown";
     }
-    Node* find_return_statement(Node* method_node) {
-        for (auto child : method_node->children) {
-            if (child->type == "RETURN") return child;
-            Node* found = find_return_statement(child);
-            if (found) return found;
-        }
-        return nullptr;
-    }
+    // Node* find_return_statement(Node* method_node) {
+    //     for (auto child : method_node->children) {
+    //         if (child->type == "RETURN") return child;
+    //         Node* found = find_return_statement(child);
+    //         if (found) return found;
+    //     }
+    //     return nullptr;
+    // }
 
     void handle_expr_lb_expr_rb(Node* node){
 
@@ -497,18 +415,15 @@ private:
         //cout << symlookup->name << endl; segmentation fault if symlookup is null
     }
 public:
+
+
+
     void printCorrect(){
         // print only string not the int, the int is the line number
         // sort based on the int in the tuple
         std::sort(res.begin(), res.end());
-
-
         for (auto i : res){
             std::cerr << "\n@error at line " << std::get<0>(i) << ": "<< std::get<1>(i) << std::endl;
         }
-
-
-
     }
-
 };
