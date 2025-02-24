@@ -16,6 +16,7 @@ class ASTVisitor {
 private:
     SymbolTable &symtab;
     vector<tuple<int, string>> res; // line number, error message
+    string curr_class_name; // Track current class name
 public:
     ASTVisitor(SymbolTable &st) : symtab(st) {}
 
@@ -34,6 +35,8 @@ public:
         if (node->type == "classDeclaration"){
             Node* class_name_node = node->children.front(); // identifier:DuplicateIdentifiers
             
+            curr_class_name = class_name_node->value; // Set current class
+
             Symbol class_sym {
                 class_name_node->value,
                 CLASS,
@@ -46,6 +49,7 @@ public:
             // identifier:DuplicateIdentifiers, reqVarDeclaration, reqMethodDeclaration methodDeclaration:
             for (auto child : node->children) visit_THE_WHOLE_AST_FOR_THE_SYMTAB(child);  
             symtab.exit_scope();
+            curr_class_name.clear(); // Reset after class processing
         }
         
         if (node->type == "reqVarDeclaration"){
@@ -67,6 +71,8 @@ public:
             
             Node* indentifier_method = *std::next(node->children.begin()); // identifier:func
 
+            string method_scope_name = curr_class_name + "." + indentifier_method->value; // Class.method
+
             Symbol method_sym {
                 indentifier_method->value,
                 METHOD,
@@ -75,8 +81,7 @@ public:
             };
             //symtab.exit_scope();
             symtab.add_symbol(method_sym);
-            symtab.enter_scope(method_sym.name);
-
+            symtab.enter_scope(method_scope_name); // different here
             
             for (auto child : node->children) visit_THE_WHOLE_AST_FOR_THE_SYMTAB(child);  
             symtab.exit_scope();
@@ -110,7 +115,7 @@ public:
 
             Symbol main_sym {
                 main_class_name_node->value,
-                MAIN,
+                CLASS,
                 main_class_name_node->type,
                 node->lineno
             };
@@ -138,10 +143,26 @@ public:
         // }
 
         
-        for (auto child : node->children) visit(child);
+        //for (auto child : node->children) visit(child);
     }
 
 private:
+
+    void handle_variable(Node* node){
+        // its a normal variable just add it to the symtab
+        Node* type_var = node->children.front(); // type of variable (int, string)
+        Node* indentifier_var = *std::next(node->children.begin()); //identifier (a, bar)
+
+        Symbol var_sym {
+            indentifier_var->value,
+            VARIABLE,
+            type_var->type,
+            node->lineno
+        };
+        
+        symtab.add_symbol(var_sym);
+    }
+
     //helper function:
     //handle requsiverly
     Node* rec_classDeclaration_all_childs(Node* child_of_method_dec){
@@ -169,20 +190,6 @@ private:
 
     }
 
-    void handle_variable(Node* node){
-        // its a normal variable just add it to the symtab
-        Node* type_var = node->children.front(); // type of variable (int, string)
-        Node* indentifier_var = *std::next(node->children.begin()); //identifier (a, bar)
-
-        Symbol var_sym {
-            indentifier_var->value,
-            VARIABLE,
-            type_var->type,
-            node->lineno
-        };
-
-        symtab.add_symbol(var_sym);
-    }
 
     // void handle_parameter_list(Node* param_list, Symbol& method_sym) {
 

@@ -12,7 +12,7 @@
 
 using namespace std;
 
-enum SymbolKind { MAIN, CLASS, METHOD, VARIABLE, PARAMETER }; 
+enum SymbolKind { CLASS, METHOD, VARIABLE, PARAMETER }; 
 
 struct Symbol {
     string name;
@@ -42,8 +42,21 @@ public:
     Scope(const string& name, Scope* p = nullptr) : name(name), parent(p) {}
 
     bool add_symbol(const Symbol& sym){
-        if (symbols.find(sym.name) != symbols.end()) return false; /* duplicate */
-        symbols[sym.name] = sym;
+        // if (symbols.find(sym.name) != symbols.end()) return false; /* duplicate */
+        // symbols[sym.name] = sym;
+        // return true;
+        // Check for duplicates: same name AND same kind in current scope
+        for (const auto& entry : symbols) {
+            if (entry.second.name == sym.name && entry.second.kind == sym.kind) {
+                return false; // Duplicate name+kind
+            }
+            if (entry.second.kind == VARIABLE && sym.kind == PARAMETER ||
+                entry.second.kind == PARAMETER && sym.kind == VARIABLE) {
+                return false; // Duplicate name+kind
+            }
+        }
+        
+        symbols[sym.name] = sym; // Allow same name if kinds differ
         return true;
     }
 

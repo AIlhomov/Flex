@@ -1,37 +1,33 @@
-public class SemanticDuplicateIdentifiersSeparateScope {
+public class DuplicateIdentifiers {
     public static void main(String[] a) {
-        System.out.println(new A().A());
+        System.out.println(new MyClass().Pen(1, 2));
+
     }
 }
 
-class A {
-    int A;
+class DuplicateIdentifiers {// @error - semantic (Already Declared Class: 'DuplicateIdentifiers')
+    int a;
+    int a;// @error - semantic (Already Declared variable: 'a')
 
-    public int A() {
-        int A;
-        System.out.println(this.B());
-        A = 1;
-        return A;
+    public boolean func() {
+        return true;
     }
 
-    public int B() {
-        int B;
-        A = 5;
-        B = new B().B();
-        return A + B;
+    public int func() {// @error - semantic (Already Declared Function: 'func')
+        return 1;
     }
 }
 
-class B {
-    int A;
+class MyClass {
+    boolean b;
+    boolean b;// @error - semantic (Already Declared variable: 'b')
 
-    public int A(int A) {
-        return A;
+    public int Pen(int param, int param) {// @error - semantic (Already Declared parameter: 'param')
+        return 1;
     }
 
-    public int B() {
-        int B;
-        B = 1;
-        return B;
+    public int Pen2(int param) {
+        int param; // @error - semantic (Already Declared parameter: 'param')
+        return 1;
     }
 }
