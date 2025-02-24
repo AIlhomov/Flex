@@ -64,7 +64,7 @@ perhaps mention it ? like at the root.
 /* Specify types for non-terminals in the grammar */
 /* The type specifies the data type of the values associated with these non-terminals */
 %type <Node *> root expression factor identifier type statement reqStatement mainClass varDeclaration reqVarOrStmt reqMethodDeclaration argument_list
-%type <Node *> methodDeclaration reqVarDeclaration classDeclaration parameters parameter_list goal reqClassDeclaration arguments 
+%type <Node *> methodDeclaration reqVarDeclaration classDeclaration parameters parameter_list goal singleClassDeclaration arguments 
 %type <Node *> retSTMT
 /* Grammar rules section */
 /* This section defines the production rules for the language being parsed */
@@ -73,7 +73,7 @@ root:        /* remove these later (debug only), have only goal left */
 			goal {root = $1; }
 			;
 		
-goal: mainClass reqClassDeclaration END { 
+goal: mainClass classDeclaration END { 
 		$$ = new Node("goal", "", yylineno); 
 		$$->children.push_back($1);
 		$$->children.push_back($2);
@@ -81,13 +81,50 @@ goal: mainClass reqClassDeclaration END {
 	;
 
 
-reqClassDeclaration: %empty { $$ = new Node("empty reqClassDeclaration", "", yylineno);  }
-					| reqClassDeclaration classDeclaration { 
-						$$ = new Node("reqClassDeclaration", "", yylineno); 
-						$$->children.push_back($1);
-						$$->children.push_back($2);
+classDeclaration: singleClassDeclaration  { 
+					$$ = $1;
+				}
+				
+				;
+				
+
+singleClassDeclaration: CLASS identifier LEFT_CURLY reqVarDeclaration 
+					reqMethodDeclaration RIGHT_CURLY  {
+						$$ = new Node("classDeclarations", "", yylineno);
+						Node* classes =	new Node("classDeclaration", "", yylineno);
+						
+						classes->children.push_back($2);
+						classes->children.push_back($4);
+						classes->children.push_back($5);
+
+						$$->children.push_back(classes);
+					}
+					| // make a recursive
+
+					singleClassDeclaration CLASS identifier LEFT_CURLY reqVarDeclaration 
+					reqMethodDeclaration RIGHT_CURLY {
+						$$ = $1; // singleClassDeclaration
+						//$$ = new Node("ClassDeclarationsHERERERERE", "", yylineno);
+
+						Node* classes = new Node("ClassDeclaration", "", yylineno);
+
+						classes->children.push_back($3);
+						classes->children.push_back($5);
+						classes->children.push_back($6);
+
+						// $$->children.push_back($1);
+						// $$->children.push_back($2);
+
+						$$->children.push_back(classes);
 					}
 					;
+
+
+
+
+
+
+
 
 type: INT LEFT_BRACKET RIGHT_BRACKET { $$ = new Node("INT LB RB", "", yylineno); }
 	| BOOLEAN { $$ = new Node("BOOLEAN", "", yylineno); }
@@ -140,25 +177,6 @@ mainClass: PUBLIC CLASS identifier LEFT_CURLY PUBLIC STATIC VOID MAIN LP STRING 
 				*/
 
 				
-classDeclaration: CLASS identifier LEFT_CURLY reqVarDeclaration 
-				reqMethodDeclaration RIGHT_CURLY {
-					$$ = new Node("classDeclaration", "", yylineno);
-					$$->children.push_back($2);
-					$$->children.push_back($4);
-					$$->children.push_back($5);
-				}
-				| classDeclaration mainClass { 
-					$$ = new Node("classDeclaration", "", yylineno); 
-					$$->children.push_back($1);
-					$$->children.push_back($2);
-
-				} /* allow main class */
-
-				/* parser.yy: warning: 4 reduce/reduce conflicts [-Wconflicts-rr] */
-				
-				
-				;
-
 
 
 varDeclaration: type identifier SEMI_COLON {

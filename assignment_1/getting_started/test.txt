@@ -31,3 +31,16 @@ class MyClass {
         return 1;
     }
 }
+class MyClass {
+    boolean b;
+    boolean b;// @error - semantic (Already Declared variable: 'b')
+
+    public int Pen(int param, int param) {// @error - semantic (Already Declared parameter: 'param')
+        return 1;
+    }
+
+    public int Pen2(int param) {
+        int param; // @error - semantic (Already Declared parameter: 'param')
+        return 1;
+    }
+}
