@@ -69,6 +69,7 @@ int main(int argc, char **argv)
 				// Build the Symbol Table
 				SymbolTable symtab;
 				ASTVisitor visitor(symtab);
+				visitor.visit_THE_WHOLE_AST_FOR_THE_SYMTAB(root);
 				visitor.visit(root);
 				
 				// Print the Symbol Table

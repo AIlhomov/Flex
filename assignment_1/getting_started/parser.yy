@@ -92,7 +92,7 @@ singleClassDeclaration: CLASS identifier LEFT_CURLY reqVarDeclaration
 					reqMethodDeclaration RIGHT_CURLY  {
 						$$ = new Node("classDeclarations", "", yylineno);
 						Node* classes =	new Node("classDeclaration", "", yylineno);
-						
+
 						classes->children.push_back($2);
 						classes->children.push_back($4);
 						classes->children.push_back($5);
@@ -106,7 +106,7 @@ singleClassDeclaration: CLASS identifier LEFT_CURLY reqVarDeclaration
 						$$ = $1; // singleClassDeclaration
 						//$$ = new Node("ClassDeclarationsHERERERERE", "", yylineno);
 
-						Node* classes = new Node("ClassDeclaration", "", yylineno);
+						Node* classes = new Node("classDeclaration", "", yylineno);
 
 						classes->children.push_back($3);
 						classes->children.push_back($5);

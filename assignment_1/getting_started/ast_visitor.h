@@ -17,13 +17,42 @@ public:
 
     void visit_THE_WHOLE_AST_FOR_THE_SYMTAB(Node* node){
         if (!node) return;
+
+        // for (auto child : node->children) visit_THE_WHOLE_AST_FOR_THE_SYMTAB(child); RUN THIS TO SEE ALL CHILDS
         //bool handled = false;
         // if (node->type == "var declaration"){ //REMOVE THIS LATER JUST PUT HANDLE_VARIABLE IN BOTH MAIN CLASS AND CLASS DEC
         //     handle_variable(node);
         // }
-        if (node->type == "goal" || node->type == "reqClassDeclaration"){
+        //cout << "AAAA " << node->type << " name: " << node->value<< endl;
+        if (node->type == "goal" || node->type == "classDeclarations"){
             for (auto child : node->children) visit_THE_WHOLE_AST_FOR_THE_SYMTAB(child);
         }
+        if (node->type == "classDeclaration"){
+            Node* class_name_node = node->children.front(); // identifier:DuplicateIdentifiers
+            
+            Symbol class_sym {
+                class_name_node->value,
+                CLASS,
+                "regular class",
+                node->lineno
+            };
+
+            symtab.add_symbol(class_sym);
+            symtab.enter_scope(class_sym.name);
+            // identifier:DuplicateIdentifiers, reqVarDeclaration, reqMethodDeclaration methodDeclaration:
+            for (auto child : node->children) visit_THE_WHOLE_AST_FOR_THE_SYMTAB(child);  
+
+        }
+        
+        if (node->type == "reqVarDeclaration"){
+            for (auto child : node->children) visit_THE_WHOLE_AST_FOR_THE_SYMTAB(child);  
+        }
+
+        if (node->type == "var declaration"){
+            handle_variable(node);
+        }
+
+        /*
         if (node->type == "MAIN CLASS"){
             Node* class_name_node = node->children.front(); 
             Node* main_method = *std::next(node->children.begin()); // MAIN METHOD
@@ -59,6 +88,7 @@ public:
         }
 
         else if (node->type == "classDeclaration"){
+            //cout << "HOWDIDWEGETHERE" << endl;
             Node* class_name_node = node->children.front();
 
             Symbol class_sym{
@@ -73,7 +103,7 @@ public:
 
             // gives all children of "classDeclaration"
             // for example identifier, reqVarDeclaration, reqMethodDeclaration methodDeclaration
-            for (auto child : node->children) visit_THE_WHOLE_AST_FOR_THE_SYMTAB(child); 
+            //for (auto child : node->children) visit_THE_WHOLE_AST_FOR_THE_SYMTAB(child); 
 
             symtab.exit_scope();
         }
@@ -104,9 +134,9 @@ public:
         // if main class,  == 1
         // if class dec,   >= 1
         // END
-
+        */
         //if (!handled)
-        cout << "AAAA " << node->type << " name: " << node->value<< endl;
+
         //for (auto child : node->children) visit_THE_WHOLE_AST_FOR_THE_SYMTAB(child);
     }
 
@@ -173,15 +203,17 @@ private:
     }
 
     void handle_variable(Node* node){
-        Node* type_node = node->children.front(); // yo. WORKS.
-        Node* id_node = *std::next(node->children.begin()); // WORKS.
+        // its a normal variable just add it to the symtab
+        Node* type_var = node->children.front(); // type of variable (int, string)
+        Node* indentifier_var = *std::next(node->children.begin()); //identifier (a, bar)
 
-        Symbol var_sym{
-            id_node->value,  // Variable name (should be to the right child) 
-            VARIABLE,       // kind
-            type_node->type,  // Type (should be to the left child) (do this !)
-            node->lineno // line_no
+        Symbol var_sym {
+            indentifier_var->value,
+            VARIABLE,
+            type_var->type,
+            node->lineno
         };
+
         symtab.add_symbol(var_sym);
     }
 

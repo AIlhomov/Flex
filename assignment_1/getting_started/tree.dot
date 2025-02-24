@@ -87,7 +87,7 @@ n38 -> n43
 n28 -> n38
 n17 -> n28
 n16 -> n17
-n45 [label="ClassDeclaration:"];
+n45 [label="classDeclaration:"];
 n46 [label="identifier:MyClass"];
 n45 -> n46
 n47 [label="reqVarDeclaration:"];
@@ -169,7 +169,7 @@ n72 -> n84
 n56 -> n72
 n45 -> n56
 n16 -> n45
-n86 [label="ClassDeclaration:"];
+n86 [label="classDeclaration:"];
 n87 [label="identifier:MyClass"];
 n86 -> n87
 n88 [label="reqVarDeclaration:"];
