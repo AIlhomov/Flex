@@ -50,8 +50,8 @@ public:
             if (entry.second.name == sym.name && entry.second.kind == sym.kind) {
                 return false; // Duplicate name+kind
             }
-            if ((entry.second.kind == VARIABLE && sym.kind == PARAMETER) ||
-                (entry.second.kind == PARAMETER && sym.kind == VARIABLE)) {
+            if ((entry.second.kind == VARIABLE && sym.kind == PARAMETER && entry.second.name == sym.name) ||
+                (entry.second.kind == PARAMETER && sym.kind == VARIABLE && entry.second.name == sym.name)) {
                 return false; // Variable and parameter with same name
             }
         }

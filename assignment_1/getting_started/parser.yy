@@ -174,7 +174,7 @@ mainClass: PUBLIC CLASS identifier LEFT_CURLY PUBLIC STATIC VOID MAIN LP STRING 
 				
 
 
-varDeclaration: %empty { $$ = new Node("empty varDeclaration", "", yylineno); }
+varDeclaration: %empty { $$ = new Node("var declarations", "", yylineno); }
 				| reqVarDeclaration { $$ = $1; }
 				;
 			;
@@ -211,7 +211,7 @@ retSTMT: RETURN  { $$ = new Node("RETURN SEMI_COLON", "", yylineno); }
 
 
 /* the "?" is answered here, thank you */
-reqVarOrStmt: %empty {	$$ = new Node("VarOrStmts", "", yylineno); }
+reqVarOrStmt: %empty {	$$ = new Node("methodBody", "", yylineno); }
             | reqVarOrStmt type identifier SEMI_COLON {
 				$$ = $1;
 				Node* varDec = new Node("var declaration", "", yylineno);
@@ -347,16 +347,13 @@ statement: LEFT_CURLY reqStatement RIGHT_CURLY { /* recursive "*" */
 			;
 
 
-reqStatement: %empty { 	$$ = new Node("empty reqStatement statement", "", yylineno);}
+reqStatement: %empty { 	$$ = new Node("statements", "", yylineno);}
 			| reqStatement statement {
-				
-				$$ = new Node("reqStatement statement", "", yylineno);
-				$$->children.push_back($1);
-				$$->children.push_back($2);
+				$$ = $1;				
+				Node * reqSTMT = new Node("statement", "", yylineno);
+				reqSTMT->children.push_back($2);
+				$$->children.push_back(reqSTMT);
 
-				/* $$ = new Node("statement", "", yylineno);
-				$$->children.push_back($1);
-				$$->children.push_back($2); */
 			}
 			;
 

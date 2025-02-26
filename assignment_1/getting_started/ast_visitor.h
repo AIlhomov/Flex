@@ -109,7 +109,7 @@ public:
             symtab.exit_scope();
 
         }
-        if (node->type == "VarOrStmts"){
+        if (node->type == "methodBody"){
             for (auto child : node->children) visit_THE_WHOLE_AST_FOR_THE_SYMTAB(child); //int param; // @error - semantic (Already Declared parameter: 'param')
         }
 
@@ -121,11 +121,11 @@ public:
 
             Symbol param_sym {
                 indentifier_parameter->value,
-                VARIABLE,
+                PARAMETER,
                 indentifier_parameter->type,
                 node->lineno
             };
-            cout << "HRERERERERERERERER " << indentifier_parameter->value << endl; 
+            //cout << "HRERERERERERERERER " << indentifier_parameter->value << endl; 
             symtab.add_symbol(param_sym); // ADD parameter or parameters to the symbol table.
 
         }
@@ -155,40 +155,39 @@ public:
     void visit(Node* node){ /* VISIT ALL THE NODES IN THE AST (pdf file or smthn)*/
         if (!node) return;
 
-        // if (node->type == "goal" || node->type == "classDeclarations"){
-        //     for (auto child : node->children) visit(child);
-        // }
-        // if (node->type == "classDeclaration"){
-        //     curr_class_for_returns = node;
-        //     for (auto child : node->children) visit(child); // visit all children of classDeclaration
-        // }
-        // if (node->type == "reqMethodDeclaration methodDeclaration") for (auto child : node->children) visit(child);
+        if (node->type == "goal" || node->type == "classDeclarations"){
+            for (auto child : node->children) visit(child);
+        }
+        if (node->type == "classDeclaration"){
+            curr_class_for_returns = node;
+            for (auto child : node->children) visit(child); // visit all children of classDeclaration
+        }
+        if (node->type == "methodDeclarations") for (auto child : node->children) visit(child);
 
-        // if (node->type == "METHODDECLARATION VARDECLARATION") for (auto child : node->children) visit(child);
+        if (node->type == "methodDec") for (auto child : node->children) visit(child);
 
-        // if (node->type == "reqVarOrStmt statement") for (auto child : node->children) visit(child);
+        if (node->type == "methodBody") for (auto child : node->children) visit(child);
 
-        // if (node->type == "SOMETHING [ASSIGNED] = TO SOMETHING"){
-        //     Node* identifier_arr = node->children.front(); // identifier:num_aux
-        //     Node* inside_arr_brackets = *std::next(node->children.begin()); // FALSE
-        //     Node* assigned_arr_to = *std::next(node->children.begin(), 2); // Int:2
+        if (node->type == "statement"){
+            // here we visit SOMETHING [ASSIGNED] = TO SOMETHING, IF LP expression RP statement ELSE statement    etc..
+            for (auto child : node->children) visit(child); 
+        } 
 
-        //     if (inside_arr_brackets->type != "Int"){
-        //         res.push_back(std::make_tuple(node->lineno, "semantic (invalid type of array index)"));
-        //         symtab.error_count++;
-        //     }
-        // }
+        if (node->type == "SOMETHING [ASSIGNED] = TO SOMETHING"){
+            Node* identifier_arr = node->children.front(); // identifier:num_aux
+            Node* inside_arr_brackets = *std::next(node->children.begin()); // FALSE
+            Node* assigned_arr_to = *std::next(node->children.begin(), 2); // Int:2
 
-        // if (node->type == "IF LP expression RP statement ELSE statement") for (auto child : node->children) visit(child);
-        // if (node->type == "LESS_THAN") for (auto child : node->children) visit(child);
-        // if (node->type == "expression LEFT_BRACKET expression RIGHT_BRACKET") for (auto child : node->children) visit(child);
+            if (inside_arr_brackets->type != "Int"){
+                res.push_back(std::make_tuple(node->lineno, "semantic (invalid type of array index)"));
+                symtab.error_count++;
+            }
+        }
+
+        if (node->type == "IF LP expression RP statement ELSE statement") for (auto child : node->children) visit(child);
+        if (node->type == "LESS_THAN") for (auto child : node->children) visit(child);
+        if (node->type == "expression LEFT_BRACKET expression RIGHT_BRACKET") for (auto child : node->children) visit(child);
         
-        
-        
-        
-        
-        
-        /*
         if (node->type == "exp DOT ident LP exp COMMA exp RP"){
             Node* this_or_new = node->children.front(); // THIS
             Node* identifier_for_this = *std::next(node->children.begin()); // identifier:a2
@@ -205,7 +204,7 @@ public:
                 }
             }
         }
-        */
+        
         if ("exp DOT ident LP exp COMMA exp RP");
         // if (node->type == "SOMETHING [ASSIGNED] = TO SOMETHING") { 
         //     cout << "YOOOOOOOOOOOOOOOOOOOOOOOO";
@@ -221,7 +220,7 @@ private:
 
     Node* find_declared_method_type(Node* n, const string& searched){
         //cout << n->type << endl;
-        if (n->type == "METHODDECLARATION VARDECLARATION"){
+        if (n->type == "methodDec"){
             Node* identifier = *std::next(n->children.begin());
             //cout << identifier->value << endl; // a1
             if (identifier->value == searched) { //found it 
