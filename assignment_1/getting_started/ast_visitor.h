@@ -27,11 +27,16 @@ class DuplicateIdentifiers {
 }
 in this case its: "DuplicateIdentifiers.func"
  */
+
+ //python3 testScript.py -semantic -valid -lexical -syntax
+
 class ASTVisitor {
 private:
     SymbolTable &symtab;
     vector<tuple<int, string>> res; // line number, error message
     string curr_class_name; // Track current class name
+
+    Node* curr_class_for_returns = nullptr;
 public:
     ASTVisitor(SymbolTable &st) : symtab(st) {}
 
@@ -67,21 +72,24 @@ public:
             curr_class_name.clear(); // Reset after class processing
         }
         
-        if (node->type == "reqVarDeclaration"){
+        if (node->type == "var declarations"){
+            
             for (auto child : node->children) visit_THE_WHOLE_AST_FOR_THE_SYMTAB(child);  
+            
         }
 
         if (node->type == "var declaration"){
+            
             handle_variable(node);
         }
 
-        if (node->type == "reqMethodDeclaration methodDeclaration"){
+        if (node->type == "methodDeclarations"){
             // look for all childs until it sees something in style with "METHODDECLARATION VARDECLARATION:"
             for (auto child : node->children) visit_THE_WHOLE_AST_FOR_THE_SYMTAB(child);
             // THEN IT WILL GO TO AN IF STATEMENT (DOWN BELOW)
         }
 
-        if (node->type == "METHODDECLARATION VARDECLARATION"){
+        if (node->type == "methodDec"){
             //Node* method_type = node->children.front(); // INT RETURN TYPE (HERERERERE) open it up if it needs usage
             
             Node* indentifier_method = *std::next(node->children.begin()); // identifier:func
@@ -97,32 +105,32 @@ public:
             //symtab.exit_scope();
             symtab.add_symbol(method_sym);
             symtab.enter_scope(method_scope_name); // different here
-            
             for (auto child : node->children) visit_THE_WHOLE_AST_FOR_THE_SYMTAB(child);  
             symtab.exit_scope();
 
         }
+        if (node->type == "VarOrStmts"){
+            for (auto child : node->children) visit_THE_WHOLE_AST_FOR_THE_SYMTAB(child); //int param; // @error - semantic (Already Declared parameter: 'param')
+        }
 
         if (node->type == "parameters"){
-            for (auto child : node->children) visit_THE_WHOLE_AST_FOR_THE_SYMTAB(child);  
+            for (auto child : node->children) visit_THE_WHOLE_AST_FOR_THE_SYMTAB(child);             
         }
         if (node->type == "parameter"){
             Node* indentifier_parameter = *std::next(node->children.begin()); //identifier:param
 
             Symbol param_sym {
                 indentifier_parameter->value,
-                PARAMETER,
+                VARIABLE,
                 indentifier_parameter->type,
                 node->lineno
             };
-
+            cout << "HRERERERERERERERER " << indentifier_parameter->value << endl; 
             symtab.add_symbol(param_sym); // ADD parameter or parameters to the symbol table.
 
         }
 
-        if (node->type == "reqVarOrStmt varDeclaration"){
-            for (auto child : node->children) visit_THE_WHOLE_AST_FOR_THE_SYMTAB(child); //int param; // @error - semantic (Already Declared parameter: 'param')
-        }
+        
 
         if (node->type == "MAIN CLASS"){
             Node* main_class_name_node = node->children.front();
@@ -150,7 +158,55 @@ public:
         // if (node->type == "goal" || node->type == "classDeclarations"){
         //     for (auto child : node->children) visit(child);
         // }
+        // if (node->type == "classDeclaration"){
+        //     curr_class_for_returns = node;
+        //     for (auto child : node->children) visit(child); // visit all children of classDeclaration
+        // }
+        // if (node->type == "reqMethodDeclaration methodDeclaration") for (auto child : node->children) visit(child);
+
+        // if (node->type == "METHODDECLARATION VARDECLARATION") for (auto child : node->children) visit(child);
+
+        // if (node->type == "reqVarOrStmt statement") for (auto child : node->children) visit(child);
+
+        // if (node->type == "SOMETHING [ASSIGNED] = TO SOMETHING"){
+        //     Node* identifier_arr = node->children.front(); // identifier:num_aux
+        //     Node* inside_arr_brackets = *std::next(node->children.begin()); // FALSE
+        //     Node* assigned_arr_to = *std::next(node->children.begin(), 2); // Int:2
+
+        //     if (inside_arr_brackets->type != "Int"){
+        //         res.push_back(std::make_tuple(node->lineno, "semantic (invalid type of array index)"));
+        //         symtab.error_count++;
+        //     }
+        // }
+
+        // if (node->type == "IF LP expression RP statement ELSE statement") for (auto child : node->children) visit(child);
+        // if (node->type == "LESS_THAN") for (auto child : node->children) visit(child);
+        // if (node->type == "expression LEFT_BRACKET expression RIGHT_BRACKET") for (auto child : node->children) visit(child);
         
+        
+        
+        
+        
+        
+        /*
+        if (node->type == "exp DOT ident LP exp COMMA exp RP"){
+            Node* this_or_new = node->children.front(); // THIS
+            Node* identifier_for_this = *std::next(node->children.begin()); // identifier:a2
+
+
+            if (this_or_new->type == "THIS"){
+                //find return statement of this (THIS IS VALID IF THIS.a2 IF a2 IS AN INT)
+
+                // for example if (num_aux[this.a2()] < 1) (find return for a2)
+                Node* return_this_method = find_declared_method_type(curr_class_for_returns, identifier_for_this->value);
+                if (return_this_method->type != "Int"){
+                    res.push_back(std::make_tuple(node->lineno, "semantic (member .length is used incorrectly)"));
+                    symtab.error_count++;
+                }
+            }
+        }
+        */
+        if ("exp DOT ident LP exp COMMA exp RP");
         // if (node->type == "SOMETHING [ASSIGNED] = TO SOMETHING") { 
         //     cout << "YOOOOOOOOOOOOOOOOOOOOOOOO";
         //     handle_array_access(node); 
@@ -163,15 +219,37 @@ public:
 
 private:
 
+    Node* find_declared_method_type(Node* n, const string& searched){
+        //cout << n->type << endl;
+        if (n->type == "METHODDECLARATION VARDECLARATION"){
+            Node* identifier = *std::next(n->children.begin());
+            //cout << identifier->value << endl; // a1
+            if (identifier->value == searched) { //found it 
+                return n->children.front();
+            }
+            // if (identifier->type != "INT LB RB");
+            return nullptr;
+        }
+       
+        for (auto child : n->children){
+            Node* result = find_declared_method_type(child, searched);
+            if (result) return result; // Propagate found result immediately
+        }
+        return nullptr;
+        
+    }
+
     void handle_variable(Node* node){
         // its a normal variable just add it to the symtab
-        Node* type_var = node->children.front(); // type of variable (int, string)
+        Node* type_node = node->children.front(); // type of variable (int, string)
         Node* indentifier_var = *std::next(node->children.begin()); //identifier (a, bar)
+
+        //string type_str = (type_node->type == "INT LB RB") ? "INT[]" : type_node->type;
 
         Symbol var_sym {
             indentifier_var->value,
             VARIABLE,
-            type_var->type,
+            type_node->type,  // Store as "INT[]" for arrays
             node->lineno
         };
         
@@ -364,6 +442,19 @@ private:
             if (child_type != "unknown") return child_type;
         }
         /* TODO: more cases */
+        if (exp_node->type == "expression DOT LENGTH") {
+            Node* lhs = exp_node->children.front();
+            string lhs_type = get_exp_type(lhs);
+    
+            // Handle array types stored as "INT[]" or "INT LB RB"
+            if (lhs_type != "INT[]" && lhs_type != "INT LB RB") {
+                res.push_back(std::make_tuple(exp_node->lineno, 
+                    "semantic (member .length is used incorrectly)"));
+                symtab.error_count++;
+                return "unknown";
+            }
+            return "int";
+        }
 
         return "unknown";
     }

@@ -1,4 +1,3 @@
-
 /* 
 
 my own lexicon of errors:
@@ -70,8 +69,8 @@ perhaps mention it ? like at the root.
 /* This section defines the production rules for the language being parsed */
 %%
 root:        /* remove these later (debug only), have only goal left */
-			goal {root = $1; }
-			;
+	goal {root = $1; }
+		;
 		
 goal: mainClass classDeclaration END { 
 		$$ = new Node("goal", "", yylineno); 
@@ -82,17 +81,17 @@ goal: mainClass classDeclaration END {
 
 
 classDeclaration: singleClassDeclaration  { 
-					$$ = $1;
-				}
+			$$ = $1;
+			}
 				
 				;
 				
 
-singleClassDeclaration: CLASS identifier LEFT_CURLY reqVarDeclaration 
-					reqMethodDeclaration RIGHT_CURLY  {
+singleClassDeclaration: CLASS identifier LEFT_CURLY varDeclaration 
+					methodDeclaration RIGHT_CURLY  {
 						$$ = new Node("classDeclarations", "", yylineno);
 						Node* classes =	new Node("classDeclaration", "", yylineno);
-
+						
 						classes->children.push_back($2);
 						classes->children.push_back($4);
 						classes->children.push_back($5);
@@ -101,7 +100,7 @@ singleClassDeclaration: CLASS identifier LEFT_CURLY reqVarDeclaration
 					}
 					| // make a recursive
 
-					singleClassDeclaration CLASS identifier LEFT_CURLY reqVarDeclaration 
+					singleClassDeclaration CLASS identifier LEFT_CURLY varDeclaration 
 					reqMethodDeclaration RIGHT_CURLY {
 						$$ = $1; // singleClassDeclaration
 						//$$ = new Node("ClassDeclarationsHERERERERE", "", yylineno);
@@ -111,9 +110,6 @@ singleClassDeclaration: CLASS identifier LEFT_CURLY reqVarDeclaration
 						classes->children.push_back($3);
 						classes->children.push_back($5);
 						classes->children.push_back($6);
-
-						// $$->children.push_back($1);
-						// $$->children.push_back($2);
 
 						$$->children.push_back(classes);
 					}
@@ -155,14 +151,13 @@ mainClass: PUBLIC CLASS identifier LEFT_CURLY PUBLIC STATIC VOID MAIN LP STRING 
 				
 
 				$$->children.push_back($3);
-				//$$->children.push_back($13);
-				// $$->children.push_back($16);
-				// $$->children.push_back($17);
+
 
 				$$->children.push_back(methods);
 				methods->children.push_back($13);
 				methods->children.push_back($16);
 				methods->children.push_back($17);
+				
 		   }
 		   ;
 				/* 
@@ -179,19 +174,29 @@ mainClass: PUBLIC CLASS identifier LEFT_CURLY PUBLIC STATIC VOID MAIN LP STRING 
 				
 
 
-varDeclaration: type identifier SEMI_COLON {
-				$$ = new Node("var declaration", "", yylineno);
-				$$->children.push_back($1); // type (INT)
-				$$->children.push_back($2); // identifier (a)
-			}
+varDeclaration: %empty { $$ = new Node("empty varDeclaration", "", yylineno); }
+				| reqVarDeclaration { $$ = $1; }
+				;
 			;
 			
-reqVarDeclaration: %empty { $$ = new Node("reqVarDeclaration empty", "", yylineno); }
-				| reqVarDeclaration varDeclaration { 
-					$$ = new Node("reqVarDeclaration", "", yylineno); 
-					$$->children.push_back($1);
-					$$->children.push_back($2);
-				}
+reqVarDeclaration: type identifier SEMI_COLON {
+		
+				$$ = new Node("var declarations", "", yylineno);
+				Node * varDec = new Node("var declaration", "", yylineno);
+				varDec->children.push_back($1);
+				varDec->children.push_back($2);
+
+				$$->children.push_back(varDec);
+			}
+				| reqVarDeclaration type identifier SEMI_COLON {
+				$$ = $1;
+				Node* varDec = new Node("var declaration", "", yylineno);
+				varDec->children.push_back($2);
+				varDec->children.push_back($3);
+
+				$$->children.push_back(varDec);
+		
+			}
 				;
 
 
@@ -201,37 +206,31 @@ retSTMT: RETURN  { $$ = new Node("RETURN SEMI_COLON", "", yylineno); }
 			$$ = new Node("RETURN", "", yylineno);
 			$$->children.push_back($2);
 		}
-		| %empty { $$ = new Node("empty retSTMT", "", yylineno); }
+		
 		;
 
-methodDeclaration: PUBLIC type identifier LP parameters
-					RP LEFT_CURLY reqVarOrStmt 
-					retSTMT RIGHT_CURLY
-					{
-						$$ = new Node("METHODDECLARATION VARDECLARATION", "", yylineno);
-
-						$$->children.push_back($2);
-						$$->children.push_back($3);
-						$$->children.push_back($5);
-						$$->children.push_back($8);
-						$$->children.push_back($9);
-
-					}
-					;
 
 /* the "?" is answered here, thank you */
-reqVarOrStmt: %empty {	$$ = new Node("empty reqVarOrStmt", "", yylineno); }
-            | reqVarOrStmt varDeclaration { 
-				$$ = new Node("reqVarOrStmt varDeclaration", "", yylineno); 
+reqVarOrStmt: %empty {	$$ = new Node("VarOrStmts", "", yylineno); }
+            | reqVarOrStmt type identifier SEMI_COLON {
+				$$ = $1;
+				Node* varDec = new Node("var declaration", "", yylineno);
+				varDec->children.push_back($2);
+				varDec->children.push_back($3);
 
-				$$->children.push_back($1);
-				$$->children.push_back($2);
-			}
+				$$->children.push_back(varDec);
+			
+			} 
+
+
+
             | reqVarOrStmt statement { 
-				$$ = new Node("reqVarOrStmt statement", "", yylineno); 
+				$$ = $1;
+				Node* varDec = new Node("statement", "", yylineno);
+				varDec->children.push_back($2);
 
-				$$->children.push_back($1);
-				$$->children.push_back($2);
+				$$->children.push_back(varDec);
+	
 			}
             ;
 
@@ -269,18 +268,45 @@ parameter_list: type identifier {
 
 
 
+methodDeclaration: %empty { $$ = new Node("methodDeclarations", "", yylineno); }
+				| reqMethodDeclaration { $$ = $1; }
+					;
 
 
-reqMethodDeclaration: %empty {	$$ = new Node("reqMethodDeclaration", "", yylineno);  }
-					| reqMethodDeclaration methodDeclaration { 
+reqMethodDeclaration: PUBLIC type identifier LP parameters
+					RP LEFT_CURLY reqVarOrStmt 
+					retSTMT RIGHT_CURLY
+					{
+						$$ = new Node("methodDeclarations", "", yylineno);
+						Node * methDec = new Node("methodDec", "", yylineno);
+						methDec->children.push_back($2);
+						methDec->children.push_back($3);
+						methDec->children.push_back($5);
+						methDec->children.push_back($8);
+						methDec->children.push_back($9);
 
-						$$ = new Node("reqMethodDeclaration methodDeclaration", "", yylineno);
+						$$->children.push_back(methDec);
 
-						$$->children.push_back($1);
-						$$->children.push_back($2);
 
 					}
+					| reqMethodDeclaration PUBLIC type identifier LP parameters
+					RP LEFT_CURLY reqVarOrStmt 
+					retSTMT RIGHT_CURLY
+					{
+						$$ = $1;
+						Node * methDec = new Node("methodDec", "", yylineno);
+						methDec->children.push_back($3);
+						methDec->children.push_back($4);
+						methDec->children.push_back($6);
+						methDec->children.push_back($9);
+						methDec->children.push_back($10);
+
+						$$->children.push_back(methDec);
+					}
 					;
+
+
+
 
 statement: LEFT_CURLY reqStatement RIGHT_CURLY { /* recursive "*" */
 				$$ = new Node("LC statement RC", "", yylineno);
@@ -455,15 +481,17 @@ expression: expression PLUSOP expression {      /*
 			/* hello.a(2,b,a,f,d,s,1,2,4,a,s) */
       		;
 
-arguments: %empty { $$ = new Node("empty arguments", "", yylineno); }
-         | argument_list { $$ = new Node("argument_list", "", yylineno); $$->children.push_back($1); }
+arguments: %empty { $$ = new Node("argument", "", yylineno); }
+         | argument_list { $$ = $1; }
          ;
 
-argument_list: expression { $$ = new Node("exp", "", yylineno);  $$->children.push_back($1);}
+argument_list: expression { $$ = new Node("argument_list", "", yylineno);  $$->children.push_back($1);}
              | argument_list COMMA expression {
-				$$ = new Node("argument_list COMMA expression", "", yylineno);
-				$$->children.push_back($1);
-				$$->children.push_back($3);
+				$$ = $1;
+				Node* arg = new Node("argument", "", yylineno);
+				arg->children.push_back($3);
+				$$->children.push_back(arg);
+			 
 			 }
              ;
 

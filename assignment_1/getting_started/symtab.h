@@ -23,8 +23,8 @@ struct Symbol {
 
 
     //Symbol* parent_scope; /* scope hierarchy */
-    vector<string> param_types; /* for methods (parameters) */
-    int dimension = 0; /* 0 for primitive/scalar, 1 for 1D arrays and so on.. */
+    //vector<string> param_types; /* for methods (parameters) */
+    //int dimension = 0; /* 0 for primitive/scalar, 1 for 1D arrays and so on.. */
     /* list<int> line_of_usage; store a linked list of line numbers where the symbol is used (line_of_usage) scopes? */
     
     /* string adress; */
@@ -50,8 +50,8 @@ public:
             if (entry.second.name == sym.name && entry.second.kind == sym.kind) {
                 return false; // Duplicate name+kind
             }
-            if (entry.second.kind == VARIABLE && sym.kind == PARAMETER ||
-                entry.second.kind == PARAMETER && sym.kind == VARIABLE) {
+            if ((entry.second.kind == VARIABLE && sym.kind == PARAMETER) ||
+                (entry.second.kind == PARAMETER && sym.kind == VARIABLE)) {
                 return false; // Variable and parameter with same name
             }
         }
