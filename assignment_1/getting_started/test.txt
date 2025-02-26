@@ -5,7 +5,7 @@ public class InvalidArrayInteger {
 }
 
 class A {
-	
+
     public A a1(int num) {
         int[] num_aux;
         num_aux[false] = 2; // @error - semantic (invalid type of array index)

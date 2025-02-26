@@ -182,28 +182,50 @@ public:
                 res.push_back(std::make_tuple(node->lineno, "semantic (invalid type of array index)"));
                 symtab.error_count++;
             }
+
+            if (assigned_arr_to->type == "expression DOT LENGTH"){
+                Node* type_dot_length = node->children.front(); // identifier:num
+                
+                //what type is num ? if its not INT LB RB then its NOT okay.
+
+                type_dot_length->value; //num
+
+            }
+            
+
         }
 
         if (node->type == "IF LP expression RP statement ELSE statement") for (auto child : node->children) visit(child);
         if (node->type == "LESS_THAN") for (auto child : node->children) visit(child);
-        if (node->type == "expression LEFT_BRACKET expression RIGHT_BRACKET") for (auto child : node->children) visit(child);
-        
-        if (node->type == "exp DOT ident LP exp COMMA exp RP"){
-            Node* this_or_new = node->children.front(); // THIS
-            Node* identifier_for_this = *std::next(node->children.begin()); // identifier:a2
+        if (node->type == "expression LEFT_BRACKET expression RIGHT_BRACKET"){
+            for (auto child : node->children) visit(child);
+            
+            Node* check_if_its_a_ident_or_exp_DOT_ident = *std::next(node->children.begin());
 
-
-            if (this_or_new->type == "THIS"){
-                //find return statement of this (THIS IS VALID IF THIS.a2 IF a2 IS AN INT)
-
-                // for example if (num_aux[this.a2()] < 1) (find return for a2)
-                Node* return_this_method = find_declared_method_type(curr_class_for_returns, identifier_for_this->value);
-                if (return_this_method->type != "Int"){
-                    res.push_back(std::make_tuple(node->lineno, "semantic (member .length is used incorrectly)"));
-                    symtab.error_count++;
+            if (check_if_its_a_ident_or_exp_DOT_ident->type == "exp DOT ident LP exp COMMA exp RP"){
+                Node* this_or_new = check_if_its_a_ident_or_exp_DOT_ident->children.front(); // THIS
+                Node* identifier_for_this = *std::next(check_if_its_a_ident_or_exp_DOT_ident->children.begin()); // identifier:a2
+                
+                cout << "DNOAWDNWAODNWADOIWANDOWAIDN " << this_or_new->type;
+                if (this_or_new->type == "THIS"){
+                    //find return statement of this (THIS IS VALID IF THIS.a2 IF a2 IS AN INT)
+    
+                    // for example if (num_aux[this.a2()] < 1) (find return for a2)
+                    Node* return_this_method = find_declared_method_type(curr_class_for_returns, identifier_for_this->value);
+                    cout << "LKOKOKOKOKOK " << return_this_method->type << endl;
+    
+                    // look if the node before is an method then its also ok.
+                    if (return_this_method->type != "Int"){
+                        res.push_back(std::make_tuple(node->lineno, "semantic (invalid type of array index)"));
+                        symtab.error_count++;
+                    }
                 }
             }
-        }
+
+            
+        } 
+        
+        
         
         if ("exp DOT ident LP exp COMMA exp RP");
         // if (node->type == "SOMETHING [ASSIGNED] = TO SOMETHING") { 
