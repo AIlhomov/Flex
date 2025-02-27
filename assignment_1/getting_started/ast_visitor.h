@@ -254,10 +254,10 @@ public:
             Node* left_assign = node->children.front();
             Node* either_an_ident_or_exp_DOT_ident = *std::next(node->children.begin());
             // @error - semantic ('e' does not exist in the current scope)
-            Symbol* found_the_non_existent = symtab.lookup(left_assign->value);
+            Symbol* found_the_non_existent = symtab.lookup(left_assign->value); // IMPORTANT
 
             if (!found_the_non_existent){
-                string error_message = "semantic ('" + left_assign->value + "') does not exist in the current scope)";
+                string error_message = "semantic ('" + left_assign->value + "' does not exist in the current scope)";
                 res.push_back(std::make_tuple(node->lineno, error_message));
                 symtab.error_count++;
             }
@@ -268,29 +268,40 @@ public:
             if (either_an_ident_or_exp_DOT_ident->type == "exp DOT ident LP exp COMMA exp RP"){
                 Node* method_name_node = *std::next(either_an_ident_or_exp_DOT_ident->children.begin()); //yFunc
                 Node* obj_node = either_an_ident_or_exp_DOT_ident->children.front(); //
-                Symbol* obj_sym = symtab.lookup(obj_node->value);
-                //cout << symtab.writeAllSymbols() << endl;
-                if (obj_sym) {
-                    string class_name = obj_sym->type;
-                    Scope* class_scope = symtab.get_class_scope(class_name); //Get class scope (e.g., "classdata")
-                    
-                    //cout << "just look here: " << method_name_node->value <<" and here "<<class_scope->name<< endl;
-                    if (class_scope) {
-                        // Look up the method in the class's scope
-                        Symbol* method_sym = class_scope->lookup(method_name_node->value);
-                        //cout << "NEWEWEWEWE " << method_sym->name <<" AADNADNADNADNADNANDNA " << method_sym->type<< endl;
-                        if (method_sym) {
-                            // Check return type compatibility, etc.
-                            if (found_the_non_existent->type != method_sym->type){
-                                string error_msg = "semantic ('" + found_the_non_existent->name + "' and expression '" +\
-                                obj_node->value + "." + method_name_node->value + "()' are of different types)";
-                                
-                                // ('a' and expression 'd.yFunc()' are of different types)
-                                res.push_back(std::make_tuple(node->lineno, error_msg));
-                                symtab.error_count++;
-                            }
+                if (obj_node->type == "THIS"){
+                    Symbol* obj_sym = symtab.lookup(method_name_node->value);
+                    //cout << "found it name " << obj_sym->name <<" type "<<obj_sym->type<< endl;
+                    if (obj_sym)
+                        if (obj_sym->type != found_the_non_existent->type){
+                            res.push_back(std::make_tuple(node->lineno, "semantic (type mismatch)"));
+                            symtab.error_count++;
+                        }
+                }
+                else {
+                    Symbol* obj_sym = symtab.lookup(obj_node->value);
+                    //cout << symtab.writeAllSymbols() << endl;
+                    if (obj_sym) {
+                        string class_name = obj_sym->type;
+                        Scope* class_scope = symtab.get_class_scope(class_name); //Get class scope (e.g., "classdata")
+                        
+                        //cout << "just look here: " << method_name_node->value <<" and here "<<class_scope->name<< endl;
+                        if (class_scope) {
+                            // Look up the method in the class's scope
+                            Symbol* method_sym = class_scope->lookup(method_name_node->value);
+                            //cout << "NEWEWEWEWE " << method_sym->name <<" AADNADNADNADNADNANDNA " << method_sym->type<< endl;
+                            if (method_sym) {
+                                // Check return type compatibility, etc.
+                                if (found_the_non_existent->type != method_sym->type){
+                                    string error_msg = "semantic ('" + found_the_non_existent->name + "' and expression '" +\
+                                    obj_node->value + "." + method_name_node->value + "()' are of different types)";
+                                    
+                                    // ('a' and expression 'd.yFunc()' are of different types)
+                                    res.push_back(std::make_tuple(node->lineno, error_msg));
+                                    symtab.error_count++;
+                                }  
+                            } 
                         } 
-                    } 
+                    }
                 } 
             }  
         }
