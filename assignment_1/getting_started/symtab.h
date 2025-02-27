@@ -36,10 +36,14 @@ public: /* Public makes "parent" accessible */
     string name; /* "Global", "Classname", "MethodName" */
     unordered_map<string, Symbol> symbols; /* all symbols in current scope */
     Scope* parent; 
+    vector<Scope*> children;
 
 public:
     Scope() : name("Global"), parent(nullptr) {}
-    Scope(const string& name, Scope* p = nullptr) : name(name), parent(p) {}
+    Scope(const string& name, Scope* p = nullptr) : name(name), parent(p) {
+        if (parent)
+        parent->children.push_back(this);
+    }
 
     bool add_symbol(const Symbol& sym){
         // if (symbols.find(sym.name) != symbols.end()) return false; /* duplicate */
@@ -64,8 +68,12 @@ public:
 
     Symbol *lookup(const string& name){
         auto it = symbols.find(name);
-        if (it != symbols.end()) return &it->second;
-        if (parent) return parent->lookup(name);
+        if (it != symbols.end()) {
+            return &it->second;}
+        if (parent) {
+                        
+            return parent->lookup(name);
+        }
         return nullptr;
     }
 
@@ -85,14 +93,25 @@ public:
         global_scope = new Scope("Global");
         current_scope = global_scope;
     }
+    
     void enter_scope(const string& name){
-        current_scope = new Scope(name, current_scope);
-    }
+        for (Scope* child : current_scope->children) {
+            if (child->name == name) {
+                current_scope = child; // Reuse existing scope
+                return;
+            }
+        }
+        
+        // If the scope does not exist, create a new one
+        Scope* new_scope = new Scope(name, current_scope);
+        current_scope = new_scope;
+        }
+
     void exit_scope(){
-        if (current_scope == global_scope) return;
-        Scope* temp = current_scope;
+        if (current_scope == global_scope) {    return;}
+        //Scope* temp = current_scope;
         current_scope = current_scope->parent;
-        delete temp;
+        //delete temp;
     }
 
     bool add_symbol(const Symbol& sym){
@@ -120,16 +139,36 @@ public:
 
     int get_error_count() const { return error_count; }
 
-    string writeAllSymbols(){
-        string res;
-        Scope* scope = current_scope;
-        while (scope) {
-            for (const auto& entry : scope->symbols) {
-                res += entry.first + " ";
-            }
-            scope = scope->parent;
+
+
+    
+    void writeAllSymbolsHelper(Scope* scope, string indent, string& res) {
+        if (!scope) return;
+        
+        res += indent + "Scope: " + scope->name + " -> ";
+        
+        for (const auto& entry : scope->symbols) {
+            res += entry.first + " ";
         }
+        res += "\n";
+        
+        for (Scope* child : scope->children) {
+            writeAllSymbolsHelper(child, indent + "  ", res);
+        }
+    }
+    
+    string writeAllSymbols() {
+        string res;
+        writeAllSymbolsHelper(global_scope, "", res);
         return res;
+    }
+    Scope* get_class_scope(const string& name) {
+        for (Scope* child : global_scope->children) {
+            if (child->name == name) {
+                return child;
+            }
+        }
+        return nullptr;
     }
 };
 
