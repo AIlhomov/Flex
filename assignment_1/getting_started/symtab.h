@@ -121,21 +121,14 @@ public:
     int get_error_count() const { return error_count; }
 
     string writeAllSymbols(){
-        string res = "";
-        for (auto it = global_scope->symbols.begin(); it != global_scope->symbols.end(); ++it){
-            res += it->first + " ";
+        string res;
+        Scope* scope = current_scope;
+        while (scope) {
+            for (const auto& entry : scope->symbols) {
+                res += entry.first + " ";
+            }
+            scope = scope->parent;
         }
-
-        // for (auto it = current_scope->symbols.begin(); it != current_scope->symbols.end(); ++it){
-        //     res += it->first + " ";
-        // }
-
-        // for (auto it = current_scope->parent->symbols.begin(); it != current_scope->parent->symbols.end(); ++it){
-        //     res += it->first + " ";
-        // }
-
-       
-        
         return res;
     }
 };

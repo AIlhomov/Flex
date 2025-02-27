@@ -37,6 +37,7 @@ private:
     string curr_class_name; // Track current class name
 
     Node* curr_class_for_returns = nullptr;
+    string method_scope_name;
 public:
     ASTVisitor(SymbolTable &st) : symtab(st) {}
 
@@ -94,7 +95,7 @@ public:
             
             Node* indentifier_method = *std::next(node->children.begin()); // identifier:func
             //cout << "TESTING " << indentifier_method->value << endl;
-            string method_scope_name = curr_class_name + "." + indentifier_method->value; // Class.method
+            method_scope_name = curr_class_name + "." + indentifier_method->value; // Class.method
 
             Symbol method_sym {
                 indentifier_method->value,
@@ -104,7 +105,7 @@ public:
             };
             //symtab.exit_scope();
             symtab.add_symbol(method_sym);
-            symtab.enter_scope(method_scope_name); // different here
+            symtab.enter_scope(method_sym.name); // different here
             for (auto child : node->children) visit_THE_WHOLE_AST_FOR_THE_SYMTAB(child);  
             symtab.exit_scope();
 
@@ -185,9 +186,10 @@ public:
 
             if (assigned_arr_to->type == "expression DOT LENGTH"){
                 Node* type_dot_length = node->children.front(); // identifier:num
-                
+                //cout << "value or smthn: " << type_dot_length->value << endl;
                 //what type is num ? if its not INT LB RB then its NOT okay.
-
+                cout << symtab.writeAllSymbols();
+                //cout << "dadasdasdasdasdasdasd " << symtab.lookup(type_dot_length->value);
                 type_dot_length->value; //num
 
             }
@@ -206,13 +208,11 @@ public:
                 Node* this_or_new = check_if_its_a_ident_or_exp_DOT_ident->children.front(); // THIS
                 Node* identifier_for_this = *std::next(check_if_its_a_ident_or_exp_DOT_ident->children.begin()); // identifier:a2
                 
-                cout << "DNOAWDNWAODNWADOIWANDOWAIDN " << this_or_new->type;
                 if (this_or_new->type == "THIS"){
                     //find return statement of this (THIS IS VALID IF THIS.a2 IF a2 IS AN INT)
     
                     // for example if (num_aux[this.a2()] < 1) (find return for a2)
                     Node* return_this_method = find_declared_method_type(curr_class_for_returns, identifier_for_this->value);
-                    cout << "LKOKOKOKOKOK " << return_this_method->type << endl;
     
                     // look if the node before is an method then its also ok.
                     if (return_this_method->type != "Int"){
