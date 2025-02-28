@@ -293,11 +293,18 @@ public:
                 if (obj_node->type == "THIS"){
                     Symbol* obj_sym = symtab.lookup(method_name_node->value);
                     //cout << "found it name " << obj_sym->name <<" type "<<obj_sym->type<< endl;
-                    if (obj_sym)
+                    if (obj_sym){
                         if (obj_sym->type != found_the_non_existent->type){
                             res.push_back(std::make_tuple(node->lineno, "semantic (type mismatch)"));
                             symtab.error_count++;
                         }
+                    }
+                    else {
+                        //// @error - semantic ('zFunc' does not exist)
+                        string error_msg = "semantic ('" + method_name_node->value + "' does not exist)";
+                        res.push_back(std::make_tuple(node->lineno, error_msg));
+                        symtab.error_count++;
+                    }
                 }
                 else if (obj_node->type == "identifier") {
                     Symbol* obj_sym = symtab.lookup(obj_node->value); // check type of the first node (type of "d")
@@ -308,7 +315,7 @@ public:
                         
                         //cout << "just look here: " << method_name_node->value <<" and here "<<class_scope->name<< endl;
                         if (class_scope) {
-                            cout << "class scope name " << class_scope->name<<endl; 
+                            //cout << "class scope name " << class_scope->name<<endl; 
                             // Look up the method in the class's scope
                             Symbol* method_sym = class_scope->lookup(method_name_node->value);
                             //cout << "NEWEWEWEWE " << method_sym->name <<" AADNADNADNADNADNANDNA " << method_sym->type<< endl;
