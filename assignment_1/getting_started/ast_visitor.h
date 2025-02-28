@@ -256,11 +256,17 @@ public:
             // @error - semantic ('e' does not exist in the current scope)
             Symbol* found_the_non_existent = symtab.lookup(left_assign->value); // IMPORTANT
 
-            if (!found_the_non_existent){
-                string error_message = "semantic ('" + left_assign->value + "' does not exist in the current scope)";
-                res.push_back(std::make_tuple(node->lineno, error_message));
-                symtab.error_count++;
-            }
+            //cout<< "SOMETHING " << found_the_non_existent<< endl;
+
+            // if (found_the_non_existent ){
+            //     Scope* class_scoping = symtab.get_class_scope(found_the_non_existent->type); //Get class scope (e.g., "classdata")
+            //     if (class_scoping){
+            //         string error_message = "semantic ('" + left_assign->value + "' does not exist in the current scope)";
+            //         res.push_back(std::make_tuple(node->lineno, error_message));
+            //         symtab.error_count++;
+            //     }
+                
+            // }
 
             // om d är en identifier (classdata) så går vi in i d. Sen kollar vi om d har funktionen yfunc.
             // kolla return type of yfunc jämför (if) om a = d.func om a är valid type boolean
@@ -268,6 +274,22 @@ public:
             if (either_an_ident_or_exp_DOT_ident->type == "exp DOT ident LP exp COMMA exp RP"){
                 Node* method_name_node = *std::next(either_an_ident_or_exp_DOT_ident->children.begin()); //yFunc
                 Node* obj_node = either_an_ident_or_exp_DOT_ident->children.front(); //
+
+                // try to see if even the function (.zzFunc) even exists.
+                // Symbol* does_this_exist = symtab.lookup(method_name_node->value);
+                
+                
+                // if (!does_this_exist){ //it doesnt exist.
+                //     Scope* class_scope = symtab.get_class_scope(does_this_exist->type); //Get class scope (e.g., "classdata")
+                //     if (!class_scope){
+                //         string error_msg = "semantic ('" + method_name_node->value + "' does not exist)";
+                //         res.push_back(std::make_tuple(node->lineno, error_msg));
+                //         //semantic ('zzFunc' does not exist)
+                //         symtab.error_count++;
+                //     }
+                    
+                // }
+
                 if (obj_node->type == "THIS"){
                     Symbol* obj_sym = symtab.lookup(method_name_node->value);
                     //cout << "found it name " << obj_sym->name <<" type "<<obj_sym->type<< endl;
@@ -277,8 +299,8 @@ public:
                             symtab.error_count++;
                         }
                 }
-                else {
-                    Symbol* obj_sym = symtab.lookup(obj_node->value);
+                else if (obj_node->type == "identifier") {
+                    Symbol* obj_sym = symtab.lookup(obj_node->value); // check type of the first node (type of "d")
                     //cout << symtab.writeAllSymbols() << endl;
                     if (obj_sym) {
                         string class_name = obj_sym->type;
@@ -286,6 +308,7 @@ public:
                         
                         //cout << "just look here: " << method_name_node->value <<" and here "<<class_scope->name<< endl;
                         if (class_scope) {
+                            cout << "class scope name " << class_scope->name<<endl; 
                             // Look up the method in the class's scope
                             Symbol* method_sym = class_scope->lookup(method_name_node->value);
                             //cout << "NEWEWEWEWE " << method_sym->name <<" AADNADNADNADNADNANDNA " << method_sym->type<< endl;
@@ -299,8 +322,14 @@ public:
                                     res.push_back(std::make_tuple(node->lineno, error_msg));
                                     symtab.error_count++;
                                 }  
+                            }
+                            else {
+                                string error_msg = "semantic ('" + method_name_node->value + "' does not exist)";
+                                res.push_back(std::make_tuple(node->lineno, error_msg));
+                                //semantic ('zzFunc' does not exist)
+                                symtab.error_count++;
                             } 
-                        } 
+                        }
                     }
                 } 
             }  
