@@ -258,15 +258,30 @@ public:
 
             //cout<< "SOMETHING " << found_the_non_existent<< endl;
 
-            // if (found_the_non_existent ){
-            //     Scope* class_scoping = symtab.get_class_scope(found_the_non_existent->type); //Get class scope (e.g., "classdata")
-            //     if (class_scoping){
-            //         string error_message = "semantic ('" + left_assign->value + "' does not exist in the current scope)";
-            //         res.push_back(std::make_tuple(node->lineno, error_message));
-            //         symtab.error_count++;
-            //     }
-                
-            // }
+            if (either_an_ident_or_exp_DOT_ident->type == "identifier" && found_the_non_existent){
+                Symbol* right_assign = symtab.lookup(either_an_ident_or_exp_DOT_ident->value);
+
+                // @error - semantic ('a' and expression 'b' are of different types)
+                if (found_the_non_existent->type != right_assign->type){
+                    string error_message = "semantic ('" + found_the_non_existent->name + "' and expression '" \
+                    + right_assign->name + " are of different types)";
+                    res.push_back(std::make_tuple(node->lineno, error_message));
+                    symtab.error_count++;
+                }
+            }
+
+            if (!found_the_non_existent ){ // @error - semantic ('e' does not exist in the current scope) 
+                // Scope* class_scoping = symtab.get_class_scope(found_the_non_existent->type); //Get class scope (e.g., "classdata")
+                // if (class_scoping){
+                //     string error_message = "semantic ('" + left_assign->value + "' does not exist in the current scope)";
+                //     res.push_back(std::make_tuple(node->lineno, error_message));
+                //     symtab.error_count++;
+                // }
+                string error_message = "semantic ('" + left_assign->value + "' does not exist in the current scope)";
+                res.push_back(std::make_tuple(node->lineno, error_message));
+                symtab.error_count++;
+                //cout << "AAAAAAAAAAAAA"<<endl;
+            }
 
             // om d är en identifier (classdata) så går vi in i d. Sen kollar vi om d har funktionen yfunc.
             // kolla return type of yfunc jämför (if) om a = d.func om a är valid type boolean
