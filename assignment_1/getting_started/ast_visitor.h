@@ -191,7 +191,7 @@ public:
             curr_class_name.clear(); // Reset after class processing
 
         }
-        if (node->type == "methodDeclarations") for (auto child : node->children) visit(child);
+        if (node->type == "methodDeclarations"){ for (auto child : node->children) visit(child);}
 
         if (node->type == "methodDec") 
         {
@@ -233,11 +233,9 @@ public:
                             }
                         }
                     }
-                    
                 }
-                    
             }
-            
+
 
             for (auto child : node->children) visit(child);
             symtab.exit_scope();
@@ -429,6 +427,21 @@ public:
         } 
         
         
+        if (node->type == "var declarations") for (auto child : node->children) visit(child);
+
+        if (node->type == "var declaration"){
+            Node* check_if_type_or_type = node->children.front(); // typechar or INT etc..
+            if (check_if_type_or_type->type == "typechar"){
+                Node* check_class_name = check_if_type_or_type->children.front();
+                Symbol* trytofindme = symtab.lookup(check_class_name->value);
+                if (!trytofindme){
+                    //// @error - semantic ('classthatdoesntExist' is undefined)
+                    string error_msg = "semantic ('" + check_class_name->value + "' is undefined)";
+                    res.push_back(std::make_tuple(node->lineno, error_msg));
+                    symtab.error_count++;
+                }
+            }
+        }
         
         // if (node->type == "SOMETHING [ASSIGNED] = TO SOMETHING") { 
         //     cout << "YOOOOOOOOOOOOOOOOOOOOOOOO";
