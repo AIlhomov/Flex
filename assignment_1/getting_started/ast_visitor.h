@@ -1,7 +1,7 @@
 # include "Node.h"
 # include "symtab.h"
 # include <algorithm>
-
+# include <unordered_set>
 
  /*
  My own lexicon of errors:  
@@ -39,6 +39,7 @@ private:
     Node* curr_class_for_returns = nullptr;
     //Node* curr_method_for_returns = nullptr;
     string method_scope_name;
+    unordered_set<string> declared_vars; // Track local declarations
 public:
     ASTVisitor(SymbolTable &st) : symtab(st) {}
 
@@ -177,7 +178,7 @@ public:
         }
         if (node->type == "classDeclaration"){
             curr_class_for_returns = node;
-
+            
 
             Node* class_name_node = node->children.front(); // identifier:DuplicateIdentifiers
             
@@ -187,6 +188,7 @@ public:
             symtab.enter_scope(class_name_node->value);
             // identifier:DuplicateIdentifiers, reqVarDeclaration, reqMethodDeclaration methodDeclaration:
             for (auto child : node->children) visit(child); // visit all children of classDeclaration
+            declared_vars.clear();
             symtab.exit_scope();
             curr_class_name.clear(); // Reset after class processing
 
@@ -194,7 +196,8 @@ public:
         if (node->type == "methodDeclarations"){ for (auto child : node->children) visit(child);}
 
         if (node->type == "methodDec") 
-        {
+        {   
+            
             Node* first_type_of_method = node->children.front();
 
             Node* methodDec_return_node_but_not_type = *std::next(node->children.begin(), 4); //RETURN
@@ -255,6 +258,26 @@ public:
             Symbol* found_the_non_existent = symtab.lookup(left_assign->value); // IMPORTANT
 
             //cout<< "SOMETHING " << found_the_non_existent<< endl;
+            // kolla i klassen scope
+            if (found_the_non_existent){ // variable exists later or sooner.
+                //cout << "is this a d ?? " << found_the_non_existent->name << endl;
+                
+                    //Scope* check_if_var_in_scope = symtab.get_class_scope(found_the_non_existent->name);
+                    // cout << "LASDASDASDASD" << endl;
+                    // for (auto i : declared_vars){
+                        
+                    //     cout << i << " ";
+                    // }
+                    if (!declared_vars.count(left_assign->value)){
+                        
+                        string error_message = "semantic ('" + left_assign->value + "' is not defined yet)";
+                        res.push_back(std::make_tuple(node->lineno, error_message));
+                        symtab.error_count++;
+                    }
+                
+                
+            }
+            
 
             if (either_an_ident_or_exp_DOT_ident->type == "identifier" && found_the_non_existent){
                 Symbol* right_assign = symtab.lookup(either_an_ident_or_exp_DOT_ident->value);
@@ -266,6 +289,11 @@ public:
                     res.push_back(std::make_tuple(node->lineno, error_message));
                     symtab.error_count++;
                 }
+                // else if (!declared_vars.count(either_an_ident_or_exp_DOT_ident->value)){
+                //     string error_message = "semantic ('" + left_assign->value + "' is not defined yet)";
+                //     res.push_back(std::make_tuple(node->lineno, error_message));
+                //     symtab.error_count++;
+                // }
             }
 
             if (!found_the_non_existent ){ // @error - semantic ('e' does not exist in the current scope) 
@@ -431,8 +459,10 @@ public:
 
         if (node->type == "var declaration"){
             Node* check_if_type_or_type = node->children.front(); // typechar or INT etc..
+            Node* check_name = *std::next(node->children.begin());
             if (check_if_type_or_type->type == "typechar"){
                 Node* check_class_name = check_if_type_or_type->children.front();
+                //declared_vars.insert(check_class_name->value);
                 Symbol* trytofindme = symtab.lookup(check_class_name->value);
                 if (!trytofindme){
                     //// @error - semantic ('classthatdoesntExist' is undefined)
@@ -440,9 +470,20 @@ public:
                     res.push_back(std::make_tuple(node->lineno, error_msg));
                     symtab.error_count++;
                 }
+                
             }
-        }
+            
+            declared_vars.insert(check_name->value);
+            
         
+        }
+        if (node->type == "parameters"){
+            for (auto child : node->children) visit(child);
+        }
+        if (node->type == "parameter"){
+            Node* name_of_parameter = *std::next(node->children.begin());
+            declared_vars.insert(name_of_parameter->value);
+        }
         // if (node->type == "SOMETHING [ASSIGNED] = TO SOMETHING") { 
         //     cout << "YOOOOOOOOOOOOOOOOOOOOOOOO";
         //     handle_array_access(node); 
