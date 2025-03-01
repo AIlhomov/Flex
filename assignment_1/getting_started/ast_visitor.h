@@ -249,6 +249,9 @@ public:
                     else {
                         
                         //cout << symtab.writeAllSymbols();
+
+                        // THIS IS // @error - semantic (type mismatch)
+                        // BUT IN InvalidReturn ITS // @error - semantic (invalid return type) LIKE WHAT
                         if (found){
                             if (found->type != first_type_of_method->type){
                                 res.push_back(std::make_tuple(first_type_of_method->lineno, "semantic (type mismatch)"));
@@ -258,6 +261,37 @@ public:
                     }
                 }
             }
+            if (methodDec_return_node_but_not_type->type == "RETURN"){
+                Node* check_if_its_an_exp = methodDec_return_node_but_not_type->children.front();
+                if (check_if_its_an_exp->type == "exp DOT ident LP exp COMMA exp RP"){
+                    Node* get_var_name_for_return = *std::next(check_if_its_an_exp->children.begin());
+                    //cout <<"THIS SHOULD BE zxFu " <<  get_var_name_for_return->value << endl;
+                    Symbol* get_sym_var_name_for_return = symtab.lookup(get_var_name_for_return->value);
+                    if (get_sym_var_name_for_return){
+                        //cout<<get_sym_var_name_for_return->type<<" oaisdoiasnd ";
+                        if (get_sym_var_name_for_return->type != first_type_of_method->type){
+                            res.push_back(std::make_tuple(first_type_of_method->lineno, "semantic (invalid return type)"));
+                            symtab.error_count++;
+                        }
+                    }
+                }
+                else if (check_if_its_an_exp->type == "expression LEFT_BRACKET expression RIGHT_BRACKET"){
+                    Node* check_if_its_an_exp2 = *std::next(check_if_its_an_exp->children.begin());
+
+                    Node* get_var_for_THIS = *std::next(check_if_its_an_exp2->children.begin());//yzFunc
+
+                    Symbol* find_return_THIS = symtab.lookup(get_var_for_THIS->value);
+
+                    if (find_return_THIS){
+                        if (find_return_THIS->type != first_type_of_method->type){
+                            res.push_back(std::make_tuple(get_var_for_THIS->lineno, "semantic (invalid type in the return statement)"));
+                            symtab.error_count++;
+                        }
+                    }
+                }
+            }
+            
+            
 
 
             for (auto child : node->children) visit(child);
