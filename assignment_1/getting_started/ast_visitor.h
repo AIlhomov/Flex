@@ -116,6 +116,26 @@ public:
             symtab.add_symbol(method_sym);
             symtab.enter_scope(method_sym.name); // different here
             for (auto child : node->children) visit_THE_WHOLE_AST_FOR_THE_SYMTAB(child);  
+
+            // Collect parameter types from current scope (method's scope)
+            vector<string> param_types;
+
+            for (const auto& entry : symtab.current_scope->symbols){
+                if (entry.second.kind == PARAMETER){
+                    //cout << entry.second.name <<" "; 
+                    param_types.push_back(entry.second.name);
+                }
+            }
+
+            // Update method symbol in CLASS scope with parameters
+            Scope* class_scope = symtab.current_scope->parent;
+            if (class_scope) {
+                Symbol* method_symbol = class_scope->lookup(method_sym.name);
+                if (method_symbol) {
+                    method_symbol->param_types = param_types;
+                }
+            }
+
             symtab.exit_scope();
 
         }
@@ -253,9 +273,40 @@ public:
 
         if (node->type == "SOMETHING ASSIGNED = TO SOMETHING"){
             Node* left_assign = node->children.front();
-            Node* either_an_ident_or_exp_DOT_ident = *std::next(node->children.begin());
+            Node* either_an_ident_or_exp_DOT_ident = *std::next(node->children.begin()); // it can even be an operator like ADD
             // @error - semantic ('e' does not exist in the current scope)
             Symbol* found_the_non_existent = symtab.lookup(left_assign->value); // IMPORTANT
+
+
+            if (either_an_ident_or_exp_DOT_ident->type == "AddExpression"){
+                if (either_an_ident_or_exp_DOT_ident->type == "AddExpression"){
+                    //then get the two types yalla
+                    Node* left_after_equal = either_an_ident_or_exp_DOT_ident->children.front(); //identifier:i1
+                    Node* right_after_equal = *std::next(either_an_ident_or_exp_DOT_ident->children.begin()); //identifier:b1
+
+                    //does it even exist?
+                    Symbol* left_sym_after_equal = symtab.lookup(left_after_equal->value);
+                    Symbol* right_sym_after_equal =  symtab.lookup(right_after_equal->value);
+
+                    if (left_sym_after_equal && right_sym_after_equal) { //it does indeed exist.
+                        if (found_the_non_existent->type != left_sym_after_equal->type){ 
+                            //i1 = b1 + b1;// @error - semantic ('b1' is of wrong type)
+                            string error_msg = "semantic ('" + left_sym_after_equal->name +\
+                            "' is of wrong type)";
+                            res.push_back(std::make_tuple(node->lineno, error_msg));
+                            symtab.error_count++;
+                        }
+                        else if (found_the_non_existent->type != right_sym_after_equal->type){
+                            // now the same as before but for right side.
+                            string error_msg = "semantic ('" + right_sym_after_equal->name +\
+                            "' is of wrong type)";
+                            res.push_back(std::make_tuple(node->lineno, error_msg));
+                            symtab.error_count++;
+                        }
+                    }
+                    
+                }
+            }
 
             //cout<< "SOMETHING " << found_the_non_existent<< endl;
             // kolla i klassen scope
@@ -278,9 +329,15 @@ public:
                 
             }
             
-
+            
             if (either_an_ident_or_exp_DOT_ident->type == "identifier" && found_the_non_existent){
+
+
                 Symbol* right_assign = symtab.lookup(either_an_ident_or_exp_DOT_ident->value);
+
+                
+
+
 
                 // @error - semantic ('a' and expression 'b' are of different types)
                 if (found_the_non_existent->type != right_assign->type){
@@ -311,14 +368,124 @@ public:
 
             // om d är en identifier (classdata) så går vi in i d. Sen kollar vi om d har funktionen yfunc.
             // kolla return type of yfunc jämför (if) om a = d.func om a är valid type boolean
-
+            
+            //PROBABLY CHANGE LATER:
             if (either_an_ident_or_exp_DOT_ident->type == "exp DOT ident LP exp COMMA exp RP"){
                 Node* method_name_node = *std::next(either_an_ident_or_exp_DOT_ident->children.begin()); //yFunc
                 Node* obj_node = either_an_ident_or_exp_DOT_ident->children.front(); //
-
+                Node* argument_list_or_argument = *std::next(either_an_ident_or_exp_DOT_ident->children.begin(), 2);
                 // try to see if even the function (.zzFunc) even exists.
-                // Symbol* does_this_exist = symtab.lookup(method_name_node->value);
+                Symbol* does_this_exist = symtab.lookup(method_name_node->value);
                 
+                if (argument_list_or_argument->type == "argument_list"){
+                    // this one below can be 3 things (1. exp_dot_ident 2. argument 3. INT)
+                    Node* check_if_argument_or_DOT_ident = argument_list_or_argument->children.front();
+                    if (check_if_argument_or_DOT_ident->type == "identifier"){
+                        Node* check_if_argument_exist = check_if_argument_or_DOT_ident->children.front();
+                        if (check_if_argument_exist){ // loop through all arguments.
+                            for (auto child : node->children) visit(child);
+                        }
+                    }
+                }
+                else if (argument_list_or_argument->type == "argument"){
+                    Node* check_if_its_an_THIS = either_an_ident_or_exp_DOT_ident->children.front();
+                    Node* get_the_name = *std::next(either_an_ident_or_exp_DOT_ident->children.begin());
+                    cout<<"YWDAWDAWD "<<check_if_its_an_THIS->type<<endl;
+                    if (check_if_its_an_THIS->type == "THIS"){
+                        Symbol* check_its_type = symtab.lookup(get_the_name->value);
+                        cout << "FOUND YUEA " << check_its_type<<endl;
+                    }
+                }
+
+                // KIND OF CORRECT BUT MAY NEEDS CHANGINGS.
+                if (obj_node->type == "exp DOT ident LP exp COMMA exp RP"){
+                    
+                    Node* check_this = obj_node->children.front(); // THIS
+                    Node* ident_name_to_find = *std::next(obj_node->children.begin()); // identifier:extract 
+                    // Node* argument_list_or_argument = *std::next(obj_node->children.begin(), 2);
+                    // cout << argument_list_or_argument->type<<endl;
+                    // if (check_this->type == "exp DOT ident LP exp COMMA exp RP" ){
+
+                    // }
+
+                    if (check_this->type == "THIS"){
+                        Symbol* method_sym = symtab.lookup(ident_name_to_find->value);
+    
+                        if (method_sym && method_sym->kind == METHOD) {
+                            // 1. Get class scope (parent of current method scope)
+                            Scope* class_scope = symtab.current_scope->parent;
+                            
+                            // 2. Find method's own scope
+                            Scope* method_scope = nullptr;
+                            for (Scope* child : class_scope->children) {
+                                if (child->name == method_sym->name) {
+                                    method_scope = child;
+                                    break;
+                                }
+                            }
+                            
+                            // 3. Extract parameter types
+                            vector<string> param_types;
+                            if (method_scope) {
+                                for (const auto& entry : method_scope->symbols) {
+                                    if (entry.second.kind == PARAMETER) {
+                                        param_types.push_back(entry.second.type);
+                                    }
+                                }
+                            }
+                            
+                            // Now param_types contains ["int"] for a1()
+                            // Use these to validate arguments
+                        }
+                    }
+                }
+
+                // just incorrect:
+                if (does_this_exist){
+                    Node* check_if_this = either_an_ident_or_exp_DOT_ident->children.front(); // THIS
+                    Node* check_left_name_for_lookup = *std::next(either_an_ident_or_exp_DOT_ident->children.begin());
+
+                    if (check_left_name_for_lookup && check_if_this){ // just to be sure to not get segmentation fault
+                        if (check_if_this->type == "THIS"){       
+                            //cout << "GOTOOTTO " <<check_left_name_for_lookup->value<<endl;
+                            Symbol* find_me = symtab.lookup(check_left_name_for_lookup->value);
+                            //cout << "LOSADOAKDOASKDOKSD " << find_me->name << endl;
+                            //if (check_left_name_for_lookup->type == ) 
+                        }
+                    }
+                    
+                    //Scope* method_sym = symtab.get_class_scope(does_this_exist->type);
+                    // Extract arguments from the method call node
+                    vector<Node*> args;
+                    //cout << symtab.writeAllSymbols()<<endl;
+                    extract_arguments(obj_node, args);
+                    //for (auto i : args) cout << i->value << " ";
+                    //cout << "size: " << does_this_exist->type << endl; // BOOLEAN == ?
+                    //if (does_this_exist->type == );
+                    //if (args.size() != does_this_exist->param_types.size()) cout <<"DOHNAODSADOIANSD"; 
+                    // if (args.size() != does_this_exist->param_types.size()) {
+                    //     string error_msg = "semantic (method '" + method_name_node->value + 
+                    //                       "' expects " + to_string(does_this_exist->param_types.size()) + 
+                    //                       " parameters)";
+                    //     res.push_back(make_tuple(node->lineno, error_msg));
+                    //     symtab.error_count++;
+                    // } else {
+                    //     // Check each argument type
+                    //     for (int i = 0; i < args.size(); i++) {
+                    //         string arg_type = get_exp_type(args[i]);
+                    //         if (arg_type != does_this_exist->param_types[i]) {
+                    //             string error_msg = "semantic (parameter " + to_string(i+1) + 
+                    //                               " of '" + method_name_node->value + 
+                    //                               "' expects " + does_this_exist->param_types[i] + 
+                    //                               ", got " + arg_type + ")";
+                    //             res.push_back(make_tuple(node->lineno, error_msg));
+                    //             symtab.error_count++;
+                    //         }
+                    //     }
+                    // }
+                    //Node* args_node = *std::next(either_an_ident_or_exp_DOT_ident->children.begin(), 2);  //change
+                    //cout << "args_node " << args_node->type << endl;
+                }
                 
                 // if (!does_this_exist){ //it doesnt exist.
                 //     Scope* class_scope = symtab.get_class_scope(does_this_exist->type); //Get class scope (e.g., "classdata")
@@ -331,6 +498,8 @@ public:
                     
                 // }
 
+
+                // THIS IS GOOD: (other errors.)
                 if (obj_node->type == "THIS"){
                     Symbol* obj_sym = symtab.lookup(method_name_node->value);
                     //cout << "found it name " << obj_sym->name <<" type "<<obj_sym->type<< endl;
@@ -490,11 +659,46 @@ public:
         // } // num_aux[false] = 2;
         //cout << "WE ARE HERE: " << node->type << endl;
         
+        if (node->type == "argument"){ // check SOMETHING ASSIGNED TO SOMETHING.
 
+        }
         
     }
 
 private:
+
+    void extract_arguments(Node* args_node, vector<Node*>& args) {
+        if (!args_node) return;
+        // args_node is exp DOT ident LP exp COMMA exp RP
+        
+        // if (args_node->type == "argument_list") {
+        //     for (auto child : args_node->children) {
+        //         if (child->type == "expression") {
+        //             args.push_back(child);
+        //         }
+        //     }
+        // }
+        if (args_node->type == "exp DOT ident LP exp COMMA exp RP"){
+            Node* var_name = *std::next(args_node->children.begin());//identifier:a3
+            Node* if_argument_or_argument_list = *std::next(args_node->children.begin(), 2); //argument
+            
+            if (if_argument_or_argument_list->type == "argument"){
+                args.push_back(var_name);
+            }
+            if (if_argument_or_argument_list->type == "argument_list"){ // send back the third node
+                for (auto child : if_argument_or_argument_list->children){
+                    extract_arguments(child, args);
+                }
+            }
+            if (args_node->type == "exp DOT ident LP exp COMMA exp RP"){
+                for (auto child : args_node->children){
+                    extract_arguments(child, args);
+                }
+                
+            }
+        }
+        
+    }
 
     Node* find_declared_method_type(Node* n, const string& searched){
         //cout << n->type << endl;

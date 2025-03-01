@@ -64,7 +64,7 @@ perhaps mention it ? like at the root.
 /* The type specifies the data type of the values associated with these non-terminals */
 %type <Node *> root expression factor identifier type statement reqStatement mainClass varDeclaration reqVarOrStmt reqMethodDeclaration argument_list
 %type <Node *> methodDeclaration reqVarDeclaration classDeclaration parameters parameter_list goal singleClassDeclaration arguments 
-%type <Node *> retSTMT
+%type <Node *> retSTMT dotExpTest
 /* Grammar rules section */
 /* This section defines the production rules for the language being parsed */
 %%
@@ -476,8 +476,33 @@ expression: expression PLUSOP expression {      /*
 				$$->children.push_back($5);
 				
 			}
+			| expression DOT identifier LP //wtf will happen now (req or smthn)
+			arguments RP dotExpTest {
+				$$ = new Node("karma", "", yylineno);
+				$$->children.push_back($1); /* `new A()` */
+        		$$->children.push_back($3); /* `a2` */
+				$$->children.push_back($5);
+				$$->children.push_back($7);
+				
+			}
 			/* hello.a(2,b,a,f,d,s,1,2,4,a,s) */
       		;
+
+dotExpTest: DOT identifier LP arguments RP { $$ = new Node("DOT identifier LP arguments RP", "", yylineno);
+											  $$->children.push_back($2);
+											  $$->children.push_back($4);
+											}
+			|
+			DOT identifier LP arguments RP dotExpTest { $$ = new Node("DOT identifier LP arguments RP dotExpTest", "", yylineno);
+														$$->children.push_back($2);
+														$$->children.push_back($4);
+														$$->children.push_back($6);
+				}
+			|DOT LENGTH { $$ = new Node("DOT LENGTH", "", yylineno); }
+
+			
+			;
+			
 
 arguments: %empty { $$ = new Node("argument", "", yylineno); }
          | argument_list { $$ = $1; }
