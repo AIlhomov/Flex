@@ -279,33 +279,49 @@ public:
 
 
             if (either_an_ident_or_exp_DOT_ident->type == "AddExpression"){
-                if (either_an_ident_or_exp_DOT_ident->type == "AddExpression"){
-                    //then get the two types yalla
-                    Node* left_after_equal = either_an_ident_or_exp_DOT_ident->children.front(); //identifier:i1
-                    Node* right_after_equal = *std::next(either_an_ident_or_exp_DOT_ident->children.begin()); //identifier:b1
+                
+                //then get the two types yalla
+                Node* left_after_equal = either_an_ident_or_exp_DOT_ident->children.front(); //identifier:i1
+                Node* right_after_equal = *std::next(either_an_ident_or_exp_DOT_ident->children.begin()); //identifier:b1
+                //does it even exist?
+                Symbol* left_sym_after_equal = symtab.lookup(left_after_equal->value);
+                Symbol* right_sym_after_equal =  symtab.lookup(right_after_equal->value);
 
-                    //does it even exist?
-                    Symbol* left_sym_after_equal = symtab.lookup(left_after_equal->value);
-                    Symbol* right_sym_after_equal =  symtab.lookup(right_after_equal->value);
+                if (left_sym_after_equal && right_sym_after_equal) { //it does indeed exist.
+                    if (found_the_non_existent->type != left_sym_after_equal->type){ 
+                        //i1 = b1 + b1;// @error - semantic ('b1' is of wrong type)
+                        string error_msg = "semantic ('" + left_sym_after_equal->name +\
+                        "' is of wrong type)";
+                        res.push_back(std::make_tuple(node->lineno, error_msg));
+                        symtab.error_count++;
+                    }
+                    else if (found_the_non_existent->type != right_sym_after_equal->type){
+                        // now the same as before but for right side.
+                        string error_msg = "semantic ('" + right_sym_after_equal->name +\
+                        "' is of wrong type)";
+                        res.push_back(std::make_tuple(node->lineno, error_msg));
+                        symtab.error_count++;
+                    }           
+                }
+                if (right_after_equal->type == "expression LEFT_BRACKET expression RIGHT_BRACKET"){
+                    //i1 = ia1 + ia1[0];// @error - semantic ('ia1' is of wrong type)
 
-                    if (left_sym_after_equal && right_sym_after_equal) { //it does indeed exist.
-                        if (found_the_non_existent->type != left_sym_after_equal->type){ 
-                            //i1 = b1 + b1;// @error - semantic ('b1' is of wrong type)
-                            string error_msg = "semantic ('" + left_sym_after_equal->name +\
-                            "' is of wrong type)";
-                            res.push_back(std::make_tuple(node->lineno, error_msg));
-                            symtab.error_count++;
-                        }
-                        else if (found_the_non_existent->type != right_sym_after_equal->type){
-                            // now the same as before but for right side.
-                            string error_msg = "semantic ('" + right_sym_after_equal->name +\
+                    //now get the two childs:
+                    Node* var_name_for_arr = right_after_equal->children.front(); //identifier:ia1
+                    Node* get_inside_brackets = *std::next(right_after_equal->children.begin()); // INT:0
+                    //cout << var_name_for_arr->value << endl;
+                    //cout << get_inside_brackets->type << endl;
+                    Symbol* find_the_variable_as_arr = symtab.lookup(var_name_for_arr->value);
+                    if (find_the_variable_as_arr){
+                        if (found_the_non_existent->type != find_the_variable_as_arr->type){
+                            string error_msg = "semantic ('" + find_the_variable_as_arr->name +\
                             "' is of wrong type)";
                             res.push_back(std::make_tuple(node->lineno, error_msg));
                             symtab.error_count++;
                         }
                     }
-                    
                 }
+                
             }
 
             //cout<< "SOMETHING " << found_the_non_existent<< endl;
