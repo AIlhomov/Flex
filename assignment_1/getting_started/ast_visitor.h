@@ -324,6 +324,26 @@ public:
                 
             }
 
+            else if (either_an_ident_or_exp_DOT_ident->type == "AND"){
+                //get the two childs:
+                Node* left_in_AND = either_an_ident_or_exp_DOT_ident->children.front();
+                Node* right_in_AND = *std::next(either_an_ident_or_exp_DOT_ident->children.begin());
+
+                Symbol* left_sym_in_AND = symtab.lookup(left_in_AND->value);
+                Symbol* right_sym_in_AND = symtab.lookup(right_in_AND->value);
+
+                if (left_sym_in_AND && right_sym_in_AND){
+                    if (found_the_non_existent->type != left_sym_in_AND->type && found_the_non_existent->type != right_sym_in_AND->type){
+                        //@error - semantic ('c1' is of wrong type, 'i1' and expression 'c1 && c1' are of different types)
+                        string error_msg = "semantic ('" + left_sym_in_AND->name +\
+                        "' is of wrong type, '" + found_the_non_existent->name + "' and expression '" +\
+                        left_sym_in_AND->name + " && " + right_sym_in_AND->name + "' are of different types)";
+                        res.push_back(std::make_tuple(node->lineno, error_msg));
+                        symtab.error_count++;
+                    }
+                }
+            }
+
             //cout<< "SOMETHING " << found_the_non_existent<< endl;
             // kolla i klassen scope
             if (found_the_non_existent){ // variable exists later or sooner.
