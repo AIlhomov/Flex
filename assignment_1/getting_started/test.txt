@@ -33,6 +33,7 @@ class MyClass {
         ia1 = ia1 + ia2;// @error - semantic
         ia1 = ia1 && ia2;// @error - semantic
         b1 = b1 < b2;// @error - semantic
+        
         b1 = !i1;// @error - semantic
         return true;
     }

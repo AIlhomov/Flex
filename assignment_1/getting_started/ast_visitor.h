@@ -277,6 +277,21 @@ public:
             // @error - semantic ('e' does not exist in the current scope)
             Symbol* found_the_non_existent = symtab.lookup(left_assign->value); // IMPORTANT
 
+            bool flag = false; //used for when its okay for example i1 = ia1[1] + ia2[2]; or b1 = i1 < i2;
+
+            if (either_an_ident_or_exp_DOT_ident->type == "EXCLAMATION_MARK expression"){
+                Node* var_in_exclamation_mark = either_an_ident_or_exp_DOT_ident->children.front(); 
+
+                // find it
+                Symbol* var_sym_in_exclamation_mark = symtab.lookup(var_in_exclamation_mark->value);
+
+                if (var_sym_in_exclamation_mark){
+                    if (var_sym_in_exclamation_mark->type != "BOOLEAN"){
+                        res.push_back(std::make_tuple(node->lineno, "semantic"));
+                        symtab.error_count++;
+                    }
+                }
+            }
 
             if (either_an_ident_or_exp_DOT_ident->type == "AddExpression"){
                 
@@ -286,6 +301,15 @@ public:
                 //does it even exist?
                 Symbol* left_sym_after_equal = symtab.lookup(left_after_equal->value);
                 Symbol* right_sym_after_equal =  symtab.lookup(right_after_equal->value);
+
+
+                if (found_the_non_existent->type == "BOOLEAN"){//b1 = b1 + b1;// @error - semantic
+                    if (left_sym_after_equal->type == "BOOLEAN" && right_sym_after_equal->type == "BOOLEAN"){
+                        res.push_back(std::make_tuple(node->lineno, "semantic"));
+                        symtab.error_count++;
+                    }
+                }
+               
 
                 if (left_sym_after_equal && right_sym_after_equal) { //it does indeed exist.
                     if (found_the_non_existent->type != left_sym_after_equal->type){ 
@@ -301,7 +325,30 @@ public:
                         "' is of wrong type)";
                         res.push_back(std::make_tuple(node->lineno, error_msg));
                         symtab.error_count++;
-                    }           
+                    }    
+                    else if (found_the_non_existent->type == "INT LB RB"){//ia1 = ia1 + ia2;// @error - semantic
+                        res.push_back(std::make_tuple(node->lineno, "semantic"));
+                        symtab.error_count++;
+                    }       
+                }
+                if (left_after_equal->type == "expression LEFT_BRACKET expression RIGHT_BRACKET" &&
+                    right_after_equal->type == "expression LEFT_BRACKET expression RIGHT_BRACKET"){
+                    
+                    Node* vararr_of_left = left_after_equal->children.front();
+                    Node* vararr_of_right = right_after_equal->children.front();
+                    
+                    Symbol* left_sym = symtab.lookup(vararr_of_left->value);
+                    Symbol* right_sym = symtab.lookup(vararr_of_right->value);
+
+                    if (left_sym && right_sym){
+                        if (left_sym->type == right_sym->type){ //THEY BOTH ARE SAME TYPE arrays.
+                            if (left_sym->type == "INT LB RB" && right_sym->type == "INT LB RB"){
+                                if (found_the_non_existent->type == "INT"){
+                                    flag = true; // ITS OKAY THEY BOTH ARRAYS ARE INT AND THE LEFT ASSIGN VAR IS ALSO AN INT.
+                                }
+                            }
+                        }
+                    }
                 }
                 if (right_after_equal->type == "expression LEFT_BRACKET expression RIGHT_BRACKET"){
                     //i1 = ia1 + ia1[0];// @error - semantic ('ia1' is of wrong type)
@@ -313,7 +360,10 @@ public:
                     //cout << get_inside_brackets->type << endl;
                     Symbol* find_the_variable_as_arr = symtab.lookup(var_name_for_arr->value);
                     if (find_the_variable_as_arr){
-                        if (found_the_non_existent->type != find_the_variable_as_arr->type){
+                        // its okay if they both are INT [] and the left  assign (found_the_non_existent) is an int.
+                        
+                        if (found_the_non_existent->type != find_the_variable_as_arr->type && !flag){
+                            
                             string error_msg = "semantic ('" + find_the_variable_as_arr->name +\
                             "' is of wrong type)";
                             res.push_back(std::make_tuple(node->lineno, error_msg));
@@ -332,7 +382,13 @@ public:
                 Symbol* left_sym_in_AND = symtab.lookup(left_in_AND->value);
                 Symbol* right_sym_in_AND = symtab.lookup(right_in_AND->value);
 
+                if (left_sym_in_AND->type != right_sym_in_AND->type && !flag){
+                    res.push_back(std::make_tuple(node->lineno, "semantic"));
+                    symtab.error_count++;
+                }
+
                 if (left_sym_in_AND && right_sym_in_AND){
+                    
                     if (found_the_non_existent->type != left_sym_in_AND->type && found_the_non_existent->type != right_sym_in_AND->type){
                         //@error - semantic ('c1' is of wrong type, 'i1' and expression 'c1 && c1' are of different types)
                         string error_msg = "semantic ('" + left_sym_in_AND->name +\
@@ -341,9 +397,55 @@ public:
                         res.push_back(std::make_tuple(node->lineno, error_msg));
                         symtab.error_count++;
                     }
+                    else if (found_the_non_existent->type == "INT LB RB"){//ia1 = ia1 + ia2;// @error - semantic
+                        res.push_back(std::make_tuple(node->lineno, "semantic"));
+                        symtab.error_count++;
+                    }  
                 }
             }
 
+            else if (either_an_ident_or_exp_DOT_ident->type == "OR" ||
+                either_an_ident_or_exp_DOT_ident->type == "LESS_THAN" ||
+                either_an_ident_or_exp_DOT_ident->type == "EQUAL"){
+                
+                Node* left_of_op = either_an_ident_or_exp_DOT_ident->children.front();
+                Node* right_of_op = *std::next(either_an_ident_or_exp_DOT_ident->children.begin());
+
+                Symbol* left_sym_of_op = symtab.lookup(left_of_op->value);
+                Symbol* right_sym_of_op = symtab.lookup(right_of_op->value);
+                
+                //sometimes its okay.
+                
+
+                if (left_sym_of_op && right_sym_of_op){
+
+                    if (left_sym_of_op->type == right_sym_of_op->type){
+                        if (left_sym_of_op->type == "BOOLEAN" &&
+                            right_sym_of_op->type == "BOOLEAN" &&
+                            found_the_non_existent->type == "BOOLEAN"){
+                            res.push_back(std::make_tuple(node->lineno, "semantic"));
+                            symtab.error_count++;
+                        }
+                        if (found_the_non_existent->type == "BOOLEAN" &&
+                            right_sym_of_op->type != "BOOLEAN" &&
+                            left_sym_of_op->type != "BOOLEAN"){
+                            flag = true; //THIS IS OKAY b1 = i1 < i2;
+                        }
+                    }
+                    
+                    if (left_sym_of_op->type != right_sym_of_op->type && !flag){
+                        res.push_back(std::make_tuple(node->lineno, "semantic"));
+                        symtab.error_count++;
+                    }
+
+                    if (found_the_non_existent->type != left_sym_of_op->type &&
+                        found_the_non_existent->type != right_sym_of_op->type && !flag){
+                            res.push_back(std::make_tuple(node->lineno, "semantic"));
+                            symtab.error_count++;
+                        }
+                }
+
+            }
             //cout<< "SOMETHING " << found_the_non_existent<< endl;
             // kolla i klassen scope
             if (found_the_non_existent){ // variable exists later or sooner.

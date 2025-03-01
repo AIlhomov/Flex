@@ -1,7 +1,7 @@
 digraph {
 n0 [label="goal:"];
 n1 [label="MAIN CLASS:"];
-n2 [label="identifier:InvalidOperations"];
+n2 [label="identifier:SemanticDuplicateIdentifiersSeparateScope"];
 n1 -> n2
 n3 [label="MAIN METHOD:"];
 n4 [label="identifier:a"];
@@ -9,10 +9,10 @@ n3 -> n4
 n5 [label="SIMPLE PRINT LOL:"];
 n6 [label="exp DOT ident LP exp COMMA exp RP:"];
 n7 [label="NEW identifier LP RP:"];
-n8 [label="identifier:MyClass"];
+n8 [label="identifier:A"];
 n7 -> n8
 n6 -> n7
-n9 [label="identifier:semantically_incorrect_expressions"];
+n9 [label="identifier:A"];
 n6 -> n9
 n10 [label="argument:"];
 n6 -> n10
@@ -24,416 +24,168 @@ n1 -> n3
 n0 -> n1
 n12 [label="classDeclarations:"];
 n13 [label="classDeclaration:"];
-n14 [label="identifier:MyClass"];
+n14 [label="identifier:A"];
 n13 -> n14
 n15 [label="var declarations:"];
 n16 [label="var declaration:"];
 n17 [label="INT:"];
 n16 -> n17
-n18 [label="identifier:i1"];
+n18 [label="identifier:A"];
 n16 -> n18
 n15 -> n16
-n19 [label="var declaration:"];
-n20 [label="INT:"];
-n19 -> n20
-n21 [label="identifier:i2"];
-n19 -> n21
-n15 -> n19
-n22 [label="var declaration:"];
-n23 [label="BOOLEAN:"];
-n22 -> n23
-n24 [label="identifier:b1"];
-n22 -> n24
-n15 -> n22
-n25 [label="var declaration:"];
-n26 [label="BOOLEAN:"];
-n25 -> n26
-n27 [label="identifier:b2"];
-n25 -> n27
-n15 -> n25
-n28 [label="var declaration:"];
-n29 [label="INT LB RB:"];
-n28 -> n29
-n30 [label="identifier:ia1"];
-n28 -> n30
-n15 -> n28
-n31 [label="var declaration:"];
-n32 [label="INT LB RB:"];
-n31 -> n32
-n33 [label="identifier:ia2"];
-n31 -> n33
-n15 -> n31
-n34 [label="var declaration:"];
-n35 [label="typechar:"];
-n36 [label="identifier:ClassDatatest"];
-n35 -> n36
-n34 -> n35
-n37 [label="identifier:c1"];
-n34 -> n37
-n15 -> n34
-n38 [label="var declaration:"];
-n39 [label="typechar:"];
-n40 [label="identifier:ClassDatatest"];
-n39 -> n40
-n38 -> n39
-n41 [label="identifier:c2"];
-n38 -> n41
-n15 -> n38
 n13 -> n15
-n42 [label="methodDeclarations:"];
-n43 [label="methodDec:"];
-n44 [label="BOOLEAN:"];
-n43 -> n44
-n45 [label="identifier:semantically_incorrect_expressions"];
-n43 -> n45
-n46 [label="parameters:"];
-n43 -> n46
-n47 [label="methodBody:"];
+n19 [label="methodDeclarations:"];
+n20 [label="methodDec:"];
+n21 [label="INT:"];
+n20 -> n21
+n22 [label="identifier:A"];
+n20 -> n22
+n23 [label="parameters:"];
+n20 -> n23
+n24 [label="methodBody:"];
+n25 [label="var declaration:"];
+n26 [label="INT:"];
+n25 -> n26
+n27 [label="identifier:A"];
+n25 -> n27
+n24 -> n25
+n28 [label="statement:"];
+n29 [label="SIMPLE PRINT LOL:"];
+n30 [label="exp DOT ident LP exp COMMA exp RP:"];
+n31 [label="THIS:"];
+n30 -> n31
+n32 [label="identifier:B"];
+n30 -> n32
+n33 [label="argument:"];
+n30 -> n33
+n29 -> n30
+n28 -> n29
+n24 -> n28
+n34 [label="statement:"];
+n35 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n36 [label="identifier:A"];
+n35 -> n36
+n37 [label="INT:1"];
+n35 -> n37
+n34 -> n35
+n24 -> n34
+n20 -> n24
+n38 [label="RETURN:"];
+n39 [label="identifier:A"];
+n38 -> n39
+n20 -> n38
+n19 -> n20
+n40 [label="methodDec:"];
+n41 [label="INT:"];
+n40 -> n41
+n42 [label="identifier:B"];
+n40 -> n42
+n43 [label="parameters:"];
+n40 -> n43
+n44 [label="methodBody:"];
+n45 [label="var declaration:"];
+n46 [label="INT:"];
+n45 -> n46
+n47 [label="identifier:B"];
+n45 -> n47
+n44 -> n45
 n48 [label="statement:"];
 n49 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
-n50 [label="identifier:i1"];
+n50 [label="identifier:A"];
 n49 -> n50
-n51 [label="AddExpression:"];
-n52 [label="identifier:i1"];
-n51 -> n52
-n53 [label="identifier:b1"];
-n51 -> n53
+n51 [label="INT:5"];
 n49 -> n51
 n48 -> n49
-n47 -> n48
-n54 [label="statement:"];
-n55 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
-n56 [label="identifier:i1"];
+n44 -> n48
+n52 [label="statement:"];
+n53 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n54 [label="identifier:B"];
+n53 -> n54
+n55 [label="exp DOT ident LP exp COMMA exp RP:"];
+n56 [label="NEW identifier LP RP:"];
+n57 [label="identifier:B"];
+n56 -> n57
 n55 -> n56
-n57 [label="AddExpression:"];
-n58 [label="identifier:i1"];
-n57 -> n58
-n59 [label="identifier:ia1"];
-n57 -> n59
-n55 -> n57
-n54 -> n55
-n47 -> n54
-n60 [label="statement:"];
-n61 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
-n62 [label="identifier:i1"];
+n58 [label="identifier:B"];
+n55 -> n58
+n59 [label="argument:"];
+n55 -> n59
+n53 -> n55
+n52 -> n53
+n44 -> n52
+n40 -> n44
+n60 [label="RETURN:"];
+n61 [label="AddExpression:"];
+n62 [label="identifier:A"];
 n61 -> n62
-n63 [label="AddExpression:"];
-n64 [label="identifier:i1"];
-n63 -> n64
-n65 [label="identifier:c1"];
-n63 -> n65
+n63 [label="identifier:B"];
 n61 -> n63
 n60 -> n61
-n47 -> n60
-n66 [label="statement:"];
-n67 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
-n68 [label="identifier:i1"];
+n40 -> n60
+n19 -> n40
+n13 -> n19
+n12 -> n13
+n64 [label="classDeclaration:"];
+n65 [label="identifier:B"];
+n64 -> n65
+n66 [label="var declarations:"];
+n67 [label="var declaration:"];
+n68 [label="INT:"];
 n67 -> n68
-n69 [label="AddExpression:"];
-n70 [label="identifier:b1"];
-n69 -> n70
-n71 [label="identifier:b1"];
-n69 -> n71
+n69 [label="identifier:A"];
 n67 -> n69
 n66 -> n67
-n47 -> n66
-n72 [label="statement:"];
-n73 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
-n74 [label="identifier:i1"];
-n73 -> n74
-n75 [label="AddExpression:"];
-n76 [label="identifier:ia1"];
+n64 -> n66
+n70 [label="methodDeclarations:"];
+n71 [label="methodDec:"];
+n72 [label="INT:"];
+n71 -> n72
+n73 [label="identifier:A"];
+n71 -> n73
+n74 [label="parameters:"];
+n75 [label="parameter:"];
+n76 [label="INT:"];
 n75 -> n76
-n77 [label="identifier:ia1"];
+n77 [label="identifier:A"];
 n75 -> n77
-n73 -> n75
-n72 -> n73
-n47 -> n72
-n78 [label="statement:"];
-n79 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
-n80 [label="identifier:i1"];
+n74 -> n75
+n71 -> n74
+n78 [label="methodBody:"];
+n71 -> n78
+n79 [label="RETURN:"];
+n80 [label="identifier:A"];
 n79 -> n80
-n81 [label="AddExpression:"];
-n82 [label="identifier:ia1"];
+n71 -> n79
+n70 -> n71
+n81 [label="methodDec:"];
+n82 [label="INT:"];
 n81 -> n82
-n83 [label="expression LEFT_BRACKET expression RIGHT_BRACKET:"];
-n84 [label="identifier:ia1"];
-n83 -> n84
-n85 [label="INT:0"];
-n83 -> n85
+n83 [label="identifier:B"];
 n81 -> n83
-n79 -> n81
-n78 -> n79
-n47 -> n78
-n86 [label="statement:"];
-n87 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
-n88 [label="identifier:i1"];
-n87 -> n88
-n89 [label="AddExpression:"];
-n90 [label="identifier:c1"];
-n89 -> n90
-n91 [label="identifier:c1"];
-n89 -> n91
-n87 -> n89
+n84 [label="parameters:"];
+n81 -> n84
+n85 [label="methodBody:"];
+n86 [label="var declaration:"];
+n87 [label="INT:"];
 n86 -> n87
-n47 -> n86
-n92 [label="statement:"];
-n93 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
-n94 [label="identifier:i1"];
+n88 [label="identifier:B"];
+n86 -> n88
+n85 -> n86
+n89 [label="statement:"];
+n90 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n91 [label="identifier:B"];
+n90 -> n91
+n92 [label="INT:1"];
+n90 -> n92
+n89 -> n90
+n85 -> n89
+n81 -> n85
+n93 [label="RETURN:"];
+n94 [label="identifier:B"];
 n93 -> n94
-n95 [label="AND:"];
-n96 [label="identifier:c1"];
-n95 -> n96
-n97 [label="identifier:c1"];
-n95 -> n97
-n93 -> n95
-n92 -> n93
-n47 -> n92
-n98 [label="statement:"];
-n99 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
-n100 [label="identifier:i1"];
-n99 -> n100
-n101 [label="OR:"];
-n102 [label="identifier:c1"];
-n101 -> n102
-n103 [label="identifier:c1"];
-n101 -> n103
-n99 -> n101
-n98 -> n99
-n47 -> n98
-n104 [label="statement:"];
-n105 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
-n106 [label="identifier:i1"];
-n105 -> n106
-n107 [label="LESS_THAN:"];
-n108 [label="identifier:c1"];
-n107 -> n108
-n109 [label="identifier:c1"];
-n107 -> n109
-n105 -> n107
-n104 -> n105
-n47 -> n104
-n110 [label="statement:"];
-n111 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
-n112 [label="identifier:b1"];
-n111 -> n112
-n113 [label="AddExpression:"];
-n114 [label="identifier:b1"];
-n113 -> n114
-n115 [label="identifier:b1"];
-n113 -> n115
-n111 -> n113
-n110 -> n111
-n47 -> n110
-n116 [label="statement:"];
-n117 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
-n118 [label="identifier:b1"];
-n117 -> n118
-n119 [label="AddExpression:"];
-n120 [label="identifier:b1"];
-n119 -> n120
-n121 [label="identifier:ia1"];
-n119 -> n121
-n117 -> n119
-n116 -> n117
-n47 -> n116
-n122 [label="statement:"];
-n123 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
-n124 [label="identifier:b1"];
-n123 -> n124
-n125 [label="AND:"];
-n126 [label="identifier:b1"];
-n125 -> n126
-n127 [label="identifier:ia1"];
-n125 -> n127
-n123 -> n125
-n122 -> n123
-n47 -> n122
-n128 [label="statement:"];
-n129 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
-n130 [label="identifier:b1"];
-n129 -> n130
-n131 [label="EQUAL:"];
-n132 [label="identifier:b1"];
-n131 -> n132
-n133 [label="identifier:c1"];
-n131 -> n133
-n129 -> n131
-n128 -> n129
-n47 -> n128
-n134 [label="statement:"];
-n135 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
-n136 [label="identifier:ia1"];
-n135 -> n136
-n137 [label="AddExpression:"];
-n138 [label="identifier:ia1"];
-n137 -> n138
-n139 [label="identifier:ia2"];
-n137 -> n139
-n135 -> n137
-n134 -> n135
-n47 -> n134
-n140 [label="statement:"];
-n141 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
-n142 [label="identifier:ia1"];
-n141 -> n142
-n143 [label="AND:"];
-n144 [label="identifier:ia1"];
-n143 -> n144
-n145 [label="identifier:ia2"];
-n143 -> n145
-n141 -> n143
-n140 -> n141
-n47 -> n140
-n146 [label="statement:"];
-n147 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
-n148 [label="identifier:b1"];
-n147 -> n148
-n149 [label="LESS_THAN:"];
-n150 [label="identifier:b1"];
-n149 -> n150
-n151 [label="identifier:b2"];
-n149 -> n151
-n147 -> n149
-n146 -> n147
-n47 -> n146
-n152 [label="statement:"];
-n153 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
-n154 [label="identifier:b1"];
-n153 -> n154
-n155 [label="EXCLAMATION_MARK expression:"];
-n156 [label="identifier:i1"];
-n155 -> n156
-n153 -> n155
-n152 -> n153
-n47 -> n152
-n43 -> n47
-n157 [label="RETURN:"];
-n158 [label="TRUE:"];
-n157 -> n158
-n43 -> n157
-n42 -> n43
-n159 [label="methodDec:"];
-n160 [label="BOOLEAN:"];
-n159 -> n160
-n161 [label="identifier:operator_test_work"];
-n159 -> n161
-n162 [label="parameters:"];
-n159 -> n162
-n163 [label="methodBody:"];
-n164 [label="statement:"];
-n165 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
-n166 [label="identifier:i1"];
-n165 -> n166
-n167 [label="AddExpression:"];
-n168 [label="identifier:i1"];
-n167 -> n168
-n169 [label="identifier:i2"];
-n167 -> n169
-n165 -> n167
-n164 -> n165
-n163 -> n164
-n170 [label="statement:"];
-n171 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
-n172 [label="identifier:i1"];
-n171 -> n172
-n173 [label="AddExpression:"];
-n174 [label="expression LEFT_BRACKET expression RIGHT_BRACKET:"];
-n175 [label="identifier:ia1"];
-n174 -> n175
-n176 [label="INT:1"];
-n174 -> n176
-n173 -> n174
-n177 [label="expression LEFT_BRACKET expression RIGHT_BRACKET:"];
-n178 [label="identifier:ia2"];
-n177 -> n178
-n179 [label="INT:2"];
-n177 -> n179
-n173 -> n177
-n171 -> n173
-n170 -> n171
-n163 -> n170
-n180 [label="statement:"];
-n181 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
-n182 [label="identifier:i1"];
-n181 -> n182
-n183 [label="AddExpression:"];
-n184 [label="expression LEFT_BRACKET expression RIGHT_BRACKET:"];
-n185 [label="exp DOT ident LP exp COMMA exp RP:"];
-n186 [label="identifier:c1"];
-n185 -> n186
-n187 [label="identifier:get_trash"];
-n185 -> n187
-n188 [label="argument:"];
-n185 -> n188
-n184 -> n185
-n189 [label="INT:2"];
-n184 -> n189
-n183 -> n184
-n190 [label="identifier:i2"];
-n183 -> n190
-n181 -> n183
-n180 -> n181
-n163 -> n180
-n191 [label="statement:"];
-n192 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
-n193 [label="identifier:b1"];
-n192 -> n193
-n194 [label="AND:"];
-n195 [label="identifier:b1"];
-n194 -> n195
-n196 [label="identifier:b2"];
-n194 -> n196
-n192 -> n194
-n191 -> n192
-n163 -> n191
-n197 [label="statement:"];
-n198 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
-n199 [label="identifier:b1"];
-n198 -> n199
-n200 [label="LESS_THAN:"];
-n201 [label="identifier:i1"];
-n200 -> n201
-n202 [label="identifier:i2"];
-n200 -> n202
-n198 -> n200
-n197 -> n198
-n163 -> n197
-n159 -> n163
-n203 [label="RETURN:"];
-n204 [label="TRUE:"];
-n203 -> n204
-n159 -> n203
-n42 -> n159
-n13 -> n42
-n12 -> n13
-n205 [label="classDeclaration:"];
-n206 [label="identifier:ClassDatatest"];
-n205 -> n206
-n207 [label="var declarations:"];
-n208 [label="var declaration:"];
-n209 [label="INT LB RB:"];
-n208 -> n209
-n210 [label="identifier:trash"];
-n208 -> n210
-n207 -> n208
-n205 -> n207
-n211 [label="methodDeclarations:"];
-n212 [label="methodDec:"];
-n213 [label="INT LB RB:"];
-n212 -> n213
-n214 [label="identifier:get_trash"];
-n212 -> n214
-n215 [label="parameters:"];
-n212 -> n215
-n216 [label="methodBody:"];
-n212 -> n216
-n217 [label="RETURN:"];
-n218 [label="identifier:trash"];
-n217 -> n218
-n212 -> n217
-n211 -> n212
-n205 -> n211
-n12 -> n205
+n81 -> n93
+n70 -> n81
+n64 -> n70
+n12 -> n64
 n0 -> n12
 }
