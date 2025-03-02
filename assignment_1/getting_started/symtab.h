@@ -170,6 +170,17 @@ public:
         }
         return nullptr;
     }
+    Scope* get_method_scope(const string& class_name, const string& method_name) {
+        Scope* class_scope = get_class_scope(class_name); // Get class scope
+        if (class_scope) {
+            for (Scope* child : class_scope->children) {
+                if (child->name == method_name) {
+                    return child; // Return method scope
+                }
+            }
+        }
+        return nullptr;
+    }
 };
 
 

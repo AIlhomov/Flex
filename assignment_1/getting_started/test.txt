@@ -1,45 +1,62 @@
-public class InvalidReturn {
+public class LittleTest {
     public static void main(String[] a) {
-        System.out.println(new MyClass().xyFunc());
+        System.out.println(new MyClass().func());
     }
-}
-
-class classtest {
-    int a;
 }
 
 class MyClass {
-    int x;
-    boolean y;
-    int[] z;
-    MyClass xyz;
+    Element x;
+    int a;
+    boolean c;
+    boolean d;
+    int[] e;
 
-    public int xyFunc() {// @error - semantic (invalid return type)
-        return y;
+    public int func() {
+        int[] newVar;
+        x = new element();// @error - semantic ('element' is not a valid Class)
+        c = new Element();// @error - semantic ('c' and expression 'Element' new are of different types)
+
+        a = 2 * e[3 * 5];
+
+        newVar[3] = 0;
+        a = e.length;
+        a = e[1].length;// @error - semantic ('e' is undefined or wrong)
+        x = e.length;// @error - semantic ('x' and expression 'e.length' are of different types)
+
+        x = new int[1];// @error - semantic ('x' and expression new int[1] new are of different types)
+        newVar = new int[true];// @error - semantic ('true': is of wrong type)
+        newVar = new int[1];
+
+        return x.InInt();// @error - semantic (missing parameter)
     }
 
-    public int xzFunc() {// @error - semantic (invalid return type)
-        return z;
+    public int func2() {
+        return x.InInt(1);
+    }
+}
+
+class Element {
+    int a;
+    boolean b;
+    Element c;
+
+    public int InInt(int x) {
+        return a;
     }
 
-    public boolean yxFunc() {// @error - semantic ('yxFunc' and its return are of different types)
-        return x;
+    public int InInt2(int x) {
+        return x + 1;
     }
 
-    public boolean yzFunc() { // @error - semantic (invalid return type)
-        return this.zxFunc();
+    public Element InClass() {
+        return c;
     }
 
-    public int[] zxFunc() { // @error - semantic (invalid return type)
-        return x;
+    public boolean InBool() {
+        return true;
     }
 
-    public int[] zyFunc() { // @error - semantic (invalid return type)
-        return this.yxFunc();
+    public boolean InBool2() {
+        return b;
     }
-
-    public int swFunc() {
-        return z[this.yzFunc()]; // @error - semantic (invalid type in the return statement)
-    }
-
 }

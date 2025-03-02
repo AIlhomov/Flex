@@ -38,7 +38,7 @@ private:
 
     Node* curr_class_for_returns = nullptr;
     //Node* curr_method_for_returns = nullptr;
-    string method_scope_name;
+    vector<string> method_scope_name;
     unordered_set<string> declared_vars; // Track local declarations
 public:
     ASTVisitor(SymbolTable &st) : symtab(st) {}
@@ -104,7 +104,7 @@ public:
 
             Node* indentifier_method = *std::next(node->children.begin()); // identifier:func
             //cout << "TESTING " << indentifier_method->value << endl;
-            method_scope_name = curr_class_name + "." + indentifier_method->value; // Class.method
+            method_scope_name.push_back(curr_class_name + "." + indentifier_method->value); // Class.method
 
             Symbol method_sym {
                 indentifier_method->value,
@@ -227,7 +227,7 @@ public:
             
             Node* indentifier_method = *std::next(node->children.begin()); // identifier:func
             //cout << "TESTING " << indentifier_method->value << endl;
-            method_scope_name = curr_class_name + "." + indentifier_method->value; // Class.method
+            //method_scope_name.push_back(curr_class_name + "." + indentifier_method->value); // Class.method
             
             symtab.enter_scope(indentifier_method->value); // different here
 
@@ -263,10 +263,67 @@ public:
             }
             if (methodDec_return_node_but_not_type->type == "RETURN"){
                 Node* check_if_its_an_exp = methodDec_return_node_but_not_type->children.front();
+
                 if (check_if_its_an_exp->type == "exp DOT ident LP exp COMMA exp RP"){
                     Node* get_var_name_for_return = *std::next(check_if_its_an_exp->children.begin());
+                    Node* get_arguments = *std::next(check_if_its_an_exp->children.begin(), 2);
                     //cout <<"THIS SHOULD BE zxFu " <<  get_var_name_for_return->value << endl;
                     Symbol* get_sym_var_name_for_return = symtab.lookup(get_var_name_for_return->value);
+
+                    //go into Element to find InInt.
+                    //HOW CAN WE FIND WHAT CLASS InInt belong to?
+                    // COME HERE
+                    string found_class = extractClass(method_scope_name, get_var_name_for_return->value);
+                    int arg_count = 0;
+                    if (get_arguments->type == "argument"){ // no arguments given in the function.
+                        arg_count = 0;
+                    }
+                    else if (get_arguments->type == "argument_list"){ //there is atleast 1 argument
+                        arg_count++;
+                    }
+                    
+                    //cout << found_class <<endl;
+                    Scope* get_class_scope = symtab.get_class_scope(found_class); // FIND InInt (Element)
+
+                    //cout << get_class_scope->name; //Element
+                    if (get_class_scope){ // Element
+                        Symbol* method_sym_sym = get_class_scope->lookup(get_var_name_for_return->value); //InInt
+                        if (method_sym_sym){
+                            // cout<<"DOWNODIWNOIAWD"<<endl;
+                            //cout <<method_sym_sym->name<<endl; //InInt
+                            Scope* get_method_scope = symtab.get_method_scope(get_class_scope->name, method_sym_sym->name);
+                            if (get_method_scope){
+                                // for (auto parameters : method_sym_sym->param_types){
+                                //     //parameters is x
+                                //     //cout << parameters << " ";
+                                //     Symbol* find_parameter_type = get_method_scope->lookup(parameters);
+                                //     if(find_parameter_type){ // found the parameter
+                                        
+                                //     }
+                                //     // if (parameters != )
+                                // }
+                                if (method_sym_sym->param_types.size() != arg_count){
+                                    // @error - semantic (missing parameter)
+                                    res.push_back(std::make_tuple(get_var_name_for_return->lineno, "semantic (missing parameter)"));
+                                    symtab.error_count++;
+                                }
+                            }
+                            
+                            
+                            //cout<<method_sym_sym->name<<" ";
+                            //cout << get_method_scope <<endl;
+                            // for (auto parameters : method_sym_sym->param_types){
+                            //     //parameters is x
+                            //     Symbol* find_parameter_type = symtab.lookup(parameters);
+                            //     if(find_parameter_type)cout <<find_parameter_type->type<<" ";
+                            //     // if (parameters != )
+                            // }
+                            
+                        }
+                    }
+
+                    
+                    
                     if (get_sym_var_name_for_return){
                         //cout<<get_sym_var_name_for_return->type<<" oaisdoiasnd ";
                         if (get_sym_var_name_for_return->type != first_type_of_method->type){
@@ -307,13 +364,84 @@ public:
 
         if (node->type == "SOMETHING ASSIGNED = TO SOMETHING"){
             Node* left_assign = node->children.front();
-            Node* either_an_ident_or_exp_DOT_ident = *std::next(node->children.begin()); // it can even be an operator like ADD
+            Node* either_an_ident_or_exp_DOT_ident = *std::next(node->children.begin()); // it can even be an operator like ADD OR EVEN AN NEW LIKE WHAAAT
             // @error - semantic ('e' does not exist in the current scope)
             Symbol* found_the_non_existent = symtab.lookup(left_assign->value); // IMPORTANT
 
             bool flag = false; //used for when its okay for example i1 = ia1[1] + ia2[2]; or b1 = i1 < i2;
 
-            if (either_an_ident_or_exp_DOT_ident->type == "EXCLAMATION_MARK expression"){
+
+
+            if (either_an_ident_or_exp_DOT_ident->type == "NEW INT LEFT_BRACKET expression RIGHT_BRACKET"){
+                Node* ident = either_an_ident_or_exp_DOT_ident->children.front();
+                
+                if (ident->type == "TRUE" || ident->type == "FALSE"){ //FALSE doesnt exist in the tests but who knows?
+                    // @error - semantic ('true': is of wrong type)
+                    string error_msg = "semantic ('" + ident->type + "': is of wrong type)";
+                    res.push_back(std::make_tuple(node->lineno, error_msg));
+                    symtab.error_count++;
+                }
+
+                if (found_the_non_existent->type != ident->type &&
+                    found_the_non_existent->type != "INT LB RB"){
+                    // @error - semantic ('x' and expression new int[1] new are of different types)
+                    string error_msg = "semantic ('" + found_the_non_existent->name + "' and expression new int[1] new are of different types)";
+                    res.push_back(std::make_tuple(node->lineno, error_msg));
+                    symtab.error_count++;
+                }
+                
+            }
+
+            if (either_an_ident_or_exp_DOT_ident->type == "expression DOT LENGTH"){
+                Node* get_exp = either_an_ident_or_exp_DOT_ident->children.front();
+
+                Symbol* get_sym_exp = symtab.lookup(get_exp->value); // identifier:e
+
+                if (get_sym_exp){
+                    //cout << "name: "<<get_sym_exp->name<<" "<< get_sym_exp->type << endl;
+                    if (get_sym_exp->type == "INT LB RB" && found_the_non_existent->type == "INT"){
+                        flag = true; //its okay because a = e.length; is valid since a is an INT and e is an INT LB RB
+                    }
+
+                    if (get_sym_exp->type != found_the_non_existent->type && !flag){
+                        // @error - semantic ('x' and expression 'e.length' are of different types)
+                        string error_msg = "semantic ('" + found_the_non_existent->name + "' and expression '" +\
+                        get_sym_exp->name + ".length' are of different types)";
+                        res.push_back(std::make_tuple(node->lineno, error_msg));
+                        symtab.error_count++;
+                    }
+                }
+
+                if (get_exp->type == "expression LEFT_BRACKET expression RIGHT_BRACKET"){
+                    Node* get_var_name_arr = get_exp->children.front();
+                    // @error - semantic ('e' is undefined or wrong)
+                    string error_msg = "semantic ('" + get_var_name_arr->value + "' is undefined or wrong)";
+                    res.push_back(std::make_tuple(node->lineno, error_msg));
+                    symtab.error_count++;
+                }
+            }
+
+            else if (either_an_ident_or_exp_DOT_ident->type == "NEW identifier LP RP"){
+                Node* find_var_in_NEW = either_an_ident_or_exp_DOT_ident->children.front();
+                Symbol* find_the_NEW_var = symtab.lookup(find_var_in_NEW->value);
+
+                if (!find_the_NEW_var){
+                    string error_msg = "semantic ('" + find_var_in_NEW->value + "' is not a valid Class)";
+                    res.push_back(std::make_tuple(node->lineno, error_msg));
+                    symtab.error_count++;
+                }
+                else if (find_the_NEW_var){
+                    //c = new Element();// @error - semantic ('c' and expression 'Element' new are of different types)
+                    if (found_the_non_existent->type != find_the_NEW_var->name){ //BECAUSE THIS IS A CLASS WE USE NAME NOT TYPE (CLASS NAME IS THE TYPE)
+                        string error_msg = "semantic ('" + found_the_non_existent->name + "'and expression '" +\
+                        find_the_NEW_var->name + "' new are of different types)";
+                        res.push_back(std::make_tuple(node->lineno, error_msg));
+                        symtab.error_count++;
+                    }
+                }
+            }
+
+            else if (either_an_ident_or_exp_DOT_ident->type == "EXCLAMATION_MARK expression"){
                 Node* var_in_exclamation_mark = either_an_ident_or_exp_DOT_ident->children.front(); 
 
                 // find it
@@ -838,6 +966,19 @@ public:
     }
 
 private:
+    string extractClass(const vector<string>& vec, string toFind) {
+        for (const string& s : vec) {
+            // Check if the string contains "InInt"
+            if (s.find(toFind) != string::npos) {
+                // Extract the part before the '.' (i.e., "Element")
+                size_t dotPos = s.find('.');
+                if (dotPos != string::npos) {
+                    return s.substr(0, dotPos);
+                }
+            }
+        }
+        return ""; // Return an empty string if "InInt" is not found
+    }
 
     void extract_arguments(Node* args_node, vector<Node*>& args) {
         if (!args_node) return;
