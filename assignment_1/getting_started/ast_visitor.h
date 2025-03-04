@@ -2,7 +2,7 @@
 # include "symtab.h"
 # include <algorithm>
 # include <unordered_set>
-
+# include "IR.h"
  /*
  My own lexicon of errors:  
  Node* id_node = *std::next(var_node->children.begin(), 2000); gives segmentation fault if the child/node does not exist.
@@ -38,6 +38,9 @@ private:
 
     Node* curr_class_for_returns = nullptr;
     //Node* curr_method_for_returns = nullptr;
+    bool flag = false; //used for when its okay for example i1 = ia1[1] + ia2[2]; or b1 = i1 < i2;
+    Symbol* a1 = nullptr;
+
     vector<string> method_scope_name;
     unordered_set<string> declared_vars; // Track local declarations
 public:
@@ -45,12 +48,8 @@ public:
 
     void visit_THE_WHOLE_AST_FOR_THE_SYMTAB(Node* node){
         if (!node) return;
-
-        //bool handled = false;
-        // if (node->type == "var declaration"){ //REMOVE THIS LATER JUST PUT HANDLE_VARIABLE IN BOTH MAIN CLASS AND CLASS DEC
-        //     handle_variable(node);
-        // }
-        //cout << "AAAA " << node->type << " name: " << node->value<< endl;
+        
+        
         if (node->type == "goal" || node->type == "classDeclarations"){
             
             for (auto child : node->children) visit_THE_WHOLE_AST_FOR_THE_SYMTAB(child);
@@ -190,9 +189,10 @@ public:
         
     }
 
-    void visit(Node* node){ /* VISIT ALL THE NODES IN THE AST (pdf file or smthn)*/
+    void visit(Node* node){ /* VISIT ALL THE NODES IN THE AST (pdf file or smthn)*/ // should this be Node* ?
         if (!node) return;
-
+        flag = false; //reset
+        
         if (node->type == "goal" || node->type == "classDeclarations"){
             for (auto child : node->children) visit(child);
         }
@@ -363,12 +363,15 @@ public:
         } 
 
         if (node->type == "SOMETHING ASSIGNED = TO SOMETHING"){
+            Node* either_an_ident_or_exp_DOT_ident = *std::next(node->children.begin());
             Node* left_assign = node->children.front();
-            Node* either_an_ident_or_exp_DOT_ident = *std::next(node->children.begin()); // it can even be an operator like ADD OR EVEN AN NEW LIKE WHAAAT
+            for (auto child : node->children) visit(child);
+            
+            //Node* either_an_ident_or_exp_DOT_ident = *std::next(node->children.begin()); // it can even be an operator like ADD OR EVEN AN NEW LIKE WHAAAT
             // @error - semantic ('e' does not exist in the current scope)
             Symbol* found_the_non_existent = symtab.lookup(left_assign->value); // IMPORTANT
 
-            bool flag = false; //used for when its okay for example i1 = ia1[1] + ia2[2]; or b1 = i1 < i2;
+            
 
 
 
@@ -740,63 +743,8 @@ public:
                     }
                 }
 
-                // just incorrect:
-                if (does_this_exist){
-                    Node* check_if_this = either_an_ident_or_exp_DOT_ident->children.front(); // THIS
-                    Node* check_left_name_for_lookup = *std::next(either_an_ident_or_exp_DOT_ident->children.begin());
-
-                    if (check_left_name_for_lookup && check_if_this){ // just to be sure to not get segmentation fault
-                        if (check_if_this->type == "THIS"){       
-                            //cout << "GOTOOTTO " <<check_left_name_for_lookup->value<<endl;
-                            Symbol* find_me = symtab.lookup(check_left_name_for_lookup->value);
-                            //cout << "LOSADOAKDOASKDOKSD " << find_me->name << endl;
-                            //if (check_left_name_for_lookup->type == ) 
-                        }
-                    }
-                    
-                    //Scope* method_sym = symtab.get_class_scope(does_this_exist->type);
-                    // Extract arguments from the method call node
-                    vector<Node*> args;
-                    //cout << symtab.writeAllSymbols()<<endl;
-                    extract_arguments(obj_node, args);
-                    //for (auto i : args) cout << i->value << " ";
-                    //cout << "size: " << does_this_exist->type << endl; // BOOLEAN == ?
-                    //if (does_this_exist->type == );
-                    //if (args.size() != does_this_exist->param_types.size()) cout <<"DOHNAODSADOIANSD"; 
-                    // if (args.size() != does_this_exist->param_types.size()) {
-                    //     string error_msg = "semantic (method '" + method_name_node->value + 
-                    //                       "' expects " + to_string(does_this_exist->param_types.size()) + 
-                    //                       " parameters)";
-                    //     res.push_back(make_tuple(node->lineno, error_msg));
-                    //     symtab.error_count++;
-                    // } else {
-                    //     // Check each argument type
-                    //     for (int i = 0; i < args.size(); i++) {
-                    //         string arg_type = get_exp_type(args[i]);
-                    //         if (arg_type != does_this_exist->param_types[i]) {
-                    //             string error_msg = "semantic (parameter " + to_string(i+1) + 
-                    //                               " of '" + method_name_node->value + 
-                    //                               "' expects " + does_this_exist->param_types[i] + 
-                    //                               ", got " + arg_type + ")";
-                    //             res.push_back(make_tuple(node->lineno, error_msg));
-                    //             symtab.error_count++;
-                    //         }
-                    //     }
-                    // }
-                    //Node* args_node = *std::next(either_an_ident_or_exp_DOT_ident->children.begin(), 2);  //change
-                    //cout << "args_node " << args_node->type << endl;
-                }
                 
-                // if (!does_this_exist){ //it doesnt exist.
-                //     Scope* class_scope = symtab.get_class_scope(does_this_exist->type); //Get class scope (e.g., "classdata")
-                //     if (!class_scope){
-                //         string error_msg = "semantic ('" + method_name_node->value + "' does not exist)";
-                //         res.push_back(std::make_tuple(node->lineno, error_msg));
-                //         //semantic ('zzFunc' does not exist)
-                //         symtab.error_count++;
-                //     }
-                    
-                // }
+                
 
 
                 // THIS IS GOOD: (other errors.)
@@ -959,11 +907,102 @@ public:
         // } // num_aux[false] = 2;
         //cout << "WE ARE HERE: " << node->type << endl;
         
-        if (node->type == "argument"){ // check SOMETHING ASSIGNED TO SOMETHING.
+        if (node->type == "functionCall"){ // check SOMETHING ASSIGNED TO SOMETHING.
+            for (auto child : node->children) visit(child);
+            //cout<<"NDIAOWDNAWIODNAWIOD"<<endl;
+            Node* func_name = *std::next(node->children.begin());//identifier:a1
+            Node* is_this = node->children.front(); // THIS
+            //go into a1 scope
+            //cout << func_name->value << endl;
+            if (is_this->type == "THIS"){
+                //cout << "THIS IS VALID "<<func_name->value << endl;
+                string found_class = extractClass(method_scope_name, func_name->value);
+                Scope* get_class_scope = symtab.get_class_scope(found_class); // FIND a1 (A)
+                if (get_class_scope){
+                    Symbol* get_class_name_for_func = get_class_scope->lookup(func_name->value);
+                    //cout<<get_class_name_for_func->type<<endl;
+                    if (get_class_name_for_func){
+                        Scope* get_class_for_func = symtab.get_method_scope(get_class_scope->name, func_name->value);
+                        if(get_class_for_func){
+                            //CP
+                            //cout<<"AAAA"<<endl;
+                            Symbol* func_sym = get_class_for_func->lookup(func_name->value);
+                            
+                            if (func_sym){
+                                a1 = func_sym;
+                                //cout<<"DONAWSDNAWIOD "<< a1->name<<endl;
+                                for(auto i : func_sym->param_types){ //loop through all arguments of a1
+                                    //cout << i <<" ";
+                                }
+                            }
+                            //cout<<endl;
+                        }
+                    }
+                }
+            }
+            
+            
+            
 
+        }
+
+        if (node->type == "argument_list"){
+            for (auto child : node->children) visit(child);
+            Node* functionCall_or_argument = node->children.front();
+            if (functionCall_or_argument->type != "functionCall"){//its arguments.
+                
+            }
+        }
+        if (node->type == "exp DOT ident LP exp COMMA exp RP"){
+            //for (auto child : node->children) visit(child);
+            Node* get_func_var = *std::next(node->children.begin()); // a3
+            //find a3 type:
+            string found_class = extractClass(method_scope_name, get_func_var->value);
+
+            Scope* get_class_scope = symtab.get_class_scope(found_class); // FIND a3 (A)
+            if (get_class_scope){
+                Symbol* get_class_name_for_func = get_class_scope->lookup(get_func_var->value);
+                //cout<<found_class<<endl;
+                if (a1 && get_class_name_for_func){
+                    Scope* get_method_for_func = symtab.get_method_scope(get_class_scope->name, get_func_var->value);
+                    if (get_method_for_func){
+                        Symbol* func_sym = get_method_for_func->lookup(get_func_var->value);
+                        //cout<<"ASDASDASD " << a1->name <<" "<<node->lineno<<endl;
+                        for (int i=0; i<a1->param_types.size(); i++){
+                            //cout << a1->param_types[i] << " ";
+                            //symtab.error_count++;
+                            //if ()
+                        }
+                    }
+                }
+            }
         }
         
     }
+
+
+    string visit2(Node* node);
+
+
+    void visit_for_IR(Node* node){
+        if (!node) return;
+
+        if (node->type == "goal" || node->type == "classDeclarations") for (auto child : node->children) visit_for_IR(child);
+        else if (node->type == "classDeclaration") for (auto child : node->children) visit_for_IR(child);
+
+        else if (node->type == "SOMETHING ASSIGNED = TO SOMETHING"){
+            // sum = 0
+            Node* left_assign = node->children.front();//sum
+            Node* assigned_to = *std::next(node->children.begin());//0
+
+            Tac mov_obj("ADD", "hej", "ja", "nej");
+
+            
+        }
+
+        cout << "THIS: " << node->lineno << endl;
+    } 
+// if, while, class, methods
 
 private:
     string extractClass(const vector<string>& vec, string toFind) {
@@ -982,15 +1021,7 @@ private:
 
     void extract_arguments(Node* args_node, vector<Node*>& args) {
         if (!args_node) return;
-        // args_node is exp DOT ident LP exp COMMA exp RP
         
-        // if (args_node->type == "argument_list") {
-        //     for (auto child : args_node->children) {
-        //         if (child->type == "expression") {
-        //             args.push_back(child);
-        //         }
-        //     }
-        // }
         if (args_node->type == "exp DOT ident LP exp COMMA exp RP"){
             Node* var_name = *std::next(args_node->children.begin());//identifier:a3
             Node* if_argument_or_argument_list = *std::next(args_node->children.begin(), 2); //argument
@@ -1057,78 +1088,9 @@ private:
         symtab.add_symbol(var_sym);
     }
 
-    //helper function:
-    //handle requsiverly
-    Node* rec_classDeclaration_all_childs(Node* child_of_method_dec){
-        //used to find METHODDECLARATION VARDECLARATION
-        // because it can be anywhere in the AST so we do it recursively until we find it. 
-        //Mark please. When found.
-        
-        if (child_of_method_dec->type == "reqMethodDeclaration methodDeclaration"){
-            for (auto i : child_of_method_dec->children){
-                rec_classDeclaration_all_childs(i);
-            }
-            //rec_classDeclaration_all_childs(child_of_method_dec->children);
-        }
-        
-        else if (child_of_method_dec->type == "METHODDECLARATION VARDECLARATION"){
-            Node* children_of_METHOD_DECLARATION  = child_of_method_dec;
-
-            for (auto i : children_of_METHOD_DECLARATION->children){
-                if (i->type == "identifier"){
-                    //add it to the sym tab
-                    cout << "I ACTUALLY GOT HERE";
-                }
-            }
-        }
-
-    }
+    
 
 
-    // void handle_parameter_list(Node* param_list, Symbol& method_sym) {
-
-    //     if (!param_list) return;
-
-    //     // Base case: type identifier
-    //     if (param_list->children.size() == 2) {
-    //         Node* type_node = param_list->children.front();
-    //         Node* id_node = *std::next(param_list->children.begin());
-    //         add_parameter(id_node, type_node, method_sym);
-    //     }
-    //     // Recursive case: parameter_list COMMA type identifier
-    //     else if (param_list->children.size() >= 3) {
-    //         handle_parameter_list(param_list->children.front(), method_sym);
-    //         Node* type_node = *std::next(param_list->children.begin(), 1);
-    //         Node* id_node = *std::next(param_list->children.begin(), 2);
-            
-    //         add_parameter(id_node, type_node, method_sym);
-    //     }
-        
-    // }
-    /*
-     public int Pen(int param, int param) {// @error - semantic (Already Declared parameter: 'param')
-        return 1;
-    }
-    */
-
-    /* InvalidArrayINTeger.java (handle arrays access) */
-    void handle_array_this_access(Node* array_this_access){
-
-        
-        Node* array_node = array_this_access->children.front(); // identifier:num_aux
-        Node* index_node = *std::next(array_this_access->children.begin()); // exp DOT ident LP exp COMMA exp RP:
-
-        if (index_node->type == "exp DOT ident LP exp COMMA exp RP"){
-            Node* type_index_node = *std::next(index_node->children.begin()); // identifier:a2
-
-            string type_index = get_exp_type(type_index_node);
-            // run writeAllSymbols
-            cout << symtab.writeAllSymbols() << endl;
-            cout << "EHHEHEHEHEHEH " << type_index << endl;
-        }
-
-
-    }
     
     void handle_array_access(Node* array_access){
 
@@ -1178,19 +1140,7 @@ private:
 
     }
     
-    Symbol* findSymbol(Node* node){
-        //cout << "HERE " << node->type << endl;
-        if (node->type == "identifier"){
-            //cout << "HERE " << node->value << endl;
-            return symtab.lookup(node->value);
-        }
-        for (auto child : node->children){
-            Symbol* result = findSymbol(child);
-            if (result) return result;
-        }
-        return nullptr;
-    }
-
+   
     string get_exp_type(Node* exp_node) {
         if (!exp_node) return "unknown";
         /* handle literals */
@@ -1268,74 +1218,7 @@ private:
 
         return "unknown";
     }
-    // Node* find_return_statement(Node* method_node) {
-    //     for (auto child : method_node->children) {
-    //         if (child->type == "RETURN") return child;
-    //         Node* found = find_return_statement(child);
-    //         if (found) return found;
-    //     }
-    //     return nullptr;
-    // }
-
-    void handle_expr_lb_expr_rb(Node* node){
-
-        Node* array_node = node->children.front(); // identifier:num_aux
-        Node* index_node = *std::next(node->children.begin()); // exp DOT ident LP exp COMMA exp RP: (ROOT)
-
-        Node* index_node2 = *std::next(index_node->children.begin()); // identifier:a2
-
-        //symtab.lookup(array_node->value);
-        //Symbol* symlookup = symtab.lookup(index_node2->value);
-
-        Symbol* array_sym = symtab.lookup(array_node->value);
-        if (array_sym) {
-            if (array_sym->type.find("[]") == string::npos) {
-                // std::cerr << "\n@error Line " << array_node->lineno
-                //       << ": semantic Attempting to use array access on non-array variable '" 
-                //       << array_node->value << "'\n";
-                res.push_back(std::make_tuple(array_node->lineno, "semantic Attempting to use array access on non-array variable '" + array_node->value + "'"));
-                symtab.error_count++;
-                return;
-            }
-        }
-
-        string index_type = get_exp_type(index_node);
-        
-        if (index_node->type == "exp DOT ident LP exp COMMA exp RP") {
-            Node* method_name_node = *std::next(index_node->children.begin()); // Get method name node
-            Symbol* method_sym = symtab.lookup(method_name_node->value);
-            
-            if (method_sym) {
-                // Check if method return type is not int
-                if (method_sym->type != "int") {
-                    // std::cerr << "\n@error Line " << method_name_node->lineno
-                    //       << ": semantic Invalid array index type '" << method_sym->type
-                    //       << "', expected 'int'\n";
-                    res.push_back(std::make_tuple(method_name_node->lineno, "semantic Invalid array index type '" + method_sym->type + "', expected 'int'"));
-                    symtab.error_count++;
-                }
-            }
-        } 
-        else if (index_type != "int") {
-            // std::cerr << "\n@error Line " << index_node->lineno
-            //       << ": semantic Invalid array index type '" << index_type 
-            //       << "', expected 'int'\n";
-
-            res.push_back(std::make_tuple(index_node->lineno, "semantic Invalid array index type '" + index_type + "', expected 'int'"));
-
-            symtab.error_count++;
-        }
-
-        // if (symlookup == nullptr) {
-        //     std::cerr << "semantic @error  line " << index_node2->lineno
-        //           << ": Invalid array index type '" << index_node2->value 
-        //           << "', expected 'int'\n";
-        //     symtab.error_count++;
-        // }
-
-
-        //cout << symlookup->name << endl; segmentation fault if symlookup is null
-    }
+   
 public:
 
 
@@ -1349,22 +1232,3 @@ public:
         }
     }
 };
-
-/*
-        if (node->type == "reqVarOrStmt statement"){
-            for (auto child : node->children) visit_THE_WHOLE_AST_FOR_THE_SYMTAB(child);  
-        }
-        if (node->type == "SOMETHING [ASSIGNED] = TO SOMETHING"){
-            Node* identifier_arr = node->children.front(); // identifier:num_aux
-            Node* inside_arr_brackets = *std::next(node->children.begin()); // FALSE
-            Node* assigned_arr_to = *std::next(node->children.begin(), 2); // INT:2
-
-            Symbol array_sym {
-                identifier_arr->value,
-                VARIABLE,
-                "array var",
-                node->lineno
-            };
-            // SOLVE SEMANTIC MAYBE JUST IN A SEPERATE LIKE DOWN BELOW IN VISIT FOR NOW WE JUST SOLVE DUPLICATES
-            symtab.add_symbol(array_sym);
-        }*/

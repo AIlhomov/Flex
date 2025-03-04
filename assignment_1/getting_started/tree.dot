@@ -14,7 +14,7 @@ n7 -> n8
 n6 -> n7
 n9 [label="identifier:A"];
 n6 -> n9
-n10 [label="argument:"];
+n10 [label="empty argument:"];
 n6 -> n10
 n5 -> n6
 n3 -> n5
@@ -56,7 +56,7 @@ n31 [label="THIS:"];
 n30 -> n31
 n32 [label="identifier:B"];
 n30 -> n32
-n33 [label="argument:"];
+n33 [label="empty argument:"];
 n30 -> n33
 n29 -> n30
 n28 -> n29
@@ -108,7 +108,7 @@ n56 -> n57
 n55 -> n56
 n58 [label="identifier:B"];
 n55 -> n58
-n59 [label="argument:"];
+n59 [label="empty argument:"];
 n55 -> n59
 n53 -> n55
 n52 -> n53

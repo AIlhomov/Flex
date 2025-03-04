@@ -2,6 +2,7 @@
 #include "parser.tab.hh"
 # include "symtab.h"
 # include "ast_visitor.h"
+
 extern Node *root;
 extern FILE *yyin;
 extern int yylineno;
@@ -69,11 +70,15 @@ int main(int argc, char **argv)
 				// Build the Symbol Table
 				SymbolTable symtab;
 				ASTVisitor visitor(symtab);
-				visitor.visit_THE_WHOLE_AST_FOR_THE_SYMTAB(root);
-				visitor.visit(root);
 				
-				// Print the Symbol Table
+				visitor.visit_THE_WHOLE_AST_FOR_THE_SYMTAB(root); //visit all the nodes in the AST for the symtab.
+				visitor.visit(root); //visit it again for the semantic errors.
+
 				visitor.printCorrect();
+
+				
+
+
 
 				if (symtab.get_error_count() > 0)
 				{
@@ -84,6 +89,9 @@ int main(int argc, char **argv)
 				} else {
 					std::cerr << "\n\nSymbol table constructed successfully!\n" << std::endl;
 				}
+
+				//Perform Intermediate Representation
+				visitor.visit_for_IR(root);
 				
 			}
 			catch (...)
