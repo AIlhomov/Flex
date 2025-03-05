@@ -880,6 +880,7 @@ public:
                 Symbol* findA1 = getSymbolForFunction_For_parameters(func_name->value);
                 Symbol* findA3sym = getSymbolForFunction_For_parameters(findA3);
                 
+                
                 if (findA3sym){
                     // if (findA1->param_types.size() == 0 || findA3sym->param_types.size() == 0){
                     //     res.push_back(std::make_tuple(node->lineno, "semantic (invalid type of argument)"));
@@ -892,28 +893,20 @@ public:
 
                     // we now the arguments thats in findA1 but what type are these arguments we dont know.
                     // so whats the type of the arguments in findA1->param_types
-                    Symbol* find_type_of_arguments = getSymbolForFunction_For_parameters(findA1->param_types[0]);
-                    cout << find_type_of_arguments<<" KKKKKKKKKK" <<endl;
-                    // if (find_type_of_arguments){
-                    //     cout << "AAAAAAAA " << find_type_of_arguments->type<<endl;
-                    // }
+                    
 
                     for (int i=0; i<findA1->param_types.size(); i++){
                         //cout << "AAAAAAAA " << findA1->param_types[0]<<endl;
-                        if (findA1->param_types[i] != findA3sym->type){
+                        Symbol* find_type_of_arguments = getSymbolForMethod_For_parameters(findA1->type, findA1->name, findA1->param_types[i]);
+                        if (find_type_of_arguments->type != findA3sym->type){
                             string error_msg = "semantic (invalid parameter method '" + findA1->name + "')";
                             res.push_back(std::make_tuple(node->lineno, error_msg));
                             symtab.error_count++;
                         }
                     }
-                    
-
                 }                    
             }
         }
-
-        
-        
     }
 
 
@@ -1113,7 +1106,6 @@ private:
     Symbol* getSymbolForFunction_For_parameters(const string& searched){
         string found_class = extractClass(method_scope_name, searched);
         Scope* get_class_scope = symtab.get_class_scope(found_class); // FIND a3 (A)
-        
         if (get_class_scope){
             Symbol* get_class_name_for_func = get_class_scope->lookup(searched);
             if (get_class_name_for_func){
@@ -1130,44 +1122,16 @@ private:
         return nullptr;
     }
 
-    // Symbol* getSymbolForMethod_For_parameters(const string& searched){
-    //     string found_class = extractClass(method_scope_name, searched);
-    //     Scope* get_class_scope = symtab.get_class_scope(found_class); // FIND a3 (A)
-    //     if (get_class_scope){
-    //         Symbol* get_class_name_for_func = get_class_scope->lookup(searched);
-    //         if (get_class_name_for_func){
-    //             Scope* get_method_for_func = symtab.get_method_scope(get_class_scope->name, searched);
-    //             if (get_method_for_func){
-                    
-                    
-    //                 Symbol* func_sym = get_method_for_func->lookup(searched);
-    //                 Scope* get_method_for_parameter = symtab.get_parameter_scope(get_class_scope->name, searched);
-    //                 if (func_sym){
-                        
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     return nullptr;
-    // }
-
-    Symbol* getSymbolForMethod_For_parameters(const string& searched){
-        string found_class = extractClass(method_scope_name, searched);
-        Scope* get_class_scope = symtab.get_class_scope(found_class); // FIND a3 (A)
+    Symbol* getSymbolForMethod_For_parameters(const string& className, const string& methodName, const string& searched){
+        Scope* get_class_scope = symtab.get_parameter_scope(className, methodName, searched); // FIND a3 (A)
         if (get_class_scope){
             Symbol* get_class_name_for_func = get_class_scope->lookup(searched);
-            if (get_class_name_for_func){
-                Scope* get_method_for_func = symtab.get_method_scope(get_class_scope->name, searched);
-                if (get_method_for_func){
-                    
-                    
-                    Symbol* func_sym = get_method_for_func->lookup(searched);
-                    return func_sym;
-                }
-            }
+            return get_class_name_for_func;
         }
         return nullptr;
     }
+
+    
 
     void handle_variable(Node* node){
         // its a normal variable just add it to the symtab

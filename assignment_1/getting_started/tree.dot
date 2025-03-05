@@ -1,7 +1,7 @@
 digraph {
 n0 [label="goal:"];
 n1 [label="MAIN CLASS:"];
-n2 [label="identifier:SemanticDuplicateIdentifiersSeparateScope"];
+n2 [label="identifier:InvalidNestedMethodCalls"];
 n1 -> n2
 n3 [label="MAIN METHOD:"];
 n4 [label="identifier:a"];
@@ -12,7 +12,7 @@ n7 [label="NEW identifier LP RP:"];
 n8 [label="identifier:A"];
 n7 -> n8
 n6 -> n7
-n9 [label="identifier:A"];
+n9 [label="identifier:a2"];
 n6 -> n9
 n10 [label="empty argument:"];
 n6 -> n10
@@ -28,164 +28,524 @@ n14 [label="identifier:A"];
 n13 -> n14
 n15 [label="var declarations:"];
 n16 [label="var declaration:"];
-n17 [label="INT:"];
+n17 [label="BOOLEAN:"];
 n16 -> n17
-n18 [label="identifier:A"];
+n18 [label="identifier:b"];
 n16 -> n18
 n15 -> n16
 n13 -> n15
 n19 [label="methodDeclarations:"];
 n20 [label="methodDec:"];
-n21 [label="INT:"];
-n20 -> n21
+n21 [label="typechar:"];
 n22 [label="identifier:A"];
-n20 -> n22
-n23 [label="parameters:"];
+n21 -> n22
+n20 -> n21
+n23 [label="identifier:a1"];
 n20 -> n23
-n24 [label="methodBody:"];
-n25 [label="var declaration:"];
+n24 [label="parameters:"];
+n25 [label="parameter:"];
 n26 [label="INT:"];
 n25 -> n26
-n27 [label="identifier:A"];
+n27 [label="identifier:num"];
 n25 -> n27
 n24 -> n25
-n28 [label="statement:"];
-n29 [label="SIMPLE PRINT LOL:"];
-n30 [label="exp DOT ident LP exp COMMA exp RP:"];
-n31 [label="THIS:"];
-n30 -> n31
-n32 [label="identifier:B"];
-n30 -> n32
-n33 [label="empty argument:"];
-n30 -> n33
-n29 -> n30
-n28 -> n29
-n24 -> n28
-n34 [label="statement:"];
-n35 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
-n36 [label="identifier:A"];
-n35 -> n36
-n37 [label="INT:1"];
-n35 -> n37
-n34 -> n35
-n24 -> n34
 n20 -> n24
-n38 [label="RETURN:"];
-n39 [label="identifier:A"];
+n28 [label="methodBody:"];
+n29 [label="var declaration:"];
+n30 [label="INT:"];
+n29 -> n30
+n31 [label="identifier:num_aux"];
+n29 -> n31
+n28 -> n29
+n32 [label="statement:"];
+n33 [label="IF LP expression RP statement ELSE statement:"];
+n34 [label="exp DOT ident LP exp COMMA exp RP:"];
+n35 [label="THIS:"];
+n34 -> n35
+n36 [label="identifier:a3"];
+n34 -> n36
+n37 [label="empty argument:"];
+n34 -> n37
+n33 -> n34
+n38 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n39 [label="identifier:num_aux"];
 n38 -> n39
-n20 -> n38
-n19 -> n20
-n40 [label="methodDec:"];
-n41 [label="INT:"];
-n40 -> n41
-n42 [label="identifier:B"];
-n40 -> n42
-n43 [label="parameters:"];
-n40 -> n43
-n44 [label="methodBody:"];
-n45 [label="var declaration:"];
-n46 [label="INT:"];
-n45 -> n46
-n47 [label="identifier:B"];
-n45 -> n47
-n44 -> n45
-n48 [label="statement:"];
-n49 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
-n50 [label="identifier:A"];
-n49 -> n50
-n51 [label="INT:5"];
-n49 -> n51
+n40 [label="INT:1"];
+n38 -> n40
+n33 -> n38
+n41 [label="IF LP expression RP statement ELSE statement:"];
+n42 [label="LESS_THAN:"];
+n43 [label="exp DOT ident LP exp COMMA exp RP:"];
+n44 [label="THIS:"];
+n43 -> n44
+n45 [label="identifier:a2"];
+n43 -> n45
+n46 [label="empty argument:"];
+n43 -> n46
+n42 -> n43
+n47 [label="INT:1"];
+n42 -> n47
+n41 -> n42
+n48 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n49 [label="identifier:num_aux"];
 n48 -> n49
-n44 -> n48
-n52 [label="statement:"];
-n53 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
-n54 [label="identifier:B"];
-n53 -> n54
-n55 [label="exp DOT ident LP exp COMMA exp RP:"];
-n56 [label="NEW identifier LP RP:"];
-n57 [label="identifier:B"];
-n56 -> n57
-n55 -> n56
-n58 [label="identifier:B"];
-n55 -> n58
-n59 [label="empty argument:"];
-n55 -> n59
-n53 -> n55
+n50 [label="MultExpression:"];
+n51 [label="identifier:num"];
+n50 -> n51
+n52 [label="exp DOT ident LP exp COMMA exp RP:"];
+n53 [label="THIS:"];
 n52 -> n53
-n44 -> n52
-n40 -> n44
-n60 [label="RETURN:"];
-n61 [label="AddExpression:"];
-n62 [label="identifier:A"];
+n54 [label="identifier:a2"];
+n52 -> n54
+n55 [label="empty argument:"];
+n52 -> n55
+n50 -> n52
+n48 -> n50
+n41 -> n48
+n56 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n57 [label="identifier:num_aux"];
+n56 -> n57
+n58 [label="INT:0"];
+n56 -> n58
+n41 -> n56
+n33 -> n41
+n32 -> n33
+n28 -> n32
+n20 -> n28
+n59 [label="RETURN:"];
+n60 [label="THIS:"];
+n59 -> n60
+n20 -> n59
+n19 -> n20
+n61 [label="methodDec:"];
+n62 [label="INT:"];
 n61 -> n62
-n63 [label="identifier:B"];
+n63 [label="identifier:a2"];
 n61 -> n63
-n60 -> n61
-n40 -> n60
-n19 -> n40
-n13 -> n19
-n12 -> n13
-n64 [label="classDeclaration:"];
-n65 [label="identifier:B"];
-n64 -> n65
-n66 [label="var declarations:"];
-n67 [label="var declaration:"];
-n68 [label="INT:"];
+n64 [label="parameters:"];
+n61 -> n64
+n65 [label="methodBody:"];
+n66 [label="statement:"];
+n67 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n68 [label="identifier:b"];
 n67 -> n68
-n69 [label="identifier:A"];
+n69 [label="functionCall:"];
+n70 [label="THIS:"];
+n69 -> n70
+n71 [label="identifier:a1"];
+n69 -> n71
+n72 [label="argument_list:"];
+n73 [label="functionCall:"];
+n74 [label="NEW identifier LP RP:"];
+n75 [label="identifier:A"];
+n74 -> n75
+n73 -> n74
+n76 [label="identifier:a1"];
+n73 -> n76
+n77 [label="argument_list:"];
+n78 [label="exp DOT ident LP exp COMMA exp RP:"];
+n79 [label="THIS:"];
+n78 -> n79
+n80 [label="identifier:a3"];
+n78 -> n80
+n81 [label="empty argument:"];
+n78 -> n81
+n77 -> n78
+n73 -> n77
+n82 [label="DOT identifier LP arguments RP:"];
+n83 [label="identifier:a4"];
+n82 -> n83
+n84 [label="empty argument:"];
+n82 -> n84
+n73 -> n82
+n72 -> n73
+n69 -> n72
+n85 [label="DOT identifier LP arguments RP:"];
+n86 [label="identifier:a3"];
+n85 -> n86
+n87 [label="empty argument:"];
+n85 -> n87
+n69 -> n85
 n67 -> n69
 n66 -> n67
-n64 -> n66
-n70 [label="methodDeclarations:"];
-n71 [label="methodDec:"];
-n72 [label="INT:"];
-n71 -> n72
-n73 [label="identifier:A"];
-n71 -> n73
-n74 [label="parameters:"];
-n75 [label="parameter:"];
-n76 [label="INT:"];
-n75 -> n76
-n77 [label="identifier:A"];
-n75 -> n77
-n74 -> n75
-n71 -> n74
-n78 [label="methodBody:"];
-n71 -> n78
-n79 [label="RETURN:"];
-n80 [label="identifier:A"];
-n79 -> n80
-n71 -> n79
-n70 -> n71
-n81 [label="methodDec:"];
-n82 [label="INT:"];
-n81 -> n82
-n83 [label="identifier:B"];
-n81 -> n83
-n84 [label="parameters:"];
-n81 -> n84
-n85 [label="methodBody:"];
-n86 [label="var declaration:"];
-n87 [label="INT:"];
-n86 -> n87
-n88 [label="identifier:B"];
-n86 -> n88
-n85 -> n86
-n89 [label="statement:"];
-n90 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
-n91 [label="identifier:B"];
-n90 -> n91
-n92 [label="INT:1"];
-n90 -> n92
+n65 -> n66
+n88 [label="statement:"];
+n89 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n90 [label="identifier:b"];
 n89 -> n90
-n85 -> n89
-n81 -> n85
-n93 [label="RETURN:"];
-n94 [label="identifier:B"];
-n93 -> n94
-n81 -> n93
-n70 -> n81
-n64 -> n70
-n12 -> n64
+n91 [label="functionCall:"];
+n92 [label="THIS:"];
+n91 -> n92
+n93 [label="identifier:a1"];
+n91 -> n93
+n94 [label="argument_list:"];
+n95 [label="exp DOT ident LP exp COMMA exp RP:"];
+n96 [label="NEW identifier LP RP:"];
+n97 [label="identifier:A"];
+n96 -> n97
+n95 -> n96
+n98 [label="identifier:a1"];
+n95 -> n98
+n99 [label="argument_list:"];
+n100 [label="INT:2"];
+n99 -> n100
+n95 -> n99
+n94 -> n95
+n91 -> n94
+n101 [label="DOT identifier LP arguments RP:"];
+n102 [label="identifier:a3"];
+n101 -> n102
+n103 [label="empty argument:"];
+n101 -> n103
+n91 -> n101
+n89 -> n91
+n88 -> n89
+n65 -> n88
+n104 [label="statement:"];
+n105 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n106 [label="identifier:b"];
+n105 -> n106
+n107 [label="functionCall:"];
+n108 [label="THIS:"];
+n107 -> n108
+n109 [label="identifier:a1"];
+n107 -> n109
+n110 [label="argument_list:"];
+n111 [label="functionCall:"];
+n112 [label="NEW identifier LP RP:"];
+n113 [label="identifier:A"];
+n112 -> n113
+n111 -> n112
+n114 [label="identifier:a1"];
+n111 -> n114
+n115 [label="argument_list:"];
+n116 [label="INT:2"];
+n115 -> n116
+n111 -> n115
+n117 [label="DOT identifier LP arguments RP:"];
+n118 [label="identifier:a3"];
+n117 -> n118
+n119 [label="empty argument:"];
+n117 -> n119
+n111 -> n117
+n110 -> n111
+n107 -> n110
+n120 [label="DOT identifier LP arguments RP:"];
+n121 [label="identifier:a3"];
+n120 -> n121
+n122 [label="empty argument:"];
+n120 -> n122
+n107 -> n120
+n105 -> n107
+n104 -> n105
+n65 -> n104
+n123 [label="statement:"];
+n124 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n125 [label="identifier:b"];
+n124 -> n125
+n126 [label="functionCall:"];
+n127 [label="THIS:"];
+n126 -> n127
+n128 [label="identifier:a1"];
+n126 -> n128
+n129 [label="argument_list:"];
+n130 [label="functionCall:"];
+n131 [label="NEW identifier LP RP:"];
+n132 [label="identifier:A"];
+n131 -> n132
+n130 -> n131
+n133 [label="identifier:a1"];
+n130 -> n133
+n134 [label="argument_list:"];
+n135 [label="INT:2"];
+n134 -> n135
+n130 -> n134
+n136 [label="DOT identifier LP arguments RP:"];
+n137 [label="identifier:a4"];
+n136 -> n137
+n138 [label="empty argument:"];
+n136 -> n138
+n130 -> n136
+n129 -> n130
+n126 -> n129
+n139 [label="DOT identifier LP arguments RP:"];
+n140 [label="identifier:a2"];
+n139 -> n140
+n141 [label="empty argument:"];
+n139 -> n141
+n126 -> n139
+n124 -> n126
+n123 -> n124
+n65 -> n123
+n142 [label="statement:"];
+n143 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n144 [label="identifier:b"];
+n143 -> n144
+n145 [label="functionCall:"];
+n146 [label="THIS:"];
+n145 -> n146
+n147 [label="identifier:a1"];
+n145 -> n147
+n148 [label="argument_list:"];
+n149 [label="functionCall:"];
+n150 [label="NEW identifier LP RP:"];
+n151 [label="identifier:A"];
+n150 -> n151
+n149 -> n150
+n152 [label="identifier:a2"];
+n149 -> n152
+n153 [label="empty argument:"];
+n149 -> n153
+n154 [label="DOT identifier LP arguments RP:"];
+n155 [label="identifier:a1"];
+n154 -> n155
+n156 [label="empty argument:"];
+n154 -> n156
+n149 -> n154
+n148 -> n149
+n145 -> n148
+n157 [label="DOT identifier LP arguments RP:"];
+n158 [label="identifier:a2"];
+n157 -> n158
+n159 [label="empty argument:"];
+n157 -> n159
+n145 -> n157
+n143 -> n145
+n142 -> n143
+n65 -> n142
+n160 [label="var declaration:"];
+n161 [label="INT:"];
+n160 -> n161
+n162 [label="identifier:a"];
+n160 -> n162
+n65 -> n160
+n163 [label="var declaration:"];
+n164 [label="INT LB RB:"];
+n163 -> n164
+n165 [label="identifier:ia"];
+n163 -> n165
+n65 -> n163
+n166 [label="statement:"];
+n167 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n168 [label="identifier:a"];
+n167 -> n168
+n169 [label="exp DOT ident LP exp COMMA exp RP:"];
+n170 [label="THIS:"];
+n169 -> n170
+n171 [label="identifier:a5"];
+n169 -> n171
+n172 [label="argument_list:"];
+n173 [label="identifier:b"];
+n172 -> n173
+n174 [label="argument:"];
+n175 [label="identifier:a"];
+n174 -> n175
+n172 -> n174
+n176 [label="argument:"];
+n177 [label="identifier:ia"];
+n176 -> n177
+n172 -> n176
+n178 [label="argument:"];
+n179 [label="NEW identifier LP RP:"];
+n180 [label="identifier:InvalidNestedMethodCalls"];
+n179 -> n180
+n178 -> n179
+n172 -> n178
+n169 -> n172
+n167 -> n169
+n166 -> n167
+n65 -> n166
+n181 [label="statement:"];
+n182 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n183 [label="identifier:a"];
+n182 -> n183
+n184 [label="exp DOT ident LP exp COMMA exp RP:"];
+n185 [label="THIS:"];
+n184 -> n185
+n186 [label="identifier:a5"];
+n184 -> n186
+n187 [label="argument_list:"];
+n188 [label="identifier:b"];
+n187 -> n188
+n189 [label="argument:"];
+n190 [label="identifier:a"];
+n189 -> n190
+n187 -> n189
+n191 [label="argument:"];
+n192 [label="identifier:ia"];
+n191 -> n192
+n187 -> n191
+n184 -> n187
+n182 -> n184
+n181 -> n182
+n65 -> n181
+n193 [label="statement:"];
+n194 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n195 [label="identifier:a"];
+n194 -> n195
+n196 [label="exp DOT ident LP exp COMMA exp RP:"];
+n197 [label="THIS:"];
+n196 -> n197
+n198 [label="identifier:a5"];
+n196 -> n198
+n199 [label="argument_list:"];
+n200 [label="identifier:a"];
+n199 -> n200
+n201 [label="argument:"];
+n202 [label="identifier:b"];
+n201 -> n202
+n199 -> n201
+n203 [label="argument:"];
+n204 [label="identifier:ia"];
+n203 -> n204
+n199 -> n203
+n205 [label="argument:"];
+n206 [label="NEW identifier LP RP:"];
+n207 [label="identifier:InvalidNestedMethodCalls"];
+n206 -> n207
+n205 -> n206
+n199 -> n205
+n196 -> n199
+n194 -> n196
+n193 -> n194
+n65 -> n193
+n208 [label="statement:"];
+n209 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n210 [label="identifier:a"];
+n209 -> n210
+n211 [label="exp DOT ident LP exp COMMA exp RP:"];
+n212 [label="THIS:"];
+n211 -> n212
+n213 [label="identifier:a5"];
+n211 -> n213
+n214 [label="argument_list:"];
+n215 [label="identifier:b"];
+n214 -> n215
+n216 [label="argument:"];
+n217 [label="exp DOT ident LP exp COMMA exp RP:"];
+n218 [label="NEW identifier LP RP:"];
+n219 [label="identifier:A"];
+n218 -> n219
+n217 -> n218
+n220 [label="identifier:a3"];
+n217 -> n220
+n221 [label="empty argument:"];
+n217 -> n221
+n216 -> n217
+n214 -> n216
+n222 [label="argument:"];
+n223 [label="identifier:ia"];
+n222 -> n223
+n214 -> n222
+n224 [label="argument:"];
+n225 [label="NEW identifier LP RP:"];
+n226 [label="identifier:InvalidNestedMethodCalls"];
+n225 -> n226
+n224 -> n225
+n214 -> n224
+n211 -> n214
+n209 -> n211
+n208 -> n209
+n65 -> n208
+n227 [label="var declaration:"];
+n228 [label="INT:"];
+n227 -> n228
+n229 [label="identifier:ret"];
+n227 -> n229
+n65 -> n227
+n230 [label="statement:"];
+n231 [label="IF LP expression RP statement ELSE statement:"];
+n232 [label="identifier:b"];
+n231 -> n232
+n233 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n234 [label="identifier:ret"];
+n233 -> n234
+n235 [label="INT:1"];
+n233 -> n235
+n231 -> n233
+n236 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n237 [label="identifier:ret"];
+n236 -> n237
+n238 [label="INT:0"];
+n236 -> n238
+n231 -> n236
+n230 -> n231
+n65 -> n230
+n61 -> n65
+n239 [label="RETURN:"];
+n240 [label="identifier:ret"];
+n239 -> n240
+n61 -> n239
+n19 -> n61
+n241 [label="methodDec:"];
+n242 [label="BOOLEAN:"];
+n241 -> n242
+n243 [label="identifier:a3"];
+n241 -> n243
+n244 [label="parameters:"];
+n241 -> n244
+n245 [label="methodBody:"];
+n241 -> n245
+n246 [label="RETURN:"];
+n247 [label="TRUE:"];
+n246 -> n247
+n241 -> n246
+n19 -> n241
+n248 [label="methodDec:"];
+n249 [label="INT:"];
+n248 -> n249
+n250 [label="identifier:a4"];
+n248 -> n250
+n251 [label="parameters:"];
+n248 -> n251
+n252 [label="methodBody:"];
+n248 -> n252
+n253 [label="RETURN:"];
+n254 [label="INT:1"];
+n253 -> n254
+n248 -> n253
+n19 -> n248
+n255 [label="methodDec:"];
+n256 [label="INT:"];
+n255 -> n256
+n257 [label="identifier:a5"];
+n255 -> n257
+n258 [label="parameters:"];
+n259 [label="parameter:"];
+n260 [label="BOOLEAN:"];
+n259 -> n260
+n261 [label="identifier:a"];
+n259 -> n261
+n258 -> n259
+n262 [label="parameter:"];
+n263 [label="INT:"];
+n262 -> n263
+n264 [label="identifier:b"];
+n262 -> n264
+n258 -> n262
+n265 [label="parameter:"];
+n266 [label="INT LB RB:"];
+n265 -> n266
+n267 [label="identifier:c"];
+n265 -> n267
+n258 -> n265
+n268 [label="parameter:"];
+n269 [label="typechar:"];
+n270 [label="identifier:A"];
+n269 -> n270
+n268 -> n269
+n271 [label="identifier:d"];
+n268 -> n271
+n258 -> n268
+n255 -> n258
+n272 [label="methodBody:"];
+n255 -> n272
+n273 [label="RETURN:"];
+n274 [label="INT:1"];
+n273 -> n274
+n255 -> n273
+n19 -> n255
+n13 -> n19
+n12 -> n13
 n0 -> n12
 }
