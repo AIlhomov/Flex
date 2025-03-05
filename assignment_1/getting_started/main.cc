@@ -91,7 +91,16 @@ int main(int argc, char **argv)
 				}
 
 				//Perform Intermediate Representation
+				std::cout << "\n\nIntermediate Representation: \n";
 				visitor.visit_for_IR(root);
+
+				// Print TAC instructions
+                visitor.current_block->printInstructions();
+
+				// Generate DOT file for CFG
+                CFG cfg;
+                cfg.addBlock(visitor.current_block);
+                cfg.generateDot("cfg.dot");
 				
 			}
 			catch (...)
