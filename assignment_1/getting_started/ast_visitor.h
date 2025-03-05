@@ -43,7 +43,6 @@ private:
 
     vector<string> method_scope_name;
     unordered_set<string> declared_vars; // Track local declarations
-
     // IR:
 public:
     BasicBlock* current_block;
@@ -334,8 +333,14 @@ public:
             // @error - semantic ('e' does not exist in the current scope)
             Symbol* found_the_non_existent = symtab.lookup(left_assign->value); // IMPORTANT
 
-            
 
+            if(getNodeReturnType(left_assign)!= getNodeReturnType(either_an_ident_or_exp_DOT_ident)){
+
+    
+                res.push_back(std::make_tuple(node->lineno, "semantic (invalid right hand side)"));
+                symtab.error_count++;
+
+            }
 
 
             if (either_an_ident_or_exp_DOT_ident->type == "NEW INT LEFT_BRACKET expression RIGHT_BRACKET"){
@@ -871,19 +876,42 @@ public:
             Node* func_name = *std::next(node->children.begin());//identifier:a1
             Node* is_this = node->children.front(); // THIS
 
+            Node* argument_lists = *std::next(node->children.begin(), 2); // argument_list
+
             if (is_this->type == "THIS"){
 
                 // find a3 because its deep down in the tree. And specify which node it belongs to.
                 string findA3 = findTypeUsingSymbolReq(node, "exp DOT ident LP exp COMMA exp RP");
+                string findSpecial = findTypeUsingSymbolReq(argument_lists, "DOT identifier LP arguments RP");
 
+                
                 //find both a1 and a3 in the symbol table, since a1 is already at this subtree we dont need to go deep down.
                 Symbol* findA1 = getSymbolForFunction_For_parameters(func_name->value);
                 Symbol* findA3sym = getSymbolForFunction_For_parameters(findA3);
                 
                 
+                Symbol* findSpecialSym = getSymbolForFunction_For_parameters(findSpecial);
+                if (findSpecialSym){
+                    //cout << "DSDASDSAD " << findSpecialSym->type << node->lineno << endl;
+                    for (int i=0; i<findA1->param_types.size(); i++){
+                        Symbol* find_type_of_arguments = getSymbolForMethod_For_parameters(findA1->type, findA1->name, findA1->param_types[i]);
+                        if (find_type_of_arguments->type != findSpecialSym->type){
+                            // @error - semantic (invalid method parameter for 'a1')
+                            string error_msg = "semantic (invalid method parameter for '" + findA1->name + "')";
+                            res.push_back(std::make_tuple(node->lineno, error_msg));
+                            symtab.error_count++;
+                        }
+                    }
+                    
+                }
+                
+
+                
+
+
                 if (findA3sym){
-                    // if (findA1->param_types.size() == 0 || findA3sym->param_types.size() == 0){
-                    //     res.push_back(std::make_tuple(node->lineno, "semantic (invalid type of argument)"));
+                    // if (findA1->param_types.size() == findA3sym->param_types.size()){
+                    //     res.push_back(std::make_tuple(node->lineno, "semantic (invalid number of parameters)"));
                     //     symtab.error_count++;
                     // }
                     // else if (findA1->param_types.size() != findA3sym->param_types.size()){
@@ -896,17 +924,47 @@ public:
                     
 
                     for (int i=0; i<findA1->param_types.size(); i++){
-                        //cout << "AAAAAAAA " << findA1->param_types[0]<<endl;
                         Symbol* find_type_of_arguments = getSymbolForMethod_For_parameters(findA1->type, findA1->name, findA1->param_types[i]);
                         if (find_type_of_arguments->type != findA3sym->type){
                             string error_msg = "semantic (invalid parameter method '" + findA1->name + "')";
                             res.push_back(std::make_tuple(node->lineno, error_msg));
                             symtab.error_count++;
                         }
+                        else if (find_type_of_arguments->type != findSpecialSym->type){
+                            cout << "FOUND IT " << find_type_of_arguments->type << node->lineno << endl;
+                        }
                     }
                 }                    
             }
         }
+    
+        
+        if (node->type == "exp DOT ident LP exp COMMA exp RP"){
+            Node* func_that_has_the_parameters = *std::next(node->children.begin()); // identifier:a5
+            Node* check_argument_list = *std::next(node->children.begin(), 2); // argument_list
+
+            Symbol* getA5 = getSymbolForFunction_For_parameters(func_that_has_the_parameters->value);
+            if (getA5){
+                
+                if (check_argument_list->type == "argument_list"){
+                    Node* first_arg = node->children.front();
+                    int counter = 1;
+                    for (auto child : check_argument_list->children){
+                        if (child->type == "argument") counter++;
+                    }
+                    
+                    // @error - semantic (invalid number of parameters)
+                    if (counter != getA5->param_types.size()){
+                        string error_msg = "semantic (invalid number of parameters)";
+                        res.push_back(std::make_tuple(node->lineno, error_msg));
+                        symtab.error_count++;
+                    }
+                    
+                }
+            }
+            
+        }
+    
     }
 
 
@@ -1076,6 +1134,10 @@ private:
         
     }
     string findTypeUsingSymbolReq(Node* n, const string& searchingNode){
+        if (n->type == searchingNode && searchingNode == "DOT identifier LP arguments RP"){
+            Node* identifier = n->children.front();
+            return identifier->value;
+        }
         if (n->type == searchingNode){
             Node* identifier = *std::next(n->children.begin());
             return identifier->value;
@@ -1162,10 +1224,11 @@ private:
         if (!n) return "unknown";
     
         // 1) Handle literals
-        if (n->type == "INT" || n->type == "expression DOT LENGTH") {
+        if (n->type == "INT" || n->type == "expression DOT LENGTH"||
+             n->type =="AddExpression" || n->type == "MultExpression") {
             return "INT";
         }
-        if (n->type == "TRUE" || n->type == "FALSE") {
+        if (n->type == "TRUE" || n->type == "FALSE" || n->type == "LESS_THAN" ) {
             return "BOOLEAN";
         }
     
