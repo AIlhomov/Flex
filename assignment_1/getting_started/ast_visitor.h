@@ -942,33 +942,158 @@ public:
         if (node->type == "exp DOT ident LP exp COMMA exp RP"){
             Node* func_that_has_the_parameters = *std::next(node->children.begin()); // identifier:a5
             Node* check_argument_list = *std::next(node->children.begin(), 2); // argument_list
+            Node* check_this2 = node->children.front(); // THIS
+            //Symbol* getA5 = getSymbolForFunction_For_parameters(func_that_has_the_parameters->value);
+            //Symbol* getA5 = getSymbolForMethod_For_parameters(curr_class_name, func_that_has_the_parameters->value, "a5");
+            vector<string> get_curr_params_types; // a = this.a5(b, a, ia, new InvalidNestedMethodCalls()); current parameters types.
+            vector<string> getA5_params_types; // a5 parameters types.
+            int counter = 1;
 
-            Symbol* getA5 = getSymbolForFunction_For_parameters(func_that_has_the_parameters->value);
-            if (getA5){
+            if (check_argument_list->type == "empty argument"){
+                counter = 0;
+            }
+            
+            
+
+            if (check_argument_list->type == "argument_list" || check_argument_list->type == "argument"){
+                Node* first_arg = check_argument_list->children.front();
+                Symbol *curr_param_for_A5 = symtab.lookup(first_arg->value);
                 
-                if (check_argument_list->type == "argument_list"){
-                    Node* first_arg = node->children.front();
-                    int counter = 1;
-                    for (auto child : check_argument_list->children){
-                        if (child->type == "argument") counter++;
+                if (curr_param_for_A5){
+                    get_curr_params_types.push_back(curr_param_for_A5->type);
+                }
+
+                for (auto child : check_argument_list->children){
+                    if (child->type == "argument") {
+                        counter++;
+                        Node* get_next_arg = child->children.front();
+                        string var_name;
+                        if (get_next_arg->type == "NEW identifier LP RP"){
+                            Node* addThis = get_next_arg->children.front();
+                            var_name = addThis->value;
+                        }
+                        else if (get_next_arg->type == "exp DOT ident LP exp COMMA exp RP"){
+                            Node* addThis = *std::next(get_next_arg->children.begin());
+                            var_name = addThis->value;
+                        }
+                        else if (get_next_arg->type == "identifier"){
+                            var_name = get_next_arg->value;
+                        }
+                        
+                        
+                        Symbol* get_next_arg_sym = symtab.lookup(var_name);
+                        
+                        if (get_next_arg_sym){
+                            //cout << get_next_arg_sym->name << " " << get_next_arg_sym->type << endl;
+                            if (get_next_arg_sym->type == "identifier"){
+                                get_curr_params_types.push_back(get_next_arg_sym->name);
+                            }
+                            else {
+                                get_curr_params_types.push_back(get_next_arg_sym->type);
+                            }
+                        }
+                        
                     }
+                }
+
+                /*
+                // @error - semantic (invalid number of parameters)
+                if (counter != getA5->param_types.size()){
+                    string error_msg = "semantic (invalid number of parameters)";
+                    res.push_back(std::make_tuple(node->lineno, error_msg));
+                    symtab.error_count++;
+                }
+                else 
+                */
+            }
+            // Symbol* getClassFor = symtab.lookup(check_this2->value);
+            // if (getClassFor){
+            //     //cout << getClassFor->name << endl;
+            //     Scope* class_scope = symtab.get_class_scope(getClassFor->name);
+            //     if (class_scope){
+            //         Symbol* A5 = class_scope->lookup(func_that_has_the_parameters->value);
+            //         if (A5){
+            //             cout << "DNWAOIDNAWOIDNAWIODNAWOIDNAWIOD"<<endl;
+            //         }
+            //     }
+            // }
+            //cout << "GET CLASS FOR " << getClassFor->name << endl;
+            //Scope* class_scope = symtab.get_class_scope(getClassFor->name);
+
+
+            Symbol* A5 = getSymbolForFunction_For_parameters(func_that_has_the_parameters->value);
+            //Symbol* A5 = symtab.lookup(func_that_has_the_parameters->value);
+            //Symbol* checkReturn = symtab.lookup(check_this2->value);
+            //Symbol* checkReturn2 = getSymbolForFunction_For_parameters(func_that_has_the_parameters->value) ;
+            //Scope* class_scope = symtab.get_class_scope(checkReturn->type);
+
+            // if (class_scope){
+            //     Symbol* A5 = class_scope->lookup(func_that_has_the_parameters->value);
+            //     ///Scope* method_scope = 
+            //     for (int i=0; i<A5->param_types.size(); i++){
+            //         Symbol* getA5_params = getSymbolForMethod_For_parameters(checkReturn->type, func_that_has_the_parameters->value, A5->param_types[i]);
+            //         if (getA5_params){
+            //             //cout << A5->param_types[i] << " " << getA5_params->type << endl;
+            //             getA5_params_types.push_back(getA5_params->type);
+            //         }
                     
-                    // @error - semantic (invalid number of parameters)
-                    if (counter != getA5->param_types.size()){
-                        string error_msg = "semantic (invalid number of parameters)";
+            //     }
+            //     cout << endl;
+            //     // go into checkReturn->type (Element) and find the function that has the parameters.
+            //     // func_that_has_the_parameters->value = Init
+
+            //     //Symbol* A5 = getSymbolForMethod_For_parameters(checkReturn->type, func_that_has_the_parameters->value, "a5");
+            //     // Scope* class_scope = symtab.get_class_scope(checkReturn->type);
+            //     // if (class_scope){
+            //     //     //cout << "KKKKKKKKKKKKKKKKKKKKKK"<<endl;
+            //     //     A5 = class_scope->lookup(func_that_has_the_parameters->value);
+            //     // }
+            // }
+            if (A5){
+                //cout << "FOUND IT " << A5->name << endl;
+                for (int i=0; i<A5->param_types.size(); i++){
+                    //Symbol* getA5_params = symtab.lookup(A5->param_types[i]);
+                    //cout << A5->param_types[i] << endl;
+                    //cout << curr_class_name << " " << A5->name << " " << A5->param_types[i] << endl;
+                    Symbol* getTypeOfParamater = getSymbolForMethod_For_parameters(curr_class_name, A5->name, A5->param_types[i]);
+                    // //cout << "GET TYPE OF PARAMETER " << getTypeOfParamater << endl;
+                    if (getTypeOfParamater){
+                        //cout << getTypeOfParamater->type << endl;
+                        getA5_params_types.push_back(getTypeOfParamater->type);
+                    }
+                    //getA5_params_types.push_back(A5->param_types[i]);
+                }
+                
+            }
+            
+            
+            // if (counter != getA5_params_types.size()){
+            //     cout << "counter " << counter << " getA5_params_types.size() " << getA5_params_types.size() << " "<<node->lineno << endl;
+            //     string error_msg = "semantic (invalid number of parameters)";
+            //     res.push_back(std::make_tuple(node->lineno, error_msg));
+            //     symtab.error_count++;
+            // }
+
+            // else 
+            if (counter == get_curr_params_types.size()){
+                for (int i=0; i<counter; i++){
+                    //cout << get_curr_params_types[i] << " " << getA5_params_types[i] << endl;
+                    if (get_curr_params_types[i] != getA5_params_types[i]){
+                        string error_msg = "semantic (invalid type of argument)";
                         res.push_back(std::make_tuple(node->lineno, error_msg));
                         symtab.error_count++;
                     }
-                    
                 }
             }
+            // for (int i = 0; i<getA5_params_types.size(); i++){
+            //     cout << getA5_params_types[i] << " ";
+            // }
+            // cout << endl;
+        
             
+        
         }
-    
     }
-
-
-    string visit2(Node* node);
 
 
     std::string visit_for_IR(Node* node) {
@@ -1193,7 +1318,7 @@ private:
         return nullptr;
     }
 
-    
+    //Symbol* getSymbolFor
 
     void handle_variable(Node* node){
         // its a normal variable just add it to the symtab

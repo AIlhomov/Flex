@@ -10,6 +10,7 @@
 #include <string>
 #include <unordered_map> // hash table with NO SORTING (faster) (better)
 
+
 using namespace std;
 
 enum SymbolKind { CLASS, METHOD, VARIABLE, PARAMETER }; 
