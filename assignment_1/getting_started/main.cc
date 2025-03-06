@@ -88,19 +88,21 @@ int main(int argc, char **argv)
 							  << " errors DETECTED!!! " << std::endl;
 				} else {
 					std::cerr << "\n\nSymbol table constructed successfully!\n" << std::endl;
+					// if no semantic errors, then perform IR
+					visitor.current_block = visitor.create_block(); // Creates block_0 and adds it to CFG
+					//Perform Intermediate Representation
+					std::cout << "\n\nIntermediate Representation: \n";
+					visitor.visit_for_IR(root);
+
+					// Print TAC instructions
+					visitor.current_block->printInstructions();
+
+					// Generate DOT file for CFG
+					visitor.cfg.generateDot("cfg.dot");
 				}
 
-				//Perform Intermediate Representation
-				std::cout << "\n\nIntermediate Representation: \n";
-				visitor.visit_for_IR(root);
+				
 
-				// Print TAC instructions
-                //visitor.current_block->printInstructions();
-
-				// Generate DOT file for CFG
-                CFG cfg;
-                cfg.addBlock(visitor.current_block);
-                cfg.generateDot("cfg.dot");
 				
 			}
 			catch (...)

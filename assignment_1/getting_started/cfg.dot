@@ -1,3 +1,18 @@
 digraph CFG {
- [label=""];
+graph [splines=ortho];
+node [shape=box];
+block_0 [label="block_0\n"];
+block_1 [label="block_1\n"];
+block_2 [label="block_2\n"];
+block_3 [label="block_3\nt1 := \nt2 := \nt3 := 1\naux := t3\nt4 := \naux2 := t4\naux := t5\nt6 := 2\nt7 := 5\naux := t8\nt9 := \nt10 := \nt11 := 2\nt12 :=  < t11\nif  goto block_5 else goto block_4\n"];
+block_3 -> block_4 [xlabel="true"];
+block_3 -> block_5 [xlabel="false"];
+block_4 [label="block_4\nt13 := 10\ngoto block_6\n"];
+block_5 [label="block_5\nt14 := 0\ngoto block_6\n"];
+block_6 [label="block_6\nt15 := 1\nt16 := \nt17 := \nt18 := \nif  goto block_8 else goto block_7\n"];
+block_6 -> block_7 [xlabel="true"];
+block_6 -> block_8 [xlabel="false"];
+block_7 [label="block_7\nt19 := 1\ngoto block_9\n"];
+block_8 [label="block_8\nt20 := 0\ngoto block_9\n"];
+block_9 [label="block_9\nt21 :=   \nt22 := 4\n"];
 }

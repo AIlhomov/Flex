@@ -45,8 +45,19 @@ private:
     unordered_set<string> declared_vars; // Track local declarations
     // IR:
 public:
+    // variables for the IR generation
     BasicBlock* current_block;
-    
+    std::unordered_map<std::string, BasicBlock*> method_entry_blocks;
+
+    int temp_counter = 0;
+    CFG cfg;
+    int block_counter = 0;
+    BasicBlock* create_block() {
+        BasicBlock* block = new BasicBlock();
+        block->label = "block_" + std::to_string(block_counter++); // Unique label
+        cfg.addBlock(block); // Add to CFG
+        return block;
+    }
 public:
     ASTVisitor(SymbolTable &st) : symtab(st), current_block(new BasicBlock()) {}
 
@@ -106,6 +117,12 @@ public:
             else { type_char_check_or_NOT = method_type->type; }
 
             Node* indentifier_method = *std::next(node->children.begin()); // identifier:func
+
+            // Add for IR
+            BasicBlock* entry_block = create_block();
+            method_entry_blocks[indentifier_method->value] = entry_block;
+            current_block = entry_block;
+
             //cout << "TESTING " << indentifier_method->value << endl;
             method_scope_name.push_back(curr_class_name + "." + indentifier_method->value); // Class.method
 
@@ -1095,19 +1112,21 @@ public:
         }
     }
 
-
     std::string visit_for_IR(Node* node) {
         if (!node) return "";
+
+        
+
 
         if (node->type == "SOMETHING ASSIGNED = TO SOMETHING") {
             Node* lhs = node->children.front();
             Node* rhs = *std::next(node->children.begin());
-            
+
             std::string rhs_temp = visit_for_IR(rhs);
             current_block->tacInstruction.push_back(TAC{TACType::ASSIGN, lhs->value, rhs_temp, ""});
             return lhs->value;
         }
-        else if (node->type == "AddExpression" || node->type == "BinOp") {
+        else if (node->type == "AddExpression" || node->type == "SubExpression") {
             Node* left = node->children.front();
             Node* right = *std::next(node->children.begin());
             
@@ -1136,7 +1155,7 @@ public:
 
             // Body block
             current_block = body_block;
-            visit(*std::next(node->children.begin()));
+            visit_for_IR(*std::next(node->children.begin()));
             body_block->tacInstruction.push_back(TAC{TACType::JUMP, "", "", "", cond_block->label});
             //body_block->next = cond_block;
 
@@ -1151,19 +1170,25 @@ public:
 
             // Condition evaluation
             std::string cond_temp = visit_for_IR(node->children.front());
-            current_block->tacInstruction.push_back(TAC{TACType::COND_JUMP, cond_temp, "", true_block->label, false_block->label});
+            current_block->tacInstruction.push_back(TAC{
+                TACType::COND_JUMP, 
+                cond_temp, 
+                "", 
+                true_block->label, 
+                false_block->label
+            });
             current_block->next_true = true_block;
             current_block->next_false = false_block;
 
             // True branch
             current_block = true_block;
-            visit(*std::next(node->children.begin()));
+            visit_for_IR(*std::next(node->children.begin())); 
             true_block->tacInstruction.push_back(TAC{TACType::JUMP, "", "", "", merge_block->label});
             //true_block->next = merge_block;
 
             // False branch
             current_block = false_block;
-            visit(*std::next(node->children.begin(), 2));
+            visit_for_IR(*std::next(node->children.begin(), 2));
             false_block->tacInstruction.push_back(TAC{TACType::JUMP, "", "", "", merge_block->label});
             //false_block->next = merge_block;
 
@@ -1171,13 +1196,62 @@ public:
             current_block = merge_block;
             return "";
         }
-        else if (node->type == "Identifier") {
-            return node->value; // Return variable name directly
+        
+        else if (node->type == "RETURN") {
+            Node* ret_val = node->children.front();
+            std::string ret_temp = visit_for_IR(ret_val);
+            current_block->tacInstruction.push_back(TAC{TACType::RETURN, "", ret_temp, ""}); // Dedicated RETURN type
+            return "";
         }
-        else if (node->type == "NumberLiteral") {
+        else if (node->type == "exp DOT ident LP exp COMMA exp RP") {
+            // Handle method calls with arguments
+            Node* obj_node = node->children.front(); // e.g., "THIS"
+            Node* method_node = *std::next(node->children.begin()); // e.g., "foo2"
+            Node* args_node = *std::next(node->children.begin(), 2); // "argument_list"
+        
+            std::vector<std::string> arg_temps;
+            for (auto arg_child : args_node->children) {
+                std::string arg_temp = visit_for_IR(arg_child);
+                arg_temps.push_back(arg_temp);
+            }
+        
+            // Generate TAC for method call (e.g., "t0 = CALL foo2, arg1, arg2")
+            std::string result_temp = new_temp();
+            std::string args_str = "";
+            for (const auto& arg : arg_temps) {
+                args_str += arg + ", ";
+            }
+            if (!args_str.empty()) args_str = args_str.substr(0, args_str.size() - 2);
+        
+            current_block->tacInstruction.push_back(TAC{
+                TACType::CALL, 
+                result_temp, 
+                method_node->value, 
+                args_str, 
+                ""
+            });
+            return result_temp;
+        }
+        else if (node->type == "LESS_THAN") {
+            Node* left = node->children.front();
+            Node* right = *std::next(node->children.begin());
+            std::string left_temp = visit_for_IR(left);
+            std::string right_temp = visit_for_IR(right);
+            std::string cond_temp = new_temp();
+            current_block->tacInstruction.push_back(TAC{TACType::BIN_OP, cond_temp, left_temp, right_temp, "<"});
+            return cond_temp;
+        }
+
+        else if (node->type == "INT" || node->type == "TRUE" || node->type == "FALSE") {
             std::string temp = new_temp();
             current_block->tacInstruction.push_back(TAC{TACType::ASSIGN, temp, node->value, ""});
             return temp;
+        }
+        else if (node->type == "SIMPLE PRINT LOL") {
+            Node* value_node = node->children.front();
+            std::string value_temp = visit_for_IR(value_node);
+            current_block->tacInstruction.push_back(TAC{TACType::PRINT, "", value_temp, ""});
+            return "";
         }
         else {
             // Default case for other nodes
@@ -1190,11 +1264,9 @@ public:
 // if, while, class, methods
 
 private:
-    int temp_counter = 0;
     
-    BasicBlock* create_block() {
-        return new BasicBlock();
-    }
+
+    
 
     string new_temp() {
         return "t" + std::to_string(temp_counter++);

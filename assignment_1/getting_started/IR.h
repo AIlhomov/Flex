@@ -12,7 +12,9 @@ enum class TACType {
     COND_JUMP,  // e.g., if x < y goto L1
     JUMP,       // e.g., goto L2
     LABEL,      // e.g., L1:
-    // Add other operations (e.g., function calls, returns)
+    CALL,       // e.g., t1 = CALL foo, a, b
+    RETURN,     // e.g., RETURN t1
+    PRINT       // e.g., PRINT t1
 };
 
 class TAC {
@@ -27,7 +29,28 @@ public:
         : type(t), dest(d), src1(s1), src2(s2), label(l) {}
 
     void printAll() const {
-        printf("%s := %s %s %s\n", dest.c_str(), src1.c_str(), label.c_str(), src2.c_str());
+        switch (type) {
+            case TACType::ASSIGN:
+                printf("%s := %s\n", dest.c_str(), src1.c_str());
+                break;
+            case TACType::BIN_OP:
+                printf("%s := %s %s %s\n", dest.c_str(), src1.c_str(), label.c_str(), src2.c_str());
+                break;
+            case TACType::COND_JUMP:
+                printf("if %s goto %s else goto %s\n", src1.c_str(), label.c_str(), src2.c_str());
+                break;
+            case TACType::JUMP:
+                printf("goto %s\n", label.c_str());
+                break;
+            case TACType::CALL:
+                printf("%s := CALL %s(%s)\n", dest.c_str(), src1.c_str(), src2.c_str());
+                break;
+            case TACType::RETURN:
+                printf("RETURN %s\n", src1.c_str());
+                break;
+            default:
+                printf("Unknown TAC type\n");
+        }
     }
 
     void addToTac() {
@@ -67,15 +90,45 @@ public:
     void generateDot(const std::string& filename) {
         std::ofstream outStream(filename);
         outStream << "digraph CFG {" << std::endl;
+        outStream << "graph [splines=ortho];" << std::endl; // Add ortho splines
+        outStream << "node [shape=box];" << std::endl;       // Set node shape to box
+    
         for (const auto& block : blocks) {
-            outStream << block->label << " [label=\"" << block->label << "\"];" << std::endl;
+            // Build the label with TAC instructions
+            std::string label = block->label + "\\n";
+            for (const TAC& tac : block->tacInstruction) {
+                switch (tac.type) {
+                    case TACType::ASSIGN:
+                        label += tac.dest + " := " + tac.src1 + "\\n";
+                        break;
+                    case TACType::BIN_OP:
+                        label += tac.dest + " := " + tac.src1 + " " + tac.label + " " + tac.src2 + "\\n";
+                        break;
+                    case TACType::COND_JUMP:
+                        label += "if " + tac.src1 + " goto " + tac.label + " else goto " + tac.src2 + "\\n";
+                        break;
+                    case TACType::JUMP:
+                        label += "goto " + tac.label + "\\n";
+                        break;
+                    default:
+                        break;
+                }
+            }
+    
+            // Write the node with formatted label
+            outStream << block->label << " [label=\"" << label << "\"];" << std::endl;
+    
+            // Add edges with xlabel
             if (block->next_true) {
-                outStream << block->label << " -> " << block->next_true->label << " [label=\"true\"];" << std::endl;
+                outStream << block->label << " -> " << block->next_true->label 
+                          << " [xlabel=\"true\"];" << std::endl;
             }
             if (block->next_false) {
-                outStream << block->label << " -> " << block->next_false->label << " [label=\"false\"];" << std::endl;
+                outStream << block->label << " -> " << block->next_false->label 
+                          << " [xlabel=\"false\"];" << std::endl;
             }
         }
+    
         outStream << "}" << std::endl;
         outStream.close();
     }
