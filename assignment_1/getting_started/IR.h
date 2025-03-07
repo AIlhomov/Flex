@@ -46,7 +46,10 @@ public:
                 printf("%s := CALL %s(%s)\n", dest.c_str(), src1.c_str(), src2.c_str());
                 break;
             case TACType::RETURN:
-                printf("RETURN %s\n", src1.c_str());
+                printf("RETURN %s\n", src1.c_str()); // Use src1, not dest
+                break;
+            case TACType::PRINT:
+                printf("PRINT %s\n", src1.c_str());
                 break;
             default:
                 printf("Unknown TAC type\n");
