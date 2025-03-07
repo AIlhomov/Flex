@@ -11,7 +11,6 @@ class Bar {
 		aux = 1;
 		aux2 = true;
 		aux = this.foo2(aux);
-		aux = this.foo3(2, 5, aux2);
 		return aux;
 	}
 

@@ -1251,7 +1251,7 @@ public:
             std::string left_temp = visit_for_IR(left); // e.g., p1
             std::string right_temp = visit_for_IR(right); // e.g., 2
             std::string cond_temp = new_temp();
-            
+
             current_block->tacInstruction.push_back(TAC{
                 TACType::BIN_OP,
                 cond_temp,
@@ -1317,6 +1317,7 @@ public:
             }
             return "";
         }
+        return "";
     }
 // if, while, class, methods
 

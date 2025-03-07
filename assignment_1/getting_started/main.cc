@@ -95,7 +95,9 @@ int main(int argc, char **argv)
 					visitor.visit_for_IR(root);
 
 					// Print TAC instructions
-					visitor.current_block->printInstructions();
+					visitor.cfg.printAllInstructions();
+
+					
 
 					// Generate DOT file for CFG
 					visitor.cfg.generateDot("cfg.dot");

@@ -135,4 +135,10 @@ public:
         outStream << "}" << std::endl;
         outStream.close();
     }
+
+    void printAllInstructions() {
+        for (const auto& block : blocks) {
+            block->printInstructions();
+        }
+    }
 };
