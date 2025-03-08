@@ -14,7 +14,8 @@ enum class TACType {
     LABEL,      // e.g., L1:
     CALL,       // e.g., t1 = CALL foo, a, b
     RETURN,     // e.g., RETURN t1
-    PRINT       // e.g., PRINT t1
+    PRINT,      // e.g., PRINT t1
+    NEW         // e.g., t1 = NEW Foo
 };
 
 class TAC {
@@ -24,6 +25,7 @@ public:
     std::string src1;   // First source operand
     std::string src2;   // Second source operand (for binary ops)
     std::string label;  // Label for jumps (e.g., "L1")
+    std::string object; // Method calls
 
     TAC(TACType t, const std::string& d, const std::string& s1, const std::string& s2, const std::string& l = "")
         : type(t), dest(d), src1(s1), src2(s2), label(l) {}
@@ -50,6 +52,9 @@ public:
                 break;
             case TACType::PRINT:
                 printf("PRINT %s\n", src1.c_str());
+                break;
+            case TACType::NEW:
+                printf("%s := NEW %s\n", dest.c_str(), src1.c_str());
                 break;
             default:
                 printf("Unknown TAC type\n");
@@ -113,6 +118,19 @@ public:
                     case TACType::JUMP:
                         label += "goto " + tac.label + "\\n";
                         break;
+                    case TACType::CALL:
+                        label += tac.dest + " := CALL " + tac.src1 + "(" + tac.src2 + ")\\n";
+                        break;
+                    case TACType::RETURN:
+                        label += "RETURN " + tac.src1 + "\\n";
+                        break;
+                    case TACType::PRINT:
+                        label += "PRINT " + tac.src1 + "\\n";
+                        break;
+                    case TACType::NEW:
+                        label += tac.dest + " := NEW " + tac.src1 + "\\n";
+                        break;
+                    
                     default:
                         break;
                 }

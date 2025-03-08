@@ -1117,7 +1117,6 @@ public:
 
         
 
-
         if (node->type == "SOMETHING ASSIGNED = TO SOMETHING") {
             Node* lhs = node->children.front();
             Node* rhs = *std::next(node->children.begin());
@@ -1221,19 +1220,24 @@ public:
             Node* obj_node = node->children.front();
             Node* method_node = *std::next(node->children.begin());
             Node* args_node = *std::next(node->children.begin(), 2);
-        
+            // Process object and arguments FIRST
+            std::string obj_temp = visit_for_IR(obj_node); // e.g., handles NEW
             std::vector<std::string> arg_temps;
             for (auto arg_child : args_node->children) {
-                std::string arg_temp = visit_for_IR(arg_child); // Resolve to temp
+                // loop through argument_list
+                std::string arg_temp = visit_for_IR(arg_child);
                 arg_temps.push_back(arg_temp);
             }
         
-            std::string args_str = "";
-            for (const auto& arg : arg_temps) {
-                args_str += arg + ", ";
+            // Build args_str (e.g., "t1, t2")
+            std::string args_str;
+            for (size_t i = 0; i < arg_temps.size(); i++) {
+                args_str += arg_temps[i];
+                if (i != arg_temps.size() - 1) {
+                    args_str += ", ";
+                }
             }
-            if (!args_str.empty()) args_str = args_str.substr(0, args_str.size() - 2);
-        
+            // Generate CALL instruction
             std::string result_temp = new_temp();
             current_block->tacInstruction.push_back(TAC{
                 TACType::CALL,
@@ -1244,6 +1248,7 @@ public:
             });
             return result_temp;
         }
+        
         else if (node->type == "LESS_THAN") {
             Node* left = node->children.front();
             Node* right = *std::next(node->children.begin());
@@ -1276,6 +1281,7 @@ public:
             Node* value_node = node->children.front();
             std::string value_temp = visit_for_IR(value_node); // e.g., "t10"
             current_block->tacInstruction.push_back(TAC{TACType::PRINT, "", value_temp, ""});
+            
             return "";
         }
         else if (node->type == "SubExpression") {
@@ -1310,16 +1316,118 @@ public:
         else if (node->type == "identifier") {
             return node->value;
         }
+        else if (node->type == "NEW identifier LP RP") {
+            Node* identNode = node->children.front(); // identifier:Bar
+            std::string bar = identNode->value;
+            std::string temp = new_temp();
+            current_block->tacInstruction.push_back(TAC{TACType::NEW, temp, bar, ""});
+            return temp;
+        }
+        else if (node->type == "goal") {
+            for (auto child : node->children) {
+                visit_for_IR(child); // Process MAIN CLASS and classDeclarations
+            }
+            return "";
+        }
+        else if (node->type == "MAIN CLASS") {
+            for (auto child : node->children) {
+                visit_for_IR(child); // Process main method and statements
+            }
+            return "";
+        }
+        else if (node->type == "methodBody") {
+            for (auto child : node->children) {
+                visit_for_IR(child); // Process var declarations and statements
+            }
+            return "";
+        }
+        else if (node->type == "parameters") {
+            for (auto child : node->children) {
+                visit_for_IR(child); // Process individual parameters
+            }
+            return "";
+        }
+        else if (node->type == "statements") {
+            for (auto child : node->children) {
+                visit_for_IR(child); // Process each statement
+            }
+            return "";
+        }
+        else if (node->type == "statement") {
+            for (auto child : node->children) {
+                visit_for_IR(child); // Process each statement
+            }
+            return "";
+        }
+        else if (node->type == "MAIN METHOD") {
+            for (auto child : node->children) {
+                visit_for_IR(child); // Process each statement
+            }
+            return "";
+        }
+        else if (node->type == "classDeclarations") {
+            for (auto child : node->children) {
+                visit_for_IR(child); // Process each statement
+            }
+            return "";
+        }
+        else if (node->type == "classDeclaration") {
+            for (auto child : node->children) {
+                visit_for_IR(child); // Process each statement
+            }
+            return "";
+        }
+        else if (node->type == "var declarations") {
+            for (auto child : node->children) {
+                visit_for_IR(child); // Process each statement
+            }
+            return "";
+        }
+        else if (node->type == "methodDeclarations") {
+            for (auto child : node->children) {
+                visit_for_IR(child); // Process each statement
+            }
+            return "";
+        }
+        else if (node->type == "methodDeclarations") {
+            for (auto child : node->children) {
+                visit_for_IR(child); // Process each statement
+            }
+            return "";
+        }
+        else if (node->type == "argument") {
+            cout << "danwoidanwmoinawoidn"<<endl;
+            for (auto child : node->children) {
+                visit_for_IR(child); // Process each statement
+            }
+            return "";
+        }
+        else if (node->type == "LC statement RC") {
+            for (auto child : node->children) {
+                visit_for_IR(child); // Process each statement
+            }
+            return "";
+        }
+        else if (node->type == "THIS") {
+            std::string temp = new_temp();
+            current_block->tacInstruction.push_back(TAC{TACType::ASSIGN, temp, "this", ""});
+            return temp; // Or directly return "this" if no temp needed
+        }
+        else if (node->type == "empty argument") {
+            return ""; // No action needed for empty arguments
+        }
         else {
             // Default case for other nodes
+            std::cerr << "Unhandled node type: " << node->type << std::endl;
             for (auto child : node->children) {
                 visit_for_IR(child);
             }
             return "";
         }
-        return "";
     }
-// if, while, class, methods
+
+
+    // if, while, class, methods
 
 private:
     
