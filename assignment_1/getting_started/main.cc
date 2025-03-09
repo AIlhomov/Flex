@@ -2,6 +2,7 @@
 #include "parser.tab.hh"
 # include "symtab.h"
 # include "ast_visitor.h"
+# include "visit_IR.h"
 
 extern Node *root;
 extern FILE *yyin;
@@ -80,27 +81,26 @@ int main(int argc, char **argv)
 
 
 
-				if (symtab.get_error_count() > 0)
-				{
+				if (symtab.get_error_count() > 0) {
 					errCode = errCodes::SEMANTIC_ERROR;
 					std::cerr << "\n\nSemantic errors found!\n" 
 							  << symtab.get_error_count() 
 							  << " errors DETECTED!!! " << std::endl;
 				} else {
 					std::cerr << "\n\nSymbol table constructed successfully!\n" << std::endl;
-					// if no semantic errors, then perform IR
-					visitor.current_block = visitor.create_block(); // Creates block_0 and adds it to CFG
-					//Perform Intermediate Representation
-					std::cout << "\n\nIntermediate Representation: \n";
-					visitor.visit_for_IR(root);
-
-					// Print TAC instructions
-					visitor.cfg.printAllInstructions();
-
 					
-
+					// --- IR Generation ---
+					IRvisitor ir_visitor;
+					CFG* cfg = ir_visitor.generate_IR(root); // Generate CFG from AST
+					
+					// Print TAC instructions
+					std::cout << "\n\nIntermediate Representation: \n";
+					cfg->printAllInstructions();
+					
 					// Generate DOT file for CFG
-					visitor.cfg.generateDot("cfg.dot");
+					cfg->generateDot("cfg.dot");
+					
+					delete cfg; // Free memory
 				}
 
 				

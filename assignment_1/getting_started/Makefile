@@ -15,3 +15,8 @@ clean:
 
 tree2:
 		dot -Tpdf cfg.dot -otree2.pdf
+s:
+		make
+		./compiler test.txt
+		dot -Tpdf tree.dot -otree.pdf
+		dot -Tpdf cfg.dot -otree2.pdf

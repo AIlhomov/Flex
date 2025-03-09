@@ -23,13 +23,13 @@ n3 -> n11
 n1 -> n3
 n0 -> n1
 n12 [label="classDeclarations:"];
-n13 [label="classDeclaration:"];
+n13 [label="classDeclaration:Bar"];
 n14 [label="identifier:Bar"];
 n13 -> n14
 n15 [label="var declarations:"];
 n13 -> n15
 n16 [label="methodDeclarations:"];
-n17 [label="methodDec:"];
+n17 [label="methodDec:foo"];
 n18 [label="INT:"];
 n17 -> n18
 n19 [label="identifier:foo"];
@@ -111,7 +111,7 @@ n57 [label="identifier:aux"];
 n56 -> n57
 n17 -> n56
 n16 -> n17
-n58 [label="methodDec:"];
+n58 [label="methodDec:foo2"];
 n59 [label="INT:"];
 n58 -> n59
 n60 [label="identifier:foo2"];
@@ -149,7 +149,7 @@ n76 [label="INT:1"];
 n75 -> n76
 n58 -> n75
 n16 -> n58
-n77 [label="methodDec:"];
+n77 [label="methodDec:foo3"];
 n78 [label="INT:"];
 n77 -> n78
 n79 [label="identifier:foo3"];

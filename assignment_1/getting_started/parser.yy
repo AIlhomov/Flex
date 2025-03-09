@@ -90,7 +90,7 @@ classDeclaration: singleClassDeclaration  {
 singleClassDeclaration: CLASS identifier LEFT_CURLY varDeclaration 
 					methodDeclaration RIGHT_CURLY  {
 						$$ = new Node("classDeclarations", "", yylineno);
-						Node* classes =	new Node("classDeclaration", "", yylineno);
+						Node* classes =	new Node("classDeclaration", $2->value , yylineno);
 						
 						classes->children.push_back($2);
 						classes->children.push_back($4);
@@ -105,7 +105,7 @@ singleClassDeclaration: CLASS identifier LEFT_CURLY varDeclaration
 						$$ = $1; // singleClassDeclaration
 						//$$ = new Node("ClassDeclarationsHERERERERE", "", yylineno);
 
-						Node* classes = new Node("classDeclaration", "", yylineno);
+						Node* classes = new Node("classDeclaration", $3->value, yylineno);
 
 						classes->children.push_back($3);
 						classes->children.push_back($5);
@@ -277,7 +277,7 @@ reqMethodDeclaration: PUBLIC type identifier LP parameters
 					retSTMT RIGHT_CURLY
 					{
 						$$ = new Node("methodDeclarations", "", yylineno);
-						Node * methDec = new Node("methodDec", "", yylineno);
+						Node * methDec = new Node("methodDec", $3->value, yylineno);
 						methDec->children.push_back($2);
 						methDec->children.push_back($3);
 						methDec->children.push_back($5);
@@ -285,6 +285,7 @@ reqMethodDeclaration: PUBLIC type identifier LP parameters
 						methDec->children.push_back($9);
 
 						$$->children.push_back(methDec);
+						
 
 
 					}
@@ -293,7 +294,7 @@ reqMethodDeclaration: PUBLIC type identifier LP parameters
 					retSTMT RIGHT_CURLY
 					{
 						$$ = $1;
-						Node * methDec = new Node("methodDec", "", yylineno);
+						Node * methDec = new Node("methodDec", $4->value, yylineno);
 						methDec->children.push_back($3);
 						methDec->children.push_back($4);
 						methDec->children.push_back($6);

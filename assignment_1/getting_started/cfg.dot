@@ -1,18 +1,5 @@
 digraph CFG {
 graph [splines=ortho];
 node [shape=box];
-block_0 [label="block_0\nt2 := \nt3 := 1\naux := t3\nt4 := TRUE\naux2 := t4\nt5 := this\nt6 := CALL foo2(aux)\naux := t6\nt7 := this\nt8 := 2\nt9 := 5\nt10 := CALL foo3(t8, , )\naux := t10\nRETURN aux\n"];
-block_1 [label="block_1\nt11 := \nt12 := 2\nt13 := p1 < t12\nif  goto block_5 else goto block_4\n"];
-block_1 -> block_4 [xlabel="true"];
-block_1 -> block_5 [xlabel="false"];
-block_2 [label="block_2\nt17 := \nif  goto block_8 else goto block_7\n"];
-block_2 -> block_7 [xlabel="true"];
-block_2 -> block_8 [xlabel="false"];
-block_3 [label="block_3\nt0 := NEW Bar\nt1 := CALL foo()\nPRINT t1\n"];
-block_4 [label="block_4\nt14 := 10\nPRINT t14\ngoto block_6\n"];
-block_5 [label="block_5\nt15 := 0\nPRINT t15\ngoto block_6\n"];
-block_6 [label="block_6\nt16 := 1\nRETURN t16\n"];
-block_7 [label="block_7\nt18 := 1\nPRINT t18\ngoto block_9\n"];
-block_8 [label="block_8\nt19 := 0\nPRINT t19\ngoto block_9\n"];
-block_9 [label="block_9\nPRINT p1\nt20 := p2 - p1\nPRINT t20\nt21 := 4\nRETURN t21\n"];
+block_0 [label="block_0\n__t0 := NEW Bar\n__t1 := CALL foo()\nPRINT __t1\n"];
 }
