@@ -4,6 +4,16 @@ public class A {
 	}
 }
 
+t4 = 1
+p1 = t4
+if (p1 < 2)
+
+t1 = p1
+t2 = 2
+t3 = t1 < t2
+if t3 goto L1
+
+
 class Bar {
 	public int foo() {
 		int aux;

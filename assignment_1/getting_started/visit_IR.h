@@ -54,9 +54,15 @@ private:
 
     std::string visit_expr(Node* node, BlockContext& ctx) {
         if(!node) return "";
-        else if(node->type =="INT" || node->type == "TRUE" || node->type == "FALSE"){
+        else if(node->type =="INT" || node->type == "TRUE" || node->type == "FALSE" || node->type == "identifier"){
             std::string temp = this->new_temp();
             TAC ta(TACType::ASSIGN, temp, node->value, "","");
+            ctx.current_block->tacInstructions.push_back(ta);
+            return temp;
+        }
+        else if (node->type == "THIS"){
+            std::string temp = this->new_temp();
+            TAC ta(TACType::ASSIGN, temp, node->type, "","");
             ctx.current_block->tacInstructions.push_back(ta);
             return temp;
         }
@@ -66,10 +72,11 @@ private:
             std::string firstExpThis = visit_expr(node->children.front(),ctx); //NEW Bar
             std::string temp = this->new_temp();
 
+
             Node* getFuncName = *std::next(node->children.begin()); //aka FOO
             Node* argNode = *std::next(node->children.begin(),2); //aka FOO
             std::string argruments = visit_expr(argNode,ctx);  //can be argument_list or emptyArgumet
-        
+            
             TAC ta(TACType::CALL, temp, firstExpThis +"."+ getFuncName->value, argruments,"");  
             ctx.current_block->tacInstructions.push_back(ta);
 
@@ -91,7 +98,15 @@ private:
 
         else if(node->type == "argument_list"){
 
-            string temp = node->children.front()->value;
+            string temp = visit_expr(node->children.front(),ctx);
+
+            
+            // if (node->children.size() == 1){
+            //     std::string temp2 = this->new_temp();
+            //     TAC ta(TACType::ASSIGN, temp2, node->children.front()->value, "","");
+            //     ctx.current_block->tacInstructions.push_back(ta);
+            //     return temp2;
+            // }
 
             int count = 0;
             for(auto arg: node->children){
@@ -101,7 +116,7 @@ private:
                 } 
                 temp += "," + visit_expr(arg,ctx);
             }
-
+            
             return temp; 
         }
 
@@ -111,7 +126,10 @@ private:
             ctx.current_block->tacInstructions.push_back(ta);
             return temp;
         }
+        else if (node->type == "LESS THAN"){
 
+
+        }
         return "";
 
     }
@@ -142,6 +160,17 @@ private:
             TAC t(TACType::ASSIGN, left->value, temp, "", "");
             ctx.current_block->tacInstructions.push_back(t);
 
+            if (right->type == "exp DOT ident LP exp COMMA exp RP"){
+
+                Node* firstChild = right->children.front();
+                Node* secChild = *std::next(right->children.begin());
+                Node* thirdChild = *std::next(right->children.begin(), 2);
+                
+                BasicBlock* newBlock = create_block(ctx.cfg);
+                ctx.current_block->successors.push_back(newBlock); // Ensure correct flow
+                ctx.current_block = newBlock; // Switch to the new block
+                return ctx.current_block;
+            }
             /*
             aux = 1;
             aux2 = true;
@@ -150,19 +179,53 @@ private:
             aux = t1
 
             */
-
-            // TAC t(TACType::ASSIGN, left->value, right->value, "", new_temp());
-            // ctx.current_block->tacInstructions.push_back(t);
-            
-            // if(right->type == "exp DOT ident LP exp COMMA exp RP"){
-                
-            //     BasicBlock* newBlock = create_block(ctx.cfg);
-            //     ctx.current_block->successors.push_back(newBlock); // Ensure correct flow
-            //     ctx.current_block = newBlock; // Switch to the new block
-            //     return ctx.current_block;
-            // }
         }
+        else if (node->type == "IF LP expression RP statement ELSE statement"){
 
+            // Node* conditionNode = node->children.front();
+            // Node* thenStmtNode = *std::next(node->children.begin());
+            // Node* elseStmtNode = *std::next(node->children.begin(), 2);
+            
+            
+            // // 1. Evaluate condition to a temporary variable
+            // std::string condTemp = visit_expr(conditionNode, ctx);
+
+            // // 2. Create basic blocks for control flow
+            // BasicBlock* thenBlock = create_block(ctx.cfg);
+            // BasicBlock* elseBlock = create_block(ctx.cfg);
+            // BasicBlock* mergeBlock = create_block(ctx.cfg);
+
+            // // 3. Emit conditional jump (true: thenBlock, false: elseBlock)
+            // TAC condJump(TACType::COND_JUMP, 
+            //             "",              // No destination
+            //             condTemp,        // Condition (src1)
+            //             elseBlock->label, // False target (src2)
+            //             thenBlock->label // True target (label field)
+            // );
+            // ctx.current_block->tacInstructions.push_back(condJump);
+
+            // // Link current block to successors
+            // ctx.current_block->successors.push_back(thenBlock);
+            // ctx.current_block->successors.push_back(elseBlock);
+
+            // // 4. Process THEN block
+            // ctx.current_block = thenBlock;
+            // BasicBlock* thenEnd = visit_stmt(thenStmtNode, ctx);
+            // TAC thenGoto(TACType::JUMP, "", "", mergeBlock->label, "");
+            // thenEnd->tacInstructions.push_back(thenGoto);
+            // thenEnd->successors.push_back(mergeBlock);
+
+            // // 5. Process ELSE block
+            // ctx.current_block = elseBlock;
+            // BasicBlock* elseEnd = visit_stmt(elseStmtNode, ctx);
+            // TAC elseGoto(TACType::JUMP, "", "", mergeBlock->label, "");
+            // elseEnd->tacInstructions.push_back(elseGoto);
+            // elseEnd->successors.push_back(mergeBlock);
+
+            // // 6. Set merge block as new current
+            // ctx.current_block = mergeBlock;
+            // return mergeBlock;
+        }
 
         return ctx.current_block;
 
@@ -183,7 +246,9 @@ private:
         else if(node->type =="SOMETHING ASSIGNED = TO SOMETHING"){
             BasicBlock *res = visit_stmt(node,ctx);
         }
-
+        else if (node->type == "IF LP expression RP statement ELSE statement"){
+            BasicBlock *res = visit_stmt(node, ctx);
+        }
         
         //default:
         else
