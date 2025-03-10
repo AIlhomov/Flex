@@ -209,49 +209,60 @@ private:
         }
         else if (node->type == "IF LP expression RP statement ELSE statement"){
 
-            // Node* conditionNode = node->children.front();
-            // Node* thenStmtNode = *std::next(node->children.begin());
-            // Node* elseStmtNode = *std::next(node->children.begin(), 2);
+            Node* conditionNode = node->children.front();
+            Node* thenStmtNode = *std::next(node->children.begin());
+            Node* elseStmtNode = *std::next(node->children.begin(), 2);
             
             
-            // // 1. Evaluate condition to a temporary variable
-            // std::string condTemp = visit_expr(conditionNode, ctx);
+            // 1. Evaluate condition to a temporary variable
+            //std::string condTemp = visit_expr(conditionNode, ctx);
+            string tempting = "";
 
-            // // 2. Create basic blocks for control flow
-            // BasicBlock* thenBlock = create_block(ctx.cfg);
-            // BasicBlock* elseBlock = create_block(ctx.cfg);
-            // BasicBlock* mergeBlock = create_block(ctx.cfg);
+            if (conditionNode->type == "LESS_THAN"){
+                Node* f1 = conditionNode->children.front();
+                Node* f2 = *std::next(conditionNode->children.begin());
 
-            // // 3. Emit conditional jump (true: thenBlock, false: elseBlock)
-            // TAC condJump(TACType::COND_JUMP, 
-            //             "",              // No destination
-            //             condTemp,        // Condition (src1)
-            //             elseBlock->label, // False target (src2)
-            //             thenBlock->label // True target (label field)
-            // );
-            // ctx.current_block->tacInstructions.push_back(condJump);
+                std::string condTemp1 = visit_expr(f1, ctx);
+                std::string condTemp2 = visit_expr(f2, ctx);
 
-            // // Link current block to successors
-            // ctx.current_block->successors.push_back(thenBlock);
-            // ctx.current_block->successors.push_back(elseBlock);
+                tempting = condTemp1 + " < " + condTemp2;
+            }
 
-            // // 4. Process THEN block
-            // ctx.current_block = thenBlock;
-            // BasicBlock* thenEnd = visit_stmt(thenStmtNode, ctx);
-            // TAC thenGoto(TACType::JUMP, "", "", mergeBlock->label, "");
-            // thenEnd->tacInstructions.push_back(thenGoto);
-            // thenEnd->successors.push_back(mergeBlock);
+            // 2. Create basic blocks for control flow
+            BasicBlock* thenBlock = create_block(ctx.cfg);
+            BasicBlock* elseBlock = create_block(ctx.cfg);
+            BasicBlock* mergeBlock = create_block(ctx.cfg);
 
-            // // 5. Process ELSE block
-            // ctx.current_block = elseBlock;
-            // BasicBlock* elseEnd = visit_stmt(elseStmtNode, ctx);
-            // TAC elseGoto(TACType::JUMP, "", "", mergeBlock->label, "");
-            // elseEnd->tacInstructions.push_back(elseGoto);
-            // elseEnd->successors.push_back(mergeBlock);
+            // 3. Emit conditional jump (true: thenBlock, false: elseBlock)
+            TAC condJump(TACType::COND_JUMP, 
+                        "",              // No destination
+                        tempting,        // Condition (src1)
+                        elseBlock->label, // False target (src2)
+                        thenBlock->label // True target (label field)
+            );
+            ctx.current_block->tacInstructions.push_back(condJump);
 
-            // // 6. Set merge block as new current
-            // ctx.current_block = mergeBlock;
-            // return mergeBlock;
+            // Link current block to successors
+            ctx.current_block->successors.push_back(thenBlock);
+            ctx.current_block->successors.push_back(elseBlock);
+
+            // 4. Process THEN block
+            ctx.current_block = thenBlock;
+            BasicBlock* thenEnd = visit_stmt(thenStmtNode, ctx);
+            TAC thenGoto(TACType::JUMP, "", "", mergeBlock->label, "");
+            thenEnd->tacInstructions.push_back(thenGoto);
+            thenEnd->successors.push_back(mergeBlock);
+
+            // 5. Process ELSE block
+            ctx.current_block = elseBlock;
+            BasicBlock* elseEnd = visit_stmt(elseStmtNode, ctx);
+            TAC elseGoto(TACType::JUMP, "", "", mergeBlock->label, "");
+            elseEnd->tacInstructions.push_back(elseGoto);
+            elseEnd->successors.push_back(mergeBlock);
+
+            // 6. Set merge block as new current
+            ctx.current_block = mergeBlock;
+            return mergeBlock;
         }
 
         return ctx.current_block;
