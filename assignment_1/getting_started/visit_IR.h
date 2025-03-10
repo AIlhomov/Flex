@@ -156,7 +156,18 @@ private:
 
         }
 
+        else if (node->type == "RETURN"){
+            Node* first_CHILD = node->children.front();
 
+
+
+            TAC ta(TACType::RETURN, "", first_CHILD->value, "","");  
+            ctx.current_block->tacInstructions.push_back(ta);
+
+            BasicBlock* newBlock = create_block(ctx.cfg);
+            ctx.current_block->successors.push_back(newBlock); // Ensure correct flow
+            ctx.current_block = newBlock; // Switch to the new block
+        }
         else if(node->type =="SOMETHING ASSIGNED = TO SOMETHING"){
             Node* left = node->children.front();
             Node* right = *std::next(node->children.begin());
@@ -227,6 +238,19 @@ private:
 
                 tempting = condTemp1 + " < " + condTemp2;
             }
+            // HANDLE MORE CASES:
+            else if (conditionNode->type == "MORE_THAN"){
+                Node* f1 = conditionNode->children.front();
+                Node* f2 = *std::next(conditionNode->children.begin());
+
+                std::string condTemp1 = visit_expr(f1, ctx);
+                std::string condTemp2 = visit_expr(f2, ctx);
+
+                tempting = condTemp1 + " > " + condTemp2;
+            }
+            else {
+                tempting = conditionNode->value; //for identifiers
+            }
 
             // 2. Create basic blocks for control flow
             BasicBlock* thenBlock = create_block(ctx.cfg);
@@ -249,14 +273,14 @@ private:
             // 4. Process THEN block
             ctx.current_block = thenBlock;
             BasicBlock* thenEnd = visit_stmt(thenStmtNode, ctx);
-            TAC thenGoto(TACType::JUMP, "", "", mergeBlock->label, "");
+            TAC thenGoto(TACType::JUMP, "", "", "", mergeBlock->label);
             thenEnd->tacInstructions.push_back(thenGoto);
             thenEnd->successors.push_back(mergeBlock);
 
             // 5. Process ELSE block
             ctx.current_block = elseBlock;
             BasicBlock* elseEnd = visit_stmt(elseStmtNode, ctx);
-            TAC elseGoto(TACType::JUMP, "", "", mergeBlock->label, "");
+            TAC elseGoto(TACType::JUMP, "", "", "", mergeBlock->label);
             elseEnd->tacInstructions.push_back(elseGoto);
             elseEnd->successors.push_back(mergeBlock);
 
@@ -287,7 +311,9 @@ private:
         else if (node->type == "IF LP expression RP statement ELSE statement"){
             BasicBlock *res = visit_stmt(node, ctx);
         }
-        
+        else if (node->type == "RETURN"){
+            BasicBlock *res = visit_stmt(node, ctx);
+        }
         //default:
         else
         for(auto child : node->children){
