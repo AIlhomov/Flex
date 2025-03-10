@@ -1,5 +1,0 @@
-digraph CFG {
-graph [splines=ortho];
-node [shape=box];
-block_0 [label="block_0\n__t0 := NEW Bar\n__t1 := CALL foo()\nPRINT __t1\n"];
-}

@@ -426,10 +426,10 @@ expression: expression PLUSOP expression {      /*
 			/* | < INTEGER_LITERAL > */ /* done ? (down below) */
 
 			| TRUE {
-				$$ = new Node("TRUE", "", yylineno);
+				$$ = new Node("TRUE", "True", yylineno);
 			}
 			| FALSE {
-				$$ = new Node("FALSE", "", yylineno);
+				$$ = new Node("FALSE", "False", yylineno);
 			}
 
 			/* fix this later (idk) */
