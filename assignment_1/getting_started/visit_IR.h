@@ -54,24 +54,29 @@ private:
 
     std::string visit_expr(Node* node, BlockContext& ctx) {
         if(!node) return "";
-        else if(node->type =="INT" || node->type == "TRUE" || node->type == "FALSE" || node->type == "identifier"){
-            std::string temp = this->new_temp();
-            TAC ta(TACType::ASSIGN, temp, node->value, "","");
-            ctx.current_block->tacInstructions.push_back(ta);
-            return temp;
+        // else if(node->type =="INT" || node->type == "TRUE" || node->type == "FALSE" || node->type == "identifier"){
+        //     std::string temp = this->new_temp();
+        //     TAC ta(TACType::ASSIGN, temp, node->value, "","");
+        //     ctx.current_block->tacInstructions.push_back(ta);
+        //     return temp;
+        // }
+        // else if (node->type == "THIS"){
+        //     std::string temp = this->new_temp();
+        //     TAC ta(TACType::ASSIGN, temp, node->type, "","");
+        //     ctx.current_block->tacInstructions.push_back(ta);
+        //     return temp;
+        // }
+        else if (node->type == "INT"|| node->type == "TRUE" || node->type == "FALSE" || node->type == "identifier"){
+            return node->value;
         }
-        else if (node->type == "THIS"){
-            std::string temp = this->new_temp();
-            TAC ta(TACType::ASSIGN, temp, node->type, "","");
-            ctx.current_block->tacInstructions.push_back(ta);
-            return temp;
-        }
-        
         else if(node->type == "exp DOT ident LP exp COMMA exp RP"){
 
             std::string firstExpThis = visit_expr(node->children.front(),ctx); //NEW Bar
             std::string temp = this->new_temp();
 
+            if (node->children.front()->type == "THIS"){
+                firstExpThis = "THIS";
+            }   
 
             Node* getFuncName = *std::next(node->children.begin()); //aka FOO
             Node* argNode = *std::next(node->children.begin(),2); //aka FOO
@@ -98,7 +103,7 @@ private:
 
         else if(node->type == "argument_list"){
 
-            string temp = visit_expr(node->children.front(),ctx);
+            //string temp = visit_expr(node->children.front(),ctx);
 
             
             // if (node->children.size() == 1){
@@ -107,24 +112,25 @@ private:
             //     ctx.current_block->tacInstructions.push_back(ta);
             //     return temp2;
             // }
-
-            int count = 0;
-            for(auto arg: node->children){
-                if (count == 0){
-                    count++;
-                    continue;
-                } 
-                temp += "," + visit_expr(arg,ctx);
+            std::string args;
+            for (auto arg : node->children){
+                if (!args.empty()) args += ",";
+                args += visit_expr(arg, ctx);
             }
+            // int count = 0;
+            // for(auto arg: node->children){
+            //     if (count == 0){
+            //         count++;
+            //         continue;
+            //     } 
+            //     temp += "," + visit_expr(arg,ctx);
+            // }
             
-            return temp; 
+            return args; 
         }
 
         else if(node->type == "argument"){
-            std::string temp = this->new_temp();
-            TAC ta(TACType::ASSIGN, temp, node->children.front()->value, "","");
-            ctx.current_block->tacInstructions.push_back(ta);
-            return temp;
+            return visit_expr(node->children.front(), ctx);
         }
         else if (node->type == "LESS THAN"){
 
@@ -155,21 +161,42 @@ private:
             Node* left = node->children.front();
             Node* right = *std::next(node->children.begin());
 
-            string temp = visit_expr(right, ctx);
+            //string temp = visit_expr(right, ctx);
 
-            TAC t(TACType::ASSIGN, left->value, temp, "", "");
-            ctx.current_block->tacInstructions.push_back(t);
+            // TAC t(TACType::ASSIGN, left->value, temp, "", "");
+            // ctx.current_block->tacInstructions.push_back(t);
 
             if (right->type == "exp DOT ident LP exp COMMA exp RP"){
-
+                // handle single do not make temp variables.
                 Node* firstChild = right->children.front();
                 Node* secChild = *std::next(right->children.begin());
                 Node* thirdChild = *std::next(right->children.begin(), 2);
                 
+                //std::string arg = visit_expr(thirdChild, ctx);
+                // string arguments = "";
+                // if (thirdChild->type == "argument_list"){
+                //     if (thirdChild->children.size() == 1) 
+                //     for (auto i : thirdChild->children){
+                //         arguments += i->value + ",";
+                //     }
+                // }
+
+                string isThis = "";
+                if (firstChild->type == "THIS") isThis = "this";
+                else isThis = firstChild->value;
+                string arg = visit_expr(thirdChild, ctx);
+                
+                TAC ta(TACType::CALL, left->value, isThis +"."+ secChild->value, arg,"");  
+                ctx.current_block->tacInstructions.push_back(ta);
+
                 BasicBlock* newBlock = create_block(ctx.cfg);
                 ctx.current_block->successors.push_back(newBlock); // Ensure correct flow
                 ctx.current_block = newBlock; // Switch to the new block
                 return ctx.current_block;
+            }
+            else {
+                TAC ta(TACType::ASSIGN, left->value, right->value, "","");
+                ctx.current_block->tacInstructions.push_back(ta);
             }
             /*
             aux = 1;
