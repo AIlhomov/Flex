@@ -42,9 +42,10 @@ public:
     std::string src2;   // Second source operand (for binary ops)
     std::string label;  // Label for jumps (e.g., "L1")
     std::string object; // Method calls
+    std::string op;
 
-    TAC(TACType t, const std::string& d, const std::string& s1, const std::string& s2, const std::string& l = "")
-        : type(t), dest(d), src1(s1), src2(s2), label(l) {}
+    TAC(TACType t, const std::string& d, const std::string& s1, const std::string& s2, const std::string& l = "", const std::string& o = "")
+        : type(t), dest(d), src1(s1), src2(s2), label(l), op(o) {}
 
         void printAll() const {
             switch (type) {
@@ -53,7 +54,7 @@ public:
                     break;
                 case TACType::BIN_OP:
                     printf("%s := %s %s %s\n", dest.c_str(), src1.c_str(), 
-                        dest.c_str(), src2.c_str()); // FIX THIS IN FINAL ANSWER
+                        op.c_str(), src2.c_str()); // FIX THIS IN FINAL ANSWER
                     break;
                 case TACType::COND_JUMP:
                     printf("if %s goto %s else goto %s\n", src1.c_str(), label.c_str(), src2.c_str());
@@ -134,7 +135,7 @@ public:
                         label += tac.dest + " := " + tac.src1 + "\\n";
                         break;
                     case TACType::BIN_OP:
-                        label += tac.dest + " := " + tac.src1 + " " + tac.label + " " + tac.src2 + "\\n";
+                        label += tac.dest + " := " + tac.src1 + " " + tac.op + " " + tac.src2 + "\\n";
                         break;
                     case TACType::COND_JUMP:
                         label += "if " + tac.src1 + " goto " + tac.label + " else goto " + tac.src2 + "\\n";

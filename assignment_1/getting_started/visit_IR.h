@@ -128,7 +128,15 @@ private:
             }
             return stmts;        
         }
+        else if (node->type == "SubExpression"){
+            Node* leftVal = node->children.front();
+            Node* rightVal = *std::next(node->children.begin());
 
+            std::string temp = this->new_temp();
+            TAC ta(TACType::BIN_OP, temp, leftVal->value, rightVal->value, "", "-");
+            ctx.current_block->tacInstructions.push_back(ta);
+            return temp;
+        }
         
 
         return "";
