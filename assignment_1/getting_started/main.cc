@@ -91,7 +91,7 @@ int main(int argc, char **argv)
 					
 					// --- IR Generation ---
 					IRvisitor ir_visitor;
-					CFG* cfg = ir_visitor.generate_IR(root); // Generate CFG from AST
+					CFG* cfg = ir_visitor.generate_IR(root, symtab); // Generate CFG from AST
 					
 					// Print TAC instructions
 					std::cout << "\n\nIntermediate Representation: \n";
