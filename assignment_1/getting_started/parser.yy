@@ -53,6 +53,8 @@ perhaps mention it ? like at the root.
 %right ASSIGN
 %left OR /* bitwise OR */
 %left AND /* logical AND */
+%right EXCLAMATION_MARK /* logical AND */
+
 %left EQUAL /* equality */
 %left LESS_THAN MORE_THAN /* relational */
 %left PLUSOP MINUSOP /* additive */
@@ -156,6 +158,7 @@ mainClass: PUBLIC CLASS identifier LEFT_CURLY PUBLIC STATIC VOID MAIN LP STRING 
 				$$->children.push_back(methods);
 				methods->children.push_back($13);
 				methods->children.push_back($16);
+				
 				
 		   }
 		   ;

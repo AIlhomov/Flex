@@ -10,6 +10,11 @@ class FacFib {
     int fib;
     int returnValue;
 
+	t0 = first < 1
+	t1 = second < 1
+	t2 = t0 && t1
+	t3 = !t2
+
     if (!(first < 1) && !(second < 1)) {
       fac = this.ComputeFac(first);
       System.out.println(fac);

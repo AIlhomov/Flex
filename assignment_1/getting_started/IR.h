@@ -32,7 +32,8 @@ enum class TACType {
     NEW,       
     CLASS,     // e.g., CLASS Foo
     METHOD,    // e.g., METHOD bar
-    EXIT       // JUST FOR EXIT IN MAIN
+    EXIT,      // JUST FOR EXIT IN MAIN
+    NOT
 };
 
 class TAC {
@@ -80,6 +81,9 @@ public:
                     break;
                 case TACType::METHOD:
                     printf("METHOD %s IN %s\n", dest.c_str(), src1.c_str());
+                    break;
+                case TACType::NOT:
+                    printf("%s := !%s\n", dest.c_str(), src1.c_str());
                     break;
                 case TACType::EXIT:
                     printf("EXIT");
@@ -170,6 +174,9 @@ public:
                         break;
                     case TACType::EXIT:
                         label += "EXIT\\n";
+                        break;
+                    case TACType::NOT:
+                        label += tac.dest + " := " + "!" + tac.src1 + "\\n";
                         break;
                     default:
                         break;
