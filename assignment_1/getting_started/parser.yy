@@ -142,7 +142,7 @@ type: INT LEFT_BRACKET RIGHT_BRACKET { $$ = new Node("INT LB RB", "", yylineno);
 
 /* done */
 mainClass: PUBLIC CLASS identifier LEFT_CURLY PUBLIC STATIC VOID MAIN LP STRING /* main class */
-		   LEFT_BRACKET RIGHT_BRACKET identifier RP LEFT_CURLY statement reqStatement RIGHT_CURLY RIGHT_CURLY 
+		   LEFT_BRACKET RIGHT_BRACKET identifier RP LEFT_CURLY reqStatement RIGHT_CURLY RIGHT_CURLY 
 		   {
 				$$ = new Node("MAIN CLASS", "", yylineno);
 
@@ -156,7 +156,6 @@ mainClass: PUBLIC CLASS identifier LEFT_CURLY PUBLIC STATIC VOID MAIN LP STRING 
 				$$->children.push_back(methods);
 				methods->children.push_back($13);
 				methods->children.push_back($16);
-				methods->children.push_back($17);
 				
 		   }
 		   ;
@@ -313,6 +312,8 @@ reqMethodDeclaration: PUBLIC type identifier LP parameters
 statement: LEFT_CURLY reqStatement RIGHT_CURLY { /* recursive "*" */
 				$$ = new Node("LC statement RC", "", yylineno);
 				$$->children.push_back($2);
+
+
 			}
 
 			| IF LP expression RP statement {/* if without else */
@@ -323,8 +324,14 @@ statement: LEFT_CURLY reqStatement RIGHT_CURLY { /* recursive "*" */
 			| IF LP expression RP statement ELSE statement { /* special with "?" ? */
 				$$ = new Node("IF LP expression RP statement ELSE statement", "", yylineno);
 				$$->children.push_back($3);
-				$$->children.push_back($5);
-				$$->children.push_back($7);
+				Node* stmt = new Node("statements", "", yylineno);
+				stmt->children.push_back($5);
+				$$->children.push_back(stmt);
+
+			Node* secStmt = new Node("statements", "", yylineno);
+				secStmt->children.push_back($7);
+				$$->children.push_back(secStmt);
+
 			}
 			| WHILE LP expression RP statement { /* ( " else " Statement ) ? */
 				$$ = new Node("WHILE LP expression RP statement", "", yylineno);
@@ -349,7 +356,13 @@ statement: LEFT_CURLY reqStatement RIGHT_CURLY { /* recursive "*" */
 			;
 
 
-reqStatement: %empty { 	$$ = new Node("statements", "", yylineno);}
+reqStatement: statement{
+				$$ = new Node("statements", "", yylineno);
+				Node * reqSTMT = new Node("statement", "", yylineno);
+				reqSTMT->children.push_back($1);
+				$$->children.push_back(reqSTMT);
+			}
+
 			| reqStatement statement {
 				$$ = $1;				
 				Node * reqSTMT = new Node("statement", "", yylineno);

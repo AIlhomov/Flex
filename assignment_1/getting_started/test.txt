@@ -30,8 +30,17 @@ class Bar {
 		} else {
 			System.out.println(0);
 		}
+		
 		System.out.println(p1);
 		System.out.println(p2 - p1);
 		return 4;
+	}
+	public int foo4(int p1) {
+		if (p1 < 2)
+			System.out.println(10);
+		else
+			System.out.println(0);
+
+		return 1;
 	}
 }

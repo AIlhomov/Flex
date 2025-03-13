@@ -44,7 +44,7 @@ public:
         CFG* cfg = new CFG(); // Create a CFG on the heap
         BasicBlock* entry_block = create_block(cfg); // Pass CFG to create_block
         cfg->entry_block = entry_block;
-
+        cfg->entry_block->label = "Main";
         BlockContext ctx{entry_block, cfg};
         traverse_generic(root, ctx);
 
@@ -151,27 +151,36 @@ private:
             std::string t = visit_expr(node->children.front(),ctx);
             TAC ta (TACType::PRINT,"",t,"","");
             ctx.current_block->tacInstructions.push_back(ta);  
-            if(node->children.front()->type =="exp DOT ident LP exp COMMA exp RP"){
-                BasicBlock* newBlock = create_block(ctx.cfg);
-                ctx.current_block->successors.push_back(newBlock); // Ensure correct flow
-                ctx.current_block = newBlock; // Switch to the new block
-                return ctx.current_block;
-            }
-
+            // if(node->children.front()->type =="exp DOT ident LP exp COMMA exp RP"){
+            //     BasicBlock* newBlock = create_block(ctx.cfg);
+            //     ctx.current_block->successors.push_back(newBlock); // Ensure correct flow
+            //     ctx.current_block = newBlock; // Switch to the new block
+            //     return ctx.current_block;
+            // }
+            return ctx.current_block;
         }
 
-        //karmaHere
-        else if(node->type == "LC statement RC"){
-            return visit_stmt(node->children.front(),ctx);
+        // //karmaHere
+        // else if(node->type == "LC statement RC"){
+        //     return visit_stmt(node->children.front(),ctx);
+        // }
+
+        // else if(node->type == "statements"){
+        //     BasicBlock* lastBlock = ctx.current_block;
+        //     for (Node* stmt : node->children) {
+        //         lastBlock = visit_stmt(stmt, ctx); // Process each statement
+        //     }
+        //     return lastBlock; // Return the last processed block
+
+        // }
+        else if (node->type == "LC statement RC"){
+            std::cout << "KKKKKKKKKKKKKKKK";
+            if (node->children.size() == 1) return visit_stmt(node->children.front(),ctx);
         }
-
-        else if(node->type == "statements"){
-            BasicBlock* lastBlock = ctx.current_block;
-            for (Node* stmt : node->children) {
-                lastBlock = visit_stmt(stmt, ctx); // Process each statement
+        else if (node->type == "statements"){
+            for (auto child : node->children){
+                return visit_stmt(child, ctx);
             }
-            return lastBlock; // Return the last processed block
-
         }
         else if(node->type == "statement"){
             std::cout << "uuuuuuuuuuUUU";
@@ -186,9 +195,10 @@ private:
             TAC ta(TACType::RETURN, "", first_CHILD->value, "","");  
             ctx.current_block->tacInstructions.push_back(ta);
 
-            BasicBlock* newBlock = create_block(ctx.cfg);
-            //ctx.current_block->successors.push_back(newBlock); // Ensure correct flow
-            ctx.current_block = newBlock; // Switch to the new block
+            // BasicBlock* newBlock = create_block(ctx.cfg);
+            // //ctx.current_block->successors.push_back(newBlock); // Ensure correct flow
+            // ctx.current_block = newBlock; // Switch to the new block
+            return ctx.current_block;
         }
         else if(node->type =="SOMETHING ASSIGNED = TO SOMETHING"){
             Node* left = node->children.front();
@@ -234,22 +244,15 @@ private:
                 TAC ta(TACType::ASSIGN, left->value, right->value, "","");
                 ctx.current_block->tacInstructions.push_back(ta);
             }
-            /*
-            aux = 1;
-            aux2 = true;
-
-            t1 = 1 * 2
-            aux = t1
-
-            */
         }
         else if (node->type == "IF LP expression RP statement ELSE statement"){
 
             Node* conditionNode = node->children.front();
             Node* thenStmtNode = *std::next(node->children.begin());
             Node* elseStmtNode = *std::next(node->children.begin(), 2);
-            
-            
+
+
+
             // 1. Evaluate condition to a temporary variable
             //std::string condTemp = visit_expr(conditionNode, ctx);
             string tempting = "";
@@ -294,21 +297,28 @@ private:
             // Link current block to successors
             ctx.current_block->successors.push_back(thenBlock);
             ctx.current_block->successors.push_back(elseBlock);
+            
 
+
+            // DO IT RECURSIVE JUST CALL VISIT_STMT AGAIN.
             // 4. Process THEN block
             ctx.current_block = thenBlock;
+
             BasicBlock* thenEnd = visit_stmt(thenStmtNode, ctx);
             TAC thenGoto(TACType::JUMP, "", "", "", mergeBlock->label );
             thenEnd->tacInstructions.push_back(thenGoto);
             thenEnd->successors.push_back(mergeBlock);
 
+            
+
             // 5. Process ELSE block
             ctx.current_block = elseBlock;
+            
             BasicBlock* elseEnd = visit_stmt(elseStmtNode, ctx);
             TAC elseGoto(TACType::JUMP, "", "", "", mergeBlock->label);
             elseEnd->tacInstructions.push_back(elseGoto);
             elseEnd->successors.push_back(mergeBlock);
-
+            
             // 6. Set merge block as new current
             ctx.current_block = mergeBlock;
             return mergeBlock;
@@ -322,7 +332,6 @@ private:
     void traverse_generic(Node* node, BlockContext& ctx) {
         if (!node) return;
 
-        cout << node->type << endl;
         // if(node->type =="SIMPLE PRINT LOL"){
         //     BasicBlock *res = visit_stmt(node,ctx);
 
@@ -335,18 +344,32 @@ private:
             Node* stmt = node->children.front();
             BasicBlock* res = visit_stmt(stmt, ctx);
         }
+        else if (node->type == "var declaration"){
+            //handle it if the right child is subexpression or addexpression MAKE TEMP VALUES
+
+
+        }
         else if (node->type == "methodDec"){
             BasicBlock *res = create_block(ctx.cfg, node->value); //provided  method name AS BLOCK NAME
 
             //push it back
-            ctx.cfg->addBlock(res);
+            //ctx.cfg->addBlock(res);
 
             ctx.current_block = res;
 
+            for (auto child : node->children){
+                traverse_generic(child, ctx);
+            }
             
         }
 
-        
+        else if (node->type == "methodBody"){
+            for (auto child : node->children){
+                traverse_generic(child, ctx);
+            }
+        }
+
+
         // else if (node->type == "IF LP expression RP statement ELSE statement"){
         //     BasicBlock *res = visit_stmt(node, ctx);
         // }
@@ -359,6 +382,5 @@ private:
             //std::cout <<" left To Process: " + child->type << std::endl;
             traverse_generic(child, ctx);
         }
-
     }
 };
