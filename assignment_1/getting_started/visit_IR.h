@@ -28,6 +28,8 @@ private:
     int temp_counter = 0;
     int block_counter = 0;
     
+    string curr_class_name;
+
     string new_temp() {
         return "__t" + std::to_string(temp_counter++);
     }
@@ -349,14 +351,26 @@ private:
 
 
         }
+        else if (node->type == "classDeclarations"){ // used just for the EXIT tac instruction
+            TAC ta (TACType::EXIT,"","","","");
+            ctx.current_block->tacInstructions.push_back(ta);
+            for (auto child : node->children){
+                traverse_generic(child, ctx);
+            }
+        }
+        else if (node->type == "classDeclaration"){
+            curr_class_name = node->value;
+            for (auto child : node->children){
+                traverse_generic(child, ctx);
+            }
+        }
         else if (node->type == "methodDec"){
-            BasicBlock *res = create_block(ctx.cfg, node->value); //provided  method name AS BLOCK NAME
-
-            //push it back
-            //ctx.cfg->addBlock(res);
+            
+            string resThis = curr_class_name + "_" + node->value; // also that is has a class name
+            BasicBlock *res = create_block(ctx.cfg, resThis); //provided  method name AS BLOCK NAME
 
             ctx.current_block = res;
-
+            
             for (auto child : node->children){
                 traverse_generic(child, ctx);
             }

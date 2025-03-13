@@ -1,0 +1,22 @@
+digraph CFG {
+graph [splines=ortho];
+node [shape=box];
+Main [label="Main\n__t0 := NEW FacFib\n__t1 := CALL __t0.Compute(5,10)\nPRINT __t1\nEXIT\n"];
+FacFib_Compute -> block_1 [xlabel="true"];
+FacFib_Compute -> block_2 [xlabel="false"];
+FacFib_Compute [label="FacFib_Compute\nif  goto block_1 else goto block_2\n"];
+block_1 -> block_3;
+block_1 [label="block_1\nfac := CALL this.ComputeFac(first)\ngoto block_3\n"];
+block_2 -> block_3;
+block_2 [label="block_2\nreturnValue := 0\ngoto block_3\n"];
+block_3 [label="block_3\nRETURN returnValue\n"];
+FacFib_ComputeFac -> block_4 [xlabel="true"];
+FacFib_ComputeFac -> block_5 [xlabel="false"];
+FacFib_ComputeFac [label="FacFib_ComputeFac\nif num < 1 goto block_4 else goto block_5\n"];
+block_4 -> block_6;
+block_4 [label="block_4\nfac := 1\ngoto block_6\n"];
+block_5 -> block_6;
+block_5 [label="block_5\nfac := \ngoto block_6\n"];
+block_6 [label="block_6\nRETURN fac\n"];
+FacFib_ComputeFib [label="FacFib_ComputeFib\nf0 := 0\nf1 := 1\nfib := num\ni := 1\nRETURN fib\n"];
+}

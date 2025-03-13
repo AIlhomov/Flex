@@ -1,0 +1,379 @@
+digraph {
+n0 [label="goal:"];
+n1 [label="MAIN CLASS:"];
+n2 [label="identifier:B"];
+n1 -> n2
+n3 [label="MAIN METHOD:"];
+n4 [label="identifier:a"];
+n3 -> n4
+n5 [label="statements:"];
+n6 [label="statement:"];
+n7 [label="SIMPLE PRINT LOL:"];
+n8 [label="exp DOT ident LP exp COMMA exp RP:"];
+n9 [label="NEW identifier LP RP:"];
+n10 [label="identifier:FacFib"];
+n9 -> n10
+n8 -> n9
+n11 [label="identifier:Compute"];
+n8 -> n11
+n12 [label="argument_list:"];
+n13 [label="INT:5"];
+n12 -> n13
+n14 [label="argument:"];
+n15 [label="INT:10"];
+n14 -> n15
+n12 -> n14
+n8 -> n12
+n7 -> n8
+n6 -> n7
+n5 -> n6
+n3 -> n5
+n1 -> n3
+n0 -> n1
+n16 [label="classDeclarations:"];
+n17 [label="classDeclaration:FacFib"];
+n18 [label="identifier:FacFib"];
+n17 -> n18
+n19 [label="var declarations:"];
+n17 -> n19
+n20 [label="methodDeclarations:"];
+n21 [label="methodDec:Compute"];
+n22 [label="INT:"];
+n21 -> n22
+n23 [label="identifier:Compute"];
+n21 -> n23
+n24 [label="parameters:"];
+n25 [label="parameter:"];
+n26 [label="INT:"];
+n25 -> n26
+n27 [label="identifier:first"];
+n25 -> n27
+n24 -> n25
+n28 [label="parameter:"];
+n29 [label="INT:"];
+n28 -> n29
+n30 [label="identifier:second"];
+n28 -> n30
+n24 -> n28
+n21 -> n24
+n31 [label="methodBody:"];
+n32 [label="var declaration:"];
+n33 [label="INT:"];
+n32 -> n33
+n34 [label="identifier:fac"];
+n32 -> n34
+n31 -> n32
+n35 [label="var declaration:"];
+n36 [label="INT:"];
+n35 -> n36
+n37 [label="identifier:fib"];
+n35 -> n37
+n31 -> n35
+n38 [label="var declaration:"];
+n39 [label="INT:"];
+n38 -> n39
+n40 [label="identifier:returnValue"];
+n38 -> n40
+n31 -> n38
+n41 [label="statement:"];
+n42 [label="IF LP expression RP statement ELSE statement:"];
+n43 [label="EXCLAMATION_MARK expression:"];
+n44 [label="AND:"];
+n45 [label="LESS_THAN:"];
+n46 [label="identifier:first"];
+n45 -> n46
+n47 [label="INT:1"];
+n45 -> n47
+n44 -> n45
+n48 [label="EXCLAMATION_MARK expression:"];
+n49 [label="LESS_THAN:"];
+n50 [label="identifier:second"];
+n49 -> n50
+n51 [label="INT:1"];
+n49 -> n51
+n48 -> n49
+n44 -> n48
+n43 -> n44
+n42 -> n43
+n52 [label="statements:"];
+n53 [label="LC statement RC:"];
+n54 [label="statements:"];
+n55 [label="statement:"];
+n56 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n57 [label="identifier:fac"];
+n56 -> n57
+n58 [label="exp DOT ident LP exp COMMA exp RP:"];
+n59 [label="THIS:"];
+n58 -> n59
+n60 [label="identifier:ComputeFac"];
+n58 -> n60
+n61 [label="argument_list:"];
+n62 [label="identifier:first"];
+n61 -> n62
+n58 -> n61
+n56 -> n58
+n55 -> n56
+n54 -> n55
+n63 [label="statement:"];
+n64 [label="SIMPLE PRINT LOL:"];
+n65 [label="identifier:fac"];
+n64 -> n65
+n63 -> n64
+n54 -> n63
+n66 [label="statement:"];
+n67 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n68 [label="identifier:fib"];
+n67 -> n68
+n69 [label="exp DOT ident LP exp COMMA exp RP:"];
+n70 [label="THIS:"];
+n69 -> n70
+n71 [label="identifier:ComputeFib"];
+n69 -> n71
+n72 [label="argument_list:"];
+n73 [label="identifier:second"];
+n72 -> n73
+n69 -> n72
+n67 -> n69
+n66 -> n67
+n54 -> n66
+n74 [label="statement:"];
+n75 [label="SIMPLE PRINT LOL:"];
+n76 [label="identifier:fib"];
+n75 -> n76
+n74 -> n75
+n54 -> n74
+n77 [label="statement:"];
+n78 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n79 [label="identifier:returnValue"];
+n78 -> n79
+n80 [label="INT:1"];
+n78 -> n80
+n77 -> n78
+n54 -> n77
+n53 -> n54
+n52 -> n53
+n42 -> n52
+n81 [label="statements:"];
+n82 [label="LC statement RC:"];
+n83 [label="statements:"];
+n84 [label="statement:"];
+n85 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n86 [label="identifier:returnValue"];
+n85 -> n86
+n87 [label="INT:0"];
+n85 -> n87
+n84 -> n85
+n83 -> n84
+n82 -> n83
+n81 -> n82
+n42 -> n81
+n41 -> n42
+n31 -> n41
+n21 -> n31
+n88 [label="RETURN:"];
+n89 [label="identifier:returnValue"];
+n88 -> n89
+n21 -> n88
+n20 -> n21
+n90 [label="methodDec:ComputeFac"];
+n91 [label="INT:"];
+n90 -> n91
+n92 [label="identifier:ComputeFac"];
+n90 -> n92
+n93 [label="parameters:"];
+n94 [label="parameter:"];
+n95 [label="INT:"];
+n94 -> n95
+n96 [label="identifier:num"];
+n94 -> n96
+n93 -> n94
+n90 -> n93
+n97 [label="methodBody:"];
+n98 [label="var declaration:"];
+n99 [label="INT:"];
+n98 -> n99
+n100 [label="identifier:fac"];
+n98 -> n100
+n97 -> n98
+n101 [label="statement:"];
+n102 [label="IF LP expression RP statement ELSE statement:"];
+n103 [label="LESS_THAN:"];
+n104 [label="identifier:num"];
+n103 -> n104
+n105 [label="INT:1"];
+n103 -> n105
+n102 -> n103
+n106 [label="statements:"];
+n107 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n108 [label="identifier:fac"];
+n107 -> n108
+n109 [label="INT:1"];
+n107 -> n109
+n106 -> n107
+n102 -> n106
+n110 [label="statements:"];
+n111 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n112 [label="identifier:fac"];
+n111 -> n112
+n113 [label="MultExpression:"];
+n114 [label="identifier:num"];
+n113 -> n114
+n115 [label="exp DOT ident LP exp COMMA exp RP:"];
+n116 [label="THIS:"];
+n115 -> n116
+n117 [label="identifier:ComputeFac"];
+n115 -> n117
+n118 [label="argument_list:"];
+n119 [label="SubExpression:"];
+n120 [label="identifier:num"];
+n119 -> n120
+n121 [label="INT:1"];
+n119 -> n121
+n118 -> n119
+n115 -> n118
+n113 -> n115
+n111 -> n113
+n110 -> n111
+n102 -> n110
+n101 -> n102
+n97 -> n101
+n90 -> n97
+n122 [label="RETURN:"];
+n123 [label="identifier:fac"];
+n122 -> n123
+n90 -> n122
+n20 -> n90
+n124 [label="methodDec:ComputeFib"];
+n125 [label="INT:"];
+n124 -> n125
+n126 [label="identifier:ComputeFib"];
+n124 -> n126
+n127 [label="parameters:"];
+n128 [label="parameter:"];
+n129 [label="INT:"];
+n128 -> n129
+n130 [label="identifier:num"];
+n128 -> n130
+n127 -> n128
+n124 -> n127
+n131 [label="methodBody:"];
+n132 [label="var declaration:"];
+n133 [label="INT:"];
+n132 -> n133
+n134 [label="identifier:f0"];
+n132 -> n134
+n131 -> n132
+n135 [label="var declaration:"];
+n136 [label="INT:"];
+n135 -> n136
+n137 [label="identifier:f1"];
+n135 -> n137
+n131 -> n135
+n138 [label="var declaration:"];
+n139 [label="INT:"];
+n138 -> n139
+n140 [label="identifier:fib"];
+n138 -> n140
+n131 -> n138
+n141 [label="var declaration:"];
+n142 [label="INT:"];
+n141 -> n142
+n143 [label="identifier:i"];
+n141 -> n143
+n131 -> n141
+n144 [label="statement:"];
+n145 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n146 [label="identifier:f0"];
+n145 -> n146
+n147 [label="INT:0"];
+n145 -> n147
+n144 -> n145
+n131 -> n144
+n148 [label="statement:"];
+n149 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n150 [label="identifier:f1"];
+n149 -> n150
+n151 [label="INT:1"];
+n149 -> n151
+n148 -> n149
+n131 -> n148
+n152 [label="statement:"];
+n153 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n154 [label="identifier:fib"];
+n153 -> n154
+n155 [label="identifier:num"];
+n153 -> n155
+n152 -> n153
+n131 -> n152
+n156 [label="statement:"];
+n157 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n158 [label="identifier:i"];
+n157 -> n158
+n159 [label="INT:1"];
+n157 -> n159
+n156 -> n157
+n131 -> n156
+n160 [label="statement:"];
+n161 [label="WHILE LP expression RP statement:"];
+n162 [label="LESS_THAN:"];
+n163 [label="identifier:i"];
+n162 -> n163
+n164 [label="identifier:num"];
+n162 -> n164
+n161 -> n162
+n165 [label="LC statement RC:"];
+n166 [label="statements:"];
+n167 [label="statement:"];
+n168 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n169 [label="identifier:fib"];
+n168 -> n169
+n170 [label="AddExpression:"];
+n171 [label="identifier:f1"];
+n170 -> n171
+n172 [label="identifier:f0"];
+n170 -> n172
+n168 -> n170
+n167 -> n168
+n166 -> n167
+n173 [label="statement:"];
+n174 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n175 [label="identifier:f0"];
+n174 -> n175
+n176 [label="identifier:f1"];
+n174 -> n176
+n173 -> n174
+n166 -> n173
+n177 [label="statement:"];
+n178 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n179 [label="identifier:f1"];
+n178 -> n179
+n180 [label="identifier:fib"];
+n178 -> n180
+n177 -> n178
+n166 -> n177
+n181 [label="statement:"];
+n182 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n183 [label="identifier:i"];
+n182 -> n183
+n184 [label="AddExpression:"];
+n185 [label="identifier:i"];
+n184 -> n185
+n186 [label="INT:1"];
+n184 -> n186
+n182 -> n184
+n181 -> n182
+n166 -> n181
+n165 -> n166
+n161 -> n165
+n160 -> n161
+n131 -> n160
+n124 -> n131
+n187 [label="RETURN:"];
+n188 [label="identifier:fib"];
+n187 -> n188
+n124 -> n187
+n20 -> n124
+n17 -> n20
+n16 -> n17
+n0 -> n16
+}

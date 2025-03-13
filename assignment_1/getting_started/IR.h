@@ -31,7 +31,8 @@ enum class TACType {
     PRINT,     
     NEW,       
     CLASS,     // e.g., CLASS Foo
-    METHOD     // e.g., METHOD bar
+    METHOD,    // e.g., METHOD bar
+    EXIT       // JUST FOR EXIT IN MAIN
 };
 
 class TAC {
@@ -80,7 +81,9 @@ public:
                 case TACType::METHOD:
                     printf("METHOD %s IN %s\n", dest.c_str(), src1.c_str());
                     break;
-
+                case TACType::EXIT:
+                    printf("EXIT");
+                    break;
                 default:
                     printf("Unknown TAC type\n");
             }
@@ -117,6 +120,7 @@ public:
     std::vector<BasicBlock*> blocks;  // All basic blocks
 
 
+    // DONT USE THIS BIG MISTAKES CAN HAPPEN WITH SUCCESORS (ARROWS)
     void addBlock(BasicBlock* block){
         blocks.push_back(block);
     }
@@ -163,6 +167,9 @@ public:
                         break;
                     case TACType::LABEL:
                         label += "LABEL " + tac.label + "\\n";
+                        break;
+                    case TACType::EXIT:
+                        label += "EXIT\\n";
                         break;
                     default:
                         break;
