@@ -69,8 +69,7 @@ public:
                 class_name_node->value,
                 CLASS,
                 "regular class",
-                class_name_node->lineno, ///SDASDASDASDASD
-                node
+                class_name_node->lineno ///SDASDASDASDASD
             };
             
             symtab.add_symbol(class_sym);
@@ -119,8 +118,7 @@ public:
                 indentifier_method->value,
                 METHOD,
                 type_char_check_or_NOT,
-                indentifier_method->lineno,
-                node
+                indentifier_method->lineno
             };
             //symtab.exit_scope();
             symtab.add_symbol(method_sym);
@@ -173,7 +171,6 @@ public:
                 PARAMETER,
                 type_str,           // "INT LB RB" or "some_class_name"
                 node->lineno
-                
             };
             symtab.add_symbol(paramSym);
 
@@ -188,8 +185,7 @@ public:
                 main_class_name_node->value,
                 CLASS,
                 main_class_name_node->type,
-                node->lineno,
-                node
+                node->lineno
             };
 
             symtab.add_symbol(main_sym);

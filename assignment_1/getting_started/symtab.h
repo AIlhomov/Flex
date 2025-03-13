@@ -9,7 +9,7 @@
 #include <sys/wait.h>
 #include <string>
 #include <unordered_map> // hash table with NO SORTING (faster) (better)
-#include "Node.h"
+
 
 using namespace std;
 
@@ -24,14 +24,11 @@ struct Symbol {
 
 
     //Symbol* parent_scope; /* scope hierarchy */
+    vector<string> param_types; /* for methods (parameters) */
     //int dimension = 0; /* 0 for primitive/scalar, 1 for 1D arrays and so on.. */
     /* list<int> line_of_usage; store a linked list of line numbers where the symbol is used (line_of_usage) scopes? */
     
     /* string adress; */
-    
-    Node* symbolNodePtr = nullptr;
-    vector<string> param_types; /* for methods (parameters) */
-    
 };
 
 
@@ -144,7 +141,6 @@ public:
     int get_error_count() const { return error_count; }
 
 
- 
 
     
     void writeAllSymbolsHelper(Scope* scope, string indent, string& res) {
@@ -153,7 +149,7 @@ public:
         res += indent + "Scope: " + scope->name + " -> ";
         
         for (const auto& entry : scope->symbols) {
-            res += entry.first + " " ;
+            res += entry.first + " ";
         }
         res += "\n";
         
