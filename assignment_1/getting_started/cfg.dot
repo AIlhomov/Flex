@@ -1,13 +1,13 @@
 digraph CFG {
 graph [splines=ortho];
 node [shape=box];
-Main [label="Main\n__t0 := NEW Sum\n__t1 := CALL __t0.calcSum(100)\nPRINT __t1\nEXIT\n"];
-Sum_calcSum -> whileCondition_1;
-Sum_calcSum [label="Sum_calcSum\nsum := 0\ngoto whileCondition_1\n"];
-whileCondition_1 -> whileBody_2 [xlabel="true"];
-whileCondition_1 -> whileExit_3 [xlabel="false"];
-whileCondition_1 [label="whileCondition_1\n__t2 := 0 < num\nif __t2 goto whileBody_2 else goto whileExit_3\n"];
-whileBody_2 -> whileCondition_1;
-whileBody_2 [label="whileBody_2\n__t3 := sum + num\nsum := __t3\n__t4 := num - 1\nnum := __t4\ngoto whileCondition_1\n"];
-whileExit_3 [label="whileExit_3\nRETURN sum\n"];
+Main [label="Main\n__t0 := NEW Sum\n @Param: 10000\n__t1 := CALL __t0.calcSum: 1\nPRINT __t1\nEXIT\n"];
+Sum_calcSum -> block_1 [xlabel="true"];
+Sum_calcSum -> block_2 [xlabel="false"];
+Sum_calcSum [label="Sum_calcSum\n__t2 := num < 2\nif __t2 goto block_2 else goto block_1\n"];
+block_1 -> block_3;
+block_1 [label="block_1\nsum := 1\ngoto block_3\n"];
+block_2 -> block_3;
+block_2 [label="block_2\n__t4 := num - 1\n__t5 := num - 1\n @Param: __t5\n__t3 := CALL THIS.calcSum: 1\n__t6 := num + __t3\nsum := __t6\ngoto block_3\n"];
+block_3 [label="block_3\nRETURN sum\n"];
 }

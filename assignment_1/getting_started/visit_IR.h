@@ -153,8 +153,10 @@ private:
             Node* leftVal = node->children.front();
             Node* rightVal = *std::next(node->children.begin());
 
+            string getExpRight = visit_expr(rightVal, ctx);
+
             std::string temp = this->new_temp();
-            TAC ta("SUB", temp, leftVal->value, rightVal->value);
+            TAC ta("SUB", temp, leftVal->value, getExpRight);
             ctx.current_block->tacInstructions.push_back(ta);
             return temp;
         }
@@ -163,8 +165,10 @@ private:
             Node* leftVal = node->children.front();
             Node* rightVal = *std::next(node->children.begin());
 
+            string getExpRight = visit_expr(rightVal, ctx);
+
             std::string temp = this->new_temp();
-            TAC ta("ADD", temp, leftVal->value, rightVal->value);
+            TAC ta("ADD", temp, leftVal->value, getExpRight);
             ctx.current_block->tacInstructions.push_back(ta);
             return temp;
         }
@@ -174,6 +178,7 @@ private:
             Node* f1 = node->children.front();
             Node* f2 = *std::next(node->children.begin());
 
+            
             
             std::string condTemp1 = visit_expr(f1, ctx);
             std::string condTemp2 = visit_expr(f2, ctx);
