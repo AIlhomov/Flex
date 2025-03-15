@@ -20,77 +20,94 @@ struct BlockContext {
 
 //enum class OpCode { ADD, SUB, MOV, LOAD, STORE };
 
-enum class TACType {
-    ASSIGN,    
-    BIN_OP,    
-    COND_JUMP, 
-    JUMP,      
-    LABEL,     
-    CALL,      
-    RETURN,    
-    PRINT,     
-    NEW,       
-    CLASS,     // e.g., CLASS Foo
-    METHOD,    // e.g., METHOD bar
-    EXIT,      // JUST FOR EXIT IN MAIN
-    NOT
-};
 
 class TAC {
 public:
-    TACType type;
     std::string dest;   // Destination operand (if applicable)
     std::string src1;   // First source operand
     std::string src2;   // Second source operand (for binary ops)
-    std::string label;  // Label for jumps (e.g., "L1")
-    std::string object; // Method calls
+
     std::string op;
 
-    TAC(TACType t, const std::string& d, const std::string& s1, const std::string& s2, const std::string& l = "", const std::string& o = "")
-        : type(t), dest(d), src1(s1), src2(s2), label(l), op(o) {}
+    TAC(std::string o, const std::string& d, const std::string& s1, const std::string& s2)
+        : op(o), dest(d), src1(s1), src2(s2) {}
 
         void printAll() const {
-            switch (type) {
-                case TACType::ASSIGN:
+            if (op == "ASSIGN") {
                     printf("%s := %s\n", dest.c_str(), src1.c_str());
-                    break;
-                case TACType::BIN_OP:
-                    printf("%s := %s %s %s\n", dest.c_str(), src1.c_str(), 
-                        op.c_str(), src2.c_str()); // FIX THIS IN FINAL ANSWER
-                    break;
-                case TACType::COND_JUMP:
-                    printf("if %s goto %s else goto %s\n", src1.c_str(), label.c_str(), src2.c_str());
-                    break;
-                case TACType::JUMP:
-                    printf("goto %s\n", label.c_str());
-                    break;
-                case TACType::CALL:
-                    printf("%s := CALL %s(%s)\n", dest.c_str(), src1.c_str(), src2.c_str());
-                    break;
-                case TACType::RETURN:
+                }
+
+                else if (op =="ADD"){
+                    printf("%s := %s + %s\n", dest.c_str(), src1.c_str(), src2.c_str()); // FIX THIS IN FINAL ANSWER
+                }
+                else if (op =="LESS_THAN"){
+                    printf("%s := %s < %s\n", dest.c_str(), src1.c_str(), 
+                     src2.c_str()); // FIX THIS IN FINAL ANSWER
+                }
+                else if (op =="MORE_THAN"){
+                    printf("%s := %s > %s\n", dest.c_str(), src1.c_str(), 
+                     src2.c_str()); // FIX THIS IN FINAL ANSWER
+                }
+                else if (op =="MULT"){
+                    printf("%s := %s * %s\n", dest.c_str(), src1.c_str(), 
+                     src2.c_str()); // FIX THIS IN FINAL ANSWER
+                }
+                else if (op =="SUB"){
+                    printf("%s := %s - %s\n", dest.c_str(), src1.c_str(), 
+                     src2.c_str()); // FIX THIS IN FINAL ANSWER
+                }
+                else if (op =="AND"){
+                    printf("%s := %s - %s\n", dest.c_str(), src1.c_str(), 
+                     src2.c_str()); // FIX THIS IN FINAL ANSWER
+                }
+
+                else if (op =="COND_JUMP"){
+                    printf("if %s goto %s else goto %s\n", src1.c_str(), dest.c_str(), src2.c_str());
+                    }
+                else if( op =="JUMP"){
+                    printf("goto %s\n", dest.c_str());
+
+                }
+                else if(op == "CALL"){
+                    printf("%s := CALL %s: %s\n", dest.c_str(), src1.c_str(), src2.c_str() );
+
+                }                
+                else if(op == "Args"){
+                    printf(" @param: %s \n", src1.c_str());
+
+                }
+                else if(op == "RETURN"){
                     printf("RETURN %s\n", src1.c_str());
-                    break;
-                case TACType::PRINT:
+
+                }
+                else if(op =="PRINT" ){
+                    
                     printf("PRINT %s\n", src1.c_str());
-                    break;
-                case TACType::NEW:
+                }
+                else if( op == "NEW"){
+
                     printf("%s := NEW %s\n", dest.c_str(), src1.c_str());
-                    break;
-                case TACType::CLASS:
+                }
+                else if (op == "CLASS"){
+                    
                     printf("CLASS %s\n", dest.c_str());
-                    break;
-                case TACType::METHOD:
+                }
+    
+                else if (op == "METHOD"){
                     printf("METHOD %s IN %s\n", dest.c_str(), src1.c_str());
-                    break;
-                case TACType::NOT:
-                    printf("%s := !%s\n", dest.c_str(), src1.c_str());
-                    break;
-                case TACType::EXIT:
+                }
+                else if(op == "NOT"){
+
+                    printf("%s := !%s\n",  dest.c_str(), src1.c_str());
+                }
+                else if( op == "EXIT"){
+
                     printf("EXIT");
-                    break;
-                default:
-                    printf("Unknown TAC type\n");
-            }
+                }
+                else {
+
+                    printf("Unknown TAC type == ", op.c_str() ," \n");
+                }
         }
         
   
@@ -138,51 +155,69 @@ public:
             // Build the label with TAC instructions
             std::string label = block->label + "\\n";
             for (const TAC& tac : block->tacInstructions) {
-                switch (tac.type) {
-                    case TACType::ASSIGN:
+                if (tac.op == "ASSIGN" ) {
                         label += tac.dest + " := " + tac.src1 + "\\n";
-                        break;
-                    case TACType::BIN_OP:
-                        label += tac.dest + " := " + tac.src1 + " " + tac.op + " " + tac.src2 + "\\n";
-                        break;
-                    case TACType::COND_JUMP:
-                        label += "if " + tac.src1 + " goto " + tac.label + " else goto " + tac.src2 + "\\n";
-                        break;
-                    case TACType::JUMP:
-                        label += "goto " + tac.label + "\\n";
-                        break;
-                    case TACType::CALL:
-                        label += tac.dest + " := CALL " + tac.src1 + "(" + tac.src2 + ")\\n";
-                        break;
-                    case TACType::RETURN:
-                        label += "RETURN " + tac.src1 + "\\n";
-                        break;
-                    case TACType::PRINT:
-                        label += "PRINT " + tac.src1 + "\\n";
-                        break;
-                    case TACType::NEW:
-                        label += tac.dest + " := NEW " + tac.src1 + "\\n";
-                        break;
-                    case TACType::CLASS:
-                        label += "CLASS " + tac.dest + "\\n";
-                        break;
-                    case TACType::METHOD:
-                        label += "METHOD " + tac.dest + " IN " + tac.src1 + "\\n";
-                        break;
-                    case TACType::LABEL:
-                        label += "LABEL " + tac.label + "\\n";
-                        break;
-                    case TACType::EXIT:
-                        label += "EXIT\\n";
-                        break;
-                    case TACType::NOT:
-                        label += tac.dest + " := " + "!" + tac.src1 + "\\n";
-                        break;
-                    default:
-                        break;
+                    }
+      
+                else if (tac.op == "ADD" ) {
+                    label += tac.dest + " := " + tac.src1 + " + " + tac.src2 + "\\n";
                 }
+                else if (tac.op == "SUB" ) {
+                    label += tac.dest + " := " + tac.src1 + " - " + tac.src2 + "\\n";
+                }
+                else if (tac.op == "MULT" ) {
+                    label += tac.dest + " := " + tac.src1 + " * " + tac.src2 + "\\n";
+                }
+                else if (tac.op == "LESS_THAN" ) {
+                    label += tac.dest + " := " + tac.src1 + " < " + tac.src2 + "\\n";
+                }
+                else if (tac.op == "MORE_THAN" ) {
+                    label += tac.dest + " := " + tac.src1 + " > " + tac.src2 + "\\n";
+                }
+                else if (tac.op == "AND" ) {
+                    label += tac.dest + " := " + tac.src1 + " && " + tac.src2 + "\\n";
+                }
+                else if (tac.op == "COND_JUMP" ) {
 
+                    label += "if " + tac.dest + " goto " + tac.src1 + " else goto " + tac.src2 + "\\n";
+                    }
+                else if (tac.op == "JUMP" ) {
+                        label += "goto " + tac.dest + "\\n";
+                    }
+                else if (tac.op == "CALL" ) {
+                        label += tac.dest + " := CALL " + tac.src1+ ": " +tac.src2+  "\\n";
+                    }
+                else if (tac.op == "Args" ) {
+                    label +=  " @Param: " + tac.src1 + "\\n";
+                }
+                else if (tac.op == "RETURN" ) {
+                        label += "RETURN " + tac.src1 + "\\n";
+                    }
+                else if (tac.op == "PRINT" ) {
+                        label += "PRINT " + tac.src1 + "\\n";
+                }
+                else if (tac.op == "NEW" ) {
+
+                        label += tac.dest + " := NEW " + tac.src1 + "\\n";
+                }
+                else if (tac.op == "CLASS" ) {
                 
+                    label += "CLASS " + tac.dest + "\\n";
+                }
+                else if (tac.op == "METHOD" ) {
+
+                    label += "METHOD " + tac.dest + " IN " + tac.src1 + "\\n";
+                }
+                else if (tac.op == "LABEL" ) {
+
+                    label += "LABEL " + tac.dest + "\\n";
+                }
+                else if (tac.op == "EXIT" ) {
+                    label += "EXIT\\n";
+                }
+                else if (tac.op == "NOT" ) {
+                    label += tac.dest +" := !" + tac.src1 + "\\n";
+                }                
 
             }
             // Add edges to successors
@@ -214,7 +249,7 @@ private:
         if (from->tacInstructions.empty()) return "";
 
         const TAC& last_tac = from->tacInstructions.back();
-        if (last_tac.type == TACType::COND_JUMP) {
+        if (last_tac.op == "COND_JUMP") {
             // First successor is true branch, second is false branch
             if (!from->successors.empty() && from->successors[0] == to) {
                 return "true";

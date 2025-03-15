@@ -1,0 +1,111 @@
+digraph {
+n0 [label="goal:"];
+n1 [label="MAIN CLASS:"];
+n2 [label="identifier:D1"];
+n1 -> n2
+n3 [label="MAIN METHOD:"];
+n4 [label="identifier:a"];
+n3 -> n4
+n5 [label="statements:"];
+n6 [label="statement:"];
+n7 [label="SIMPLE PRINT LOL:"];
+n8 [label="exp DOT ident LP exp COMMA exp RP:"];
+n9 [label="NEW identifier LP RP:"];
+n10 [label="identifier:Sum"];
+n9 -> n10
+n8 -> n9
+n11 [label="identifier:calcSum"];
+n8 -> n11
+n12 [label="argument_list:"];
+n13 [label="INT:100"];
+n12 -> n13
+n8 -> n12
+n7 -> n8
+n6 -> n7
+n5 -> n6
+n3 -> n5
+n1 -> n3
+n0 -> n1
+n14 [label="classDeclarations:"];
+n15 [label="classDeclaration:Sum"];
+n16 [label="identifier:Sum"];
+n15 -> n16
+n17 [label="var declarations:"];
+n15 -> n17
+n18 [label="methodDeclarations:"];
+n19 [label="methodDec:calcSum"];
+n20 [label="INT:"];
+n19 -> n20
+n21 [label="identifier:calcSum"];
+n19 -> n21
+n22 [label="parameters:"];
+n23 [label="parameter:"];
+n24 [label="INT:"];
+n23 -> n24
+n25 [label="identifier:num"];
+n23 -> n25
+n22 -> n23
+n19 -> n22
+n26 [label="methodBody:"];
+n27 [label="var declaration:"];
+n28 [label="INT:"];
+n27 -> n28
+n29 [label="identifier:sum"];
+n27 -> n29
+n26 -> n27
+n30 [label="statement:"];
+n31 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n32 [label="identifier:sum"];
+n31 -> n32
+n33 [label="INT:0"];
+n31 -> n33
+n30 -> n31
+n26 -> n30
+n34 [label="statement:"];
+n35 [label="WHILE LP expression RP statement:"];
+n36 [label="LESS_THAN:"];
+n37 [label="INT:0"];
+n36 -> n37
+n38 [label="identifier:num"];
+n36 -> n38
+n35 -> n36
+n39 [label="LC statement RC:"];
+n40 [label="statements:"];
+n41 [label="statement:"];
+n42 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n43 [label="identifier:sum"];
+n42 -> n43
+n44 [label="AddExpression:"];
+n45 [label="identifier:sum"];
+n44 -> n45
+n46 [label="identifier:num"];
+n44 -> n46
+n42 -> n44
+n41 -> n42
+n40 -> n41
+n47 [label="statement:"];
+n48 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n49 [label="identifier:num"];
+n48 -> n49
+n50 [label="SubExpression:"];
+n51 [label="identifier:num"];
+n50 -> n51
+n52 [label="INT:1"];
+n50 -> n52
+n48 -> n50
+n47 -> n48
+n40 -> n47
+n39 -> n40
+n35 -> n39
+n34 -> n35
+n26 -> n34
+n19 -> n26
+n53 [label="RETURN:"];
+n54 [label="identifier:sum"];
+n53 -> n54
+n19 -> n53
+n18 -> n19
+n15 -> n18
+n14 -> n15
+n0 -> n14
+}

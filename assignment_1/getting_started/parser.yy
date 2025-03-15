@@ -336,6 +336,18 @@ statement: LEFT_CURLY reqStatement RIGHT_CURLY { /* recursive "*" */
 				$$->children.push_back(secStmt);
 
 			}
+
+			| IF LP expression RP statement ELSE LEFT_CURLY RIGHT_CURLY { /* special with "?" ? */
+				$$ = new Node("IF LP expression RP statement ELSE statement", "", yylineno);
+				$$->children.push_back($3);
+				Node* stmt = new Node("statements", "", yylineno);
+				stmt->children.push_back($5);
+				$$->children.push_back(stmt);
+
+			Node* secStmt = new Node("empty statements", "", yylineno);
+				$$->children.push_back(secStmt);
+
+			}
 			| WHILE LP expression RP statement { /* ( " else " Statement ) ? */
 				$$ = new Node("WHILE LP expression RP statement", "", yylineno);
 				$$->children.push_back($3);
