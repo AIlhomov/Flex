@@ -104,6 +104,12 @@ public:
 
                     printf("EXIT");
                 }
+                else if (op == "EQUAL"){
+                    printf("%s := %s == %s\n", dest.c_str(), src1.c_str(), src2.c_str());
+                }
+                else if (op == "OR"){
+                    printf("%s := %s || %s\n", dest.c_str(), src1.c_str(), src2.c_str());
+                }
                 else {
 
                     printf("Unknown TAC type == ", op.c_str() ," \n");
@@ -158,7 +164,12 @@ public:
                 if (tac.op == "ASSIGN" ) {
                         label += tac.dest + " := " + tac.src1 + "\\n";
                     }
-      
+                else if (tac.op == "EQUAL" ) {
+                    label += tac.dest + " := " + tac.src1 + " == " + tac.src2 + "\\n";
+                }
+                else if (tac.op == "OR" ) {
+                    label += tac.dest + " := " + tac.src1 + " || " + tac.src2 + "\\n";
+                }
                 else if (tac.op == "ADD" ) {
                     label += tac.dest + " := " + tac.src1 + " + " + tac.src2 + "\\n";
                 }
@@ -301,6 +312,12 @@ public:
                 }
                 else if (tac.op == "MORE_THAN") {
                     outFile << tac.dest << " := " << tac.src1 << " > " << tac.src2 << "\n";
+                }
+                else if (tac.op == "EQUAL") {
+                    outFile << tac.dest << " := " << tac.src1 << " == " << tac.src2 << "\n";
+                }
+                else if (tac.op == "OR") {
+                    outFile << tac.dest << " := " << tac.src1 << " || " << tac.src2 << "\n";
                 }
                 else {
                     outFile << "Unknown TAC: " << tac.op << "\n";

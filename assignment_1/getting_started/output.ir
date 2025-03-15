@@ -1,27 +1,49 @@
 Main:
-    __t0 := NEW Sum
-     @param: 10000
-    __t1 := CALL __t0.calcSum: 1
+    __t0 := NEW Bar
+    __t1 := CALL __t0.foo: 0
     PRINT __t1
     EXIT
 
-Sum_calcSum:
-    __t2 := num < 2
+Bar_foo:
+    aux := 1
+    aux2 := True
+     @param: aux
+    aux := CALL this.foo2: 1
+     @param: 2
+     @param: 5
+     @param: aux2
+    aux := CALL this.foo3: 3
+    RETURN aux
+
+Bar_foo2:
+    __t2 := p1 < 2
     if __t2 goto block_2 else goto block_1
 
 block_1:
-    sum := 1
+    PRINT 10
     goto block_3
 
 block_2:
-    __t4 := num - 1
-    __t5 := num - 1
-     @param: __t5
-    __t3 := CALL THIS.calcSum: 1
-    __t6 := num + __t3
-    sum := __t6
+    PRINT 0
     goto block_3
 
 block_3:
-    RETURN sum
+    RETURN 1
+
+Bar_foo3:
+    if p3 goto block_5 else goto block_4
+
+block_4:
+    PRINT 1
+    goto block_6
+
+block_5:
+    PRINT 0
+    goto block_6
+
+block_6:
+    PRINT p1
+    __t3 := p2 - p1
+    PRINT __t3
+    RETURN 4
 

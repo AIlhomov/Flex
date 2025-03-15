@@ -1,5 +1,6 @@
 #include "Node.h"
 #include "IR.h"
+#include "ByteCode.h"
 
 
 /*
@@ -141,10 +142,11 @@ private:
             Node* leftVal = node->children.front();
             Node* rightVal = *std::next(node->children.begin());
 
+            string getExpLeft = visit_expr(leftVal, ctx);
             string getExpRight = visit_expr(rightVal, ctx);
 
             std::string temp = this->new_temp();
-            TAC ta("SUB", temp, leftVal->value, getExpRight);
+            TAC ta("SUB", temp, getExpLeft, getExpRight);
             ctx.current_block->tacInstructions.push_back(ta);
             return temp;
         }
@@ -153,10 +155,11 @@ private:
             Node* leftVal = node->children.front();
             Node* rightVal = *std::next(node->children.begin());
 
+            string getExpLeft = visit_expr(leftVal, ctx);
             string getExpRight = visit_expr(rightVal, ctx);
 
             std::string temp = this->new_temp();
-            TAC ta("ADD", temp, leftVal->value, getExpRight);
+            TAC ta("ADD", temp, getExpLeft, getExpRight);
             ctx.current_block->tacInstructions.push_back(ta);
             return temp;
         }
@@ -191,7 +194,34 @@ private:
 
             return temp;
         }
+        else if (node->type == "OR"){
+            std::string temp = this->new_temp();
 
+            Node* f1 = node->children.front();
+            Node* f2 = *std::next(node->children.begin());
+
+            
+            std::string condTemp1 = visit_expr(f1, ctx);
+            std::string condTemp2 = visit_expr(f2, ctx);
+            TAC ta("OR", temp, condTemp1, condTemp2);
+            ctx.current_block->tacInstructions.push_back(ta);
+
+            return temp;
+        }
+        else if (node->type == "EQUAL"){
+            std::string temp = this->new_temp();
+
+            Node* f1 = node->children.front();
+            Node* f2 = *std::next(node->children.begin());
+
+            
+            std::string condTemp1 = visit_expr(f1, ctx);
+            std::string condTemp2 = visit_expr(f2, ctx);
+            TAC ta("EQUAL", temp, condTemp1, condTemp2);
+            ctx.current_block->tacInstructions.push_back(ta);
+
+            return temp;
+        }
         else if (node->type == "AND"){
             std::string temp = this->new_temp();
 
@@ -540,3 +570,109 @@ private:
         }
     }
 };
+
+void generateByteCode(CFG* cfg, ByteCode& byteCode) {
+    std::unordered_set<BasicBlock*> visitedBlocks;
+    std::vector<BasicBlock*> stack = {cfg->entry_block};
+
+    while (!stack.empty()) {
+        BasicBlock* block = stack.back();
+        stack.pop_back();
+
+        if (visitedBlocks.count(block)) continue;
+        visitedBlocks.insert(block);
+
+        for (const auto& tac : block->tacInstructions) {
+            if (tac.op == "ASSIGN") {
+                byteCode.addInstruction("istore", tac.dest);
+            } else if (tac.op == "ADD") {
+                byteCode.addInstruction("iload", tac.src1);
+                byteCode.addInstruction("iload", tac.src2);
+                byteCode.addInstruction("iadd");
+                byteCode.addInstruction("istore", tac.dest);
+            } else if (tac.op == "SUB") {
+                byteCode.addInstruction("iload", tac.src1);
+                byteCode.addInstruction("iload", tac.src2);
+                byteCode.addInstruction("isub");
+                byteCode.addInstruction("istore", tac.dest);
+            } else if (tac.op == "MULT") {
+                byteCode.addInstruction("iload", tac.src1);
+                byteCode.addInstruction("iload", tac.src2);
+                byteCode.addInstruction("imul");
+                byteCode.addInstruction("istore", tac.dest);
+            } else if (tac.op == "PRINT") {
+                byteCode.addInstruction("iload", tac.src1);
+                byteCode.addInstruction("print");
+            } else if (tac.op == "RETURN") {
+                byteCode.addInstruction("iload", tac.src1);
+                byteCode.addInstruction("return");
+            } else if (tac.op == "COND_JUMP") {
+                byteCode.addInstruction("iload", tac.dest);
+                byteCode.addInstruction("iffalse", tac.src2);
+                byteCode.addInstruction("goto", tac.src1);
+            } else if (tac.op == "JUMP") {
+                byteCode.addInstruction("goto", tac.dest);
+            }
+            else if (tac.op == "CALL") {
+                byteCode.addInstruction("iload", tac.src1);
+                byteCode.addInstruction("iload", tac.src2);
+                byteCode.addInstruction("invoke", tac.dest);
+            }
+            else if (tac.op == "NEW") {
+                byteCode.addInstruction("new", tac.src1);
+                byteCode.addInstruction("istore", tac.dest);
+            }
+            else if (tac.op == "Args") {
+                byteCode.addInstruction("iload", tac.src1);
+            }
+            else if (tac.op == "EQUAL") {
+                byteCode.addInstruction("iload", tac.src1);
+                byteCode.addInstruction("iload", tac.src2);
+                byteCode.addInstruction("equal");
+                byteCode.addInstruction("istore", tac.dest);
+            }
+            else if (tac.op == "OR") {
+                byteCode.addInstruction("iload", tac.src1);
+                byteCode.addInstruction("iload", tac.src2);
+                byteCode.addInstruction("ior");
+                byteCode.addInstruction("istore", tac.dest);
+            }
+            else if (tac.op == "AND") {
+                byteCode.addInstruction("iload", tac.src1);
+                byteCode.addInstruction("iload", tac.src2);
+                byteCode.addInstruction("iand");
+                byteCode.addInstruction("istore", tac.dest);
+            }
+            else if (tac.op == "LESS_THAN") {
+                byteCode.addInstruction("iload", tac.src1);
+                byteCode.addInstruction("iload", tac.src2);
+                byteCode.addInstruction("ilt");
+                byteCode.addInstruction("istore", tac.dest);
+            }
+            else if (tac.op == "MORE_THAN") {
+                byteCode.addInstruction("iload", tac.src1);
+                byteCode.addInstruction("iload", tac.src2);
+                byteCode.addInstruction("igt");
+                byteCode.addInstruction("istore", tac.dest);
+            }
+            else if (tac.op == "NOT") {
+                byteCode.addInstruction("iload", tac.src1);
+                byteCode.addInstruction("inot");
+                byteCode.addInstruction("istore", tac.dest);
+            }
+            else if (tac.op == "CLASS") {
+                byteCode.addInstruction("class", tac.dest);
+            }
+            else if (tac.op == "METHOD") {
+                byteCode.addInstruction("method", tac.dest, tac.src1);
+            }
+            else if (tac.op == "LABEL") {
+                byteCode.addInstruction("label", tac.dest);
+            }
+        }
+        
+        for (auto successor : block->successors) {
+            stack.push_back(successor);
+        }
+    }
+}

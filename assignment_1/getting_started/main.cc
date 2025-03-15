@@ -93,22 +93,23 @@ int main(int argc, char **argv)
 					IRvisitor ir_visitor;
 					CFG* cfg = ir_visitor.generate_IR(root); // Generate CFG from AST
 					
-					// Print TAC instructions
-					std::cout << "\n\nIntermediate Representation: \n";
-					cfg->printAllInstructions();
-					
 					// Serialize IR to a file
     				cfg->serializeToFile("output.ir");
 
-					// Generate DOT file for CFG
+					// Generate DOT FILE for CFG
 					cfg->generateDot("cfg.dot");
-					
+
+					// Generate Byte-Code
+					ByteCode byteCode;
+					generateByteCode(cfg, byteCode);
+
+					// Serialize Byte-Code to a file
+					byteCode.serializeToFile("output.bytecode");
+
+					std::cout << "\n\nByte-code successfully generated and serialized to output.bytecode.\n";
+
 					delete cfg; // Free memory
 				}
-
-				
-
-				
 			}
 			catch (...)
 			{

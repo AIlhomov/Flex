@@ -74,7 +74,12 @@ root:        /* remove these later (debug only), have only goal left */
 	goal {root = $1; }
 		;
 		
-goal: mainClass classDeclaration END { 
+goal: 
+mainClass  END { 
+		$$ = new Node("goal", "", yylineno); 
+		$$->children.push_back($1);
+	}
+|mainClass classDeclaration END { 
 		$$ = new Node("goal", "", yylineno); 
 		$$->children.push_back($1);
 		$$->children.push_back($2);
