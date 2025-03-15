@@ -97,6 +97,9 @@ int main(int argc, char **argv)
 					std::cout << "\n\nIntermediate Representation: \n";
 					cfg->printAllInstructions();
 					
+					// Serialize IR to a file
+    				cfg->serializeToFile("output.ir");
+
 					// Generate DOT file for CFG
 					cfg->generateDot("cfg.dot");
 					

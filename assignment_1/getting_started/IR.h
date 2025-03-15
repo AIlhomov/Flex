@@ -244,6 +244,75 @@ public:
             block->printInstructions();
         }
     }
+
+    void serializeToFile(const std::string& filename) {
+        std::ofstream outFile(filename);
+        if (!outFile.is_open()) {
+            std::cerr << "Error: Could not open file " << filename << " for writing." << std::endl;
+            return;
+        }
+
+        for (const auto& block : blocks) {
+            outFile << block->label << ":\n"; // Write the block label
+            for (const auto& tac : block->tacInstructions) {
+                outFile << "    "; // Indent instructions for readability
+                if (tac.op == "ASSIGN") {
+                    outFile << tac.dest << " := " << tac.src1 << "\n";
+                } else if (tac.op == "ADD") {
+                    outFile << tac.dest << " := " << tac.src1 << " + " << tac.src2 << "\n";
+                } else if (tac.op == "SUB") {
+                    outFile << tac.dest << " := " << tac.src1 << " - " << tac.src2 << "\n";
+                } else if (tac.op == "MULT") {
+                    outFile << tac.dest << " := " << tac.src1 << " * " << tac.src2 << "\n";
+                } else if (tac.op == "LESS_THAN") {
+                    outFile << tac.dest << " := " << tac.src1 << " < " << tac.src2 << "\n";
+                } else if (tac.op == "COND_JUMP") {
+                    outFile << "if " << tac.dest << " goto " << tac.src1 << " else goto " << tac.src2 << "\n";
+                } else if (tac.op == "JUMP") {
+                    outFile << "goto " << tac.dest << "\n";
+                } else if (tac.op == "CALL") {
+                    outFile << tac.dest << " := CALL " << tac.src1 << ": " << tac.src2 << "\n";
+                } else if (tac.op == "RETURN") {
+                    outFile << "RETURN " << tac.src1 << "\n";
+                } else if (tac.op == "PRINT") {
+                    outFile << "PRINT " << tac.src1 << "\n";
+                } else if (tac.op == "NEW") {
+                    outFile << tac.dest << " := NEW " << tac.src1 << "\n";
+                } else if (tac.op == "EXIT") {
+                    outFile << "EXIT\n";
+                } 
+                else if (tac.op == "CLASS") {
+                    outFile << "CLASS " << tac.dest << "\n";
+                } 
+                else if (tac.op == "METHOD") {
+                    outFile << "METHOD " << tac.dest << " IN " << tac.src1 << "\n";
+                } 
+                else if (tac.op == "LABEL") {
+                    outFile << "LABEL " << tac.dest << "\n";
+                } 
+                else if (tac.op == "NOT") {
+                    outFile << tac.dest << " := !" << tac.src1 << "\n";
+                }
+                else if (tac.op == "AND") {
+                    outFile << tac.dest << " := " << tac.src1 << " && " << tac.src2 << "\n";
+                }
+                else if (tac.op == "Args") {
+                    outFile << " @param: " << tac.src1 << "\n";
+                }
+                else if (tac.op == "MORE_THAN") {
+                    outFile << tac.dest << " := " << tac.src1 << " > " << tac.src2 << "\n";
+                }
+                else {
+                    outFile << "Unknown TAC: " << tac.op << "\n";
+                }
+            }
+            outFile << "\n"; // Separate blocks with a blank line
+        }
+
+        outFile.close();
+        std::cout << "IR serialized to file: " << filename << std::endl;
+    }
+
 private:
     string getEdgeLabel(const BasicBlock* from, const BasicBlock* to) const {
         if (from->tacInstructions.empty()) return "";

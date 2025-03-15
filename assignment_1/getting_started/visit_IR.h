@@ -57,18 +57,6 @@ private:
 
     std::string visit_expr(Node* node, BlockContext& ctx) {
         if(!node) return "";
-        // else if(node->type =="INT" || node->type == "TRUE" || node->type == "FALSE" || node->type == "identifier"){
-        //     std::string temp = this->new_temp();
-        //     TAC ta(TACType::ASSIGN, temp, node->value, "","");
-        //     ctx.current_block->tacInstructions.push_back(ta);
-        //     return temp;
-        // }
-        // else if (node->type == "THIS"){
-        //     std::string temp = this->new_temp();
-        //     TAC ta(TACType::ASSIGN, temp, node->type, "","");
-        //     ctx.current_block->tacInstructions.push_back(ta);
-        //     return temp;
-        // }
         else if (node->type == "INT"|| node->type == "TRUE" || node->type == "FALSE" || node->type == "identifier"){
             return node->value;
         }
