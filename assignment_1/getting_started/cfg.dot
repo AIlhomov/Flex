@@ -1,7 +1,7 @@
 digraph CFG {
 graph [splines=ortho];
 node [shape=box];
-Main [label="Main\n__t0 := NEW Bar\n__t1 := CALL __t0.foo: 0\nPRINT __t1\nEXIT\n"];
+Main [label="Main\n__t0 := NEW Bar\n__t1 := CALL __t0: Bar.foo\nPRINT __t1\nEXIT\n"];
 Bar_foo [label="Bar_foo\naux := 1\naux2 := True\n @Param: aux\naux := CALL this.foo2: 1\n @Param: 2\n @Param: 5\n @Param: aux2\naux := CALL this.foo3: 3\nRETURN aux\n"];
 Bar_foo2 -> block_1 [xlabel="true"];
 Bar_foo2 -> block_2 [xlabel="false"];

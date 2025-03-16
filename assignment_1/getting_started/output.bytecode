@@ -1,7 +1,8 @@
 new Bar
 istore __t0
-iload __t0.foo
-iload 0
-invoke __t1
+iload __t0
+invoke Bar.foo
+istore __t1
 iload __t1
 print
+exit

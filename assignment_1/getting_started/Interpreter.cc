@@ -6,6 +6,10 @@
 #include <vector>
 #include <string>
 
+std::unordered_map<std::string, int> labelMap;
+
+using namespace std;
+
 void Interpreter::interpret(const std::string& filename) {
     std::ifstream inFile(filename);
     if (!inFile.is_open()) {
@@ -14,13 +18,23 @@ void Interpreter::interpret(const std::string& filename) {
     }
 
     std::string line;
+    int lineNumber = 0;
     while (std::getline(inFile, line)) {
-        if (line.empty()) continue; // Skip empty lines
-        auto instruction = parseInstruction(line);
-        executeInstruction(instruction);
+        if (!line.empty()) {
+            auto instruction = parseInstruction(line);
+            if (instruction[0] == "label") {
+                labelMap[instruction[1]] = lineNumber; // Map label to line number
+            }
+            instructions.push_back(instruction);
+            lineNumber++;
+        }
     }
-
     inFile.close();
+
+    while (programCounter < instructions.size()) {
+        executeInstruction(instructions[programCounter]);
+        programCounter++;
+    }
 }
 
 std::vector<std::string> Interpreter::parseInstruction(const std::string& line) {
@@ -32,6 +46,50 @@ std::vector<std::string> Interpreter::parseInstruction(const std::string& line) 
     }
     return tokens;
 }
+/*
+    E.java
+    tests:
+    iload
+    iadd, isub, imul
+    istore
+    print
+    inot, iand, ior
+    ieq, igt, ilt
+
+    A.java
+    tests:
+    new object
+
+    // Main method
+    new Bar           // Create a new Bar object
+    istore __t0       // Store the Bar object in temporary variable __t0
+
+    iload __t0        // Load the Bar object reference
+    invoke Bar.foo    // Call the foo method on the Bar object
+    istore __t1       // Store the result of foo in temporary variable __t1
+
+    iload __t1        // Load the result of foo
+    print             // Print the result
+    exit              // Exit the program
+
+    // Bar.foo method
+    label Bar.foo
+    iconst 1          // Load constant 1
+    istore aux        // Store it in aux
+    iconst 1          // Load constant true (1)
+    istore aux2       // Store it in aux2
+    iload aux         // Load aux
+    invoke Bar.foo2   // Call foo2 with aux as the argument
+    istore aux        // Store the result back in aux
+    iconst 2          // Load constant 2
+    iconst 5          // Load constant 5
+    iload aux2        // Load aux2
+    invoke Bar.foo3   // Call foo3 with 2, 5, and aux2 as arguments
+    istore aux        // Store the result back in aux
+    iload aux         // Load aux
+    return            // Return aux
+
+*/
 
 void Interpreter::executeInstruction(const std::vector<std::string>& instruction) {
     if (instruction.empty()) return;
@@ -44,31 +102,25 @@ void Interpreter::executeInstruction(const std::vector<std::string>& instruction
             return;
         }
         const std::string& operand = instruction[1];
-        if (operand == "True") {
-            dataStack.push(1); // Push 1 for True
-        } else if (operand == "False") {
-            dataStack.push(0); // Push 0 for False
-        } else if (isdigit(operand[0]) || (operand[0] == '-' && isdigit(operand[1]))) {
-            // Operand is a constant integer
-            dataStack.push(std::stoi(operand));
-        } else if (variables.find(operand) != variables.end()) {
+
+        // Check if the operand is a constant integer
+        if (isdigit(operand[0]) || (operand[0] == '-' && isdigit(operand[1]))) {
+            dataStack.push(std::stoi(operand)); // Push the constant onto the stack
+        } 
+        // Check if the operand is a boolean constant (true/false)
+        else if (operand == "true" || operand == "True") {
+            dataStack.push(1); // Push 1 for true
+        } else if (operand == "false" || operand == "False") {
+            dataStack.push(0); // Push 0 for false
+        } 
+        else if (variables.find(operand) != variables.end()) {
             // Operand is a variable
             dataStack.push(variables[operand]);
         } else {
             std::cerr << "Error: Variable " << operand << " used before assignment.\n";
         }
-    } else if (opcode == "istore") {
-        if (instruction.size() < 2) {
-            std::cerr << "Error: Missing variable name for istore\n";
-            return;
-        }
-        if (dataStack.empty()) {
-            std::cerr << "Error: Stack underflow in istore\n";
-        } else {
-            variables[instruction[1]] = dataStack.top();
-            dataStack.pop();
-        }
-    } else if (opcode == "iadd" || opcode == "isub" || opcode == "imul" || opcode == "idiv") {
+    } 
+    else if (opcode == "iadd" || opcode == "isub" || opcode == "imul") {
         if (dataStack.size() < 2) {
             std::cerr << "Error: Stack underflow in " << opcode << "\n";
             return;
@@ -78,14 +130,45 @@ void Interpreter::executeInstruction(const std::vector<std::string>& instruction
         if (opcode == "iadd") dataStack.push(a + b);
         else if (opcode == "isub") dataStack.push(a - b);
         else if (opcode == "imul") dataStack.push(a * b);
-        else if (opcode == "idiv") {
-            if (b == 0) {
-                std::cerr << "Error: Division by zero\n";
-                return;
-            }
-            dataStack.push(a / b);
+    }
+    else if (opcode == "istore") {
+        if (instruction.size() < 2) {
+            std::cerr << "Error: Missing variable or field name for istore\n";
+            return;
         }
-    } else if (opcode == "inot") {
+        if (dataStack.empty()) {
+            std::cerr << "Error: Stack underflow in istore\n";
+            return;
+        }
+        const std::string& target = instruction[1];
+        int value = dataStack.top();
+        dataStack.pop();
+
+        // Check if the target is an object field (e.g., objectName.fieldName)
+        size_t dotPos = target.find('.');
+        if (dotPos != std::string::npos) {
+            std::string objectName = target.substr(0, dotPos);
+            std::string fieldName = target.substr(dotPos + 1);
+            if (objects.find(objectName) != objects.end()) {
+                objects[objectName]->fields[fieldName] = value;
+            } else {
+                std::cerr << "Error: Object " << objectName << " not found\n";
+            }
+        } else {
+            // Store in a variable
+            variables[target] = value;
+        }
+    }  
+    else if (opcode == "print") {
+        if (dataStack.empty()) {
+            std::cerr << "Error: Stack underflow in print\n";
+        } else {
+            
+            std::cout << dataStack.top() << std::endl;
+            dataStack.pop();
+        }
+    }
+    else if (opcode == "inot") {
         if (dataStack.empty()) {
             std::cerr << "Error: Stack underflow in inot\n";
             return;
@@ -133,13 +216,6 @@ void Interpreter::executeInstruction(const std::vector<std::string>& instruction
         int b = dataStack.top(); dataStack.pop();
         int a = dataStack.top(); dataStack.pop();
         dataStack.push(a < b);
-    } else if (opcode == "print") {
-        if (dataStack.empty()) {
-            std::cerr << "Error: Stack underflow in print\n";
-        } else {
-            std::cout << dataStack.top() << std::endl;
-            dataStack.pop();
-        }
     } else if (opcode == "equal") {
         if (dataStack.size() < 2) {
             std::cerr << "Error: Stack underflow in iequal\n";
@@ -148,8 +224,103 @@ void Interpreter::executeInstruction(const std::vector<std::string>& instruction
         int b = dataStack.top(); dataStack.pop();
         int a = dataStack.top(); dataStack.pop();
         dataStack.push(a == b);
-    } else if (opcode == "exit") {
+    }
+    
+    
+    
+    else if (opcode == "new") {
+        if (instruction.size() < 2) {
+            std::cerr << "Error: Missing class name for new\n";
+            return;
+        }
+        const std::string& className = instruction[1];
+        objects[className] = std::make_shared<Object>();
+        dataStack.push(1); // Push a reference value onto the stack
+    }
+    
+    else if (opcode == "invoke") {
+        if (instruction.size() < 2) {
+            std::cerr << "Error: Missing method label for invoke\n";
+            return;
+        }
+        const std::string& methodLabel = instruction[1];
+        callStack.push(programCounter); // Save the current program counter
+        auto it = labelMap.find(methodLabel);
+        if (it != labelMap.end()) {
+            programCounter = it->second - 1; // Jump to the method label
+        } else {
+            std::cerr << "Error: Method label " << methodLabel << " not found\n";
+        }
+    }
+    
+
+
+
+
+
+    else if (opcode == "exit") {
         exit(0);
+    }   else if (opcode == "return") {
+        if (dataStack.empty()) {
+            std::cerr << "Error: Stack underflow in return\n";
+            return;
+        }
+        int returnValue = dataStack.top();
+        dataStack.pop();
+
+        if (callStack.empty()) {
+            std::cerr << "Error: Call stack underflow in return\n";
+            return;
+        }
+        programCounter = callStack.top(); // Restore the return address
+        callStack.pop();
+
+        // Push the return value onto the stack for the caller
+        dataStack.push(returnValue);
+    } else if (opcode == "class") {
+        if (instruction.size() < 2) {
+            std::cerr << "Error: Missing class name for class\n";
+            return;
+        }
+        const std::string& className = instruction[1];
+        // Acknowledge the class definition (no action needed)
+    } else if (opcode == "iffalse") {
+        if (instruction.size() < 2) {
+            std::cerr << "Error: Missing label for iffalse\n";
+            return;
+        }
+        if (dataStack.empty()) {
+            std::cerr << "Error: Stack underflow in iffalse\n";
+            return;
+        }
+        int value = dataStack.top();
+        dataStack.pop();
+        if (value == 0) {
+            const std::string& label = instruction[1];
+            auto it = labelMap.find(label);
+            if (it != labelMap.end()) {
+                programCounter = it->second - 1; // Jump to the label
+            } else {
+                std::cerr << "Error: Label " << label << " not found\n";
+                return;
+            }
+        }
+    } else if (opcode == "goto") {
+        if (instruction.size() < 2) {
+            std::cerr << "Error: Missing label for goto\n";
+            return;
+        }
+        const std::string& label = instruction[1];
+        auto it = labelMap.find(label);
+        if (it != labelMap.end()) {
+            programCounter = it->second - 1; // Jump to the label
+        } else {
+            std::cerr << "Error: Label " << label << " not found\n";
+            return;
+        }
+    } else if (opcode == "label") {
+        // Labels are already processed during the parsing phase
+        return;
     } else {
         std::cerr << "Unknown opcode: " << opcode << std::endl;
     }

@@ -1,6 +1,6 @@
 Main:
     __t0 := NEW Bar
-    __t1 := CALL __t0.foo: 0
+    __t1 := CALL __t0: Bar.foo
     PRINT __t1
     EXIT
 
