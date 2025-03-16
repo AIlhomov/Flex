@@ -4,7 +4,7 @@ node [shape=box];
 Main -> block_1;
 Main [label="Main\n__t0 := CALL Bar: Bar.foo\nPRINT __t0\nEXIT\n"];
 block_1 -> block_2;
-block_1 [label="block_1\nENTRY Bar.foo\naux := 1\naux2 := 1\n @Param: aux\naux := CALL this: Bar.foo2\n @Param: 2\n @Param: 5\n @Param: aux2\naux := CALL this: Bar.foo3\nRETURN aux\n"];
+block_1 [label="block_1\nENTRY Bar.foo\naux := 1\naux2 := 1\n @Param: this\n @Param: aux\naux := CALL this: Bar.foo2\n @Param: this\n @Param: 2\n @Param: 5\n @Param: aux2\naux := CALL this: Bar.foo3\nRETURN aux\n"];
 block_2 -> block_3 [xlabel="true"];
 block_2 -> block_4 [xlabel="false"];
 block_2 [label="block_2\nENTRY Bar.foo2\n__t5 := p1 < 2\nif __t5 goto block_4 else goto block_3\n"];

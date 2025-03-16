@@ -9,17 +9,15 @@ iconst 1
 istore aux
 iconst 1
 istore aux2
-iload aux
 aload this
+iload aux
 invokevirtual Bar.foo2
 istore aux
-
+aload this
 iconst 2
 iconst 5
 iload aux2
-aload this
 invokevirtual Bar.foo3
-
 istore aux
 iload aux
 return

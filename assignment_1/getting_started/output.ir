@@ -9,8 +9,10 @@ block_1:
     aux := 1
     Unknown TAC: CONST
     aux2 := 1
+     @param: this
      @param: aux
     aux := CALL this: Bar.foo2
+     @param: this
     Unknown TAC: CONST
      @param: 2
     Unknown TAC: CONST

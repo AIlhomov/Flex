@@ -98,7 +98,7 @@ private:
             
             int argCount = argsNode->children.size();
             
-
+            
 
 
             // Process arguments
@@ -120,6 +120,8 @@ private:
                 }
                 // COME HERE4
                 //std::string methodLabel = curr_class_name + "." + getFuncName->value;
+
+                
 
                 string methodLabel = classNAME + "." + getFuncName->value;
                 TAC ta("CALL", temp, classNAME, methodLabel);  
@@ -399,6 +401,10 @@ private:
                 
                 int argCount = thirdChild->children.size();
                 
+                //make a tac instruction for class_name
+                TAC taArg("Args", "", isThis, "");
+                ctx.current_block->tacInstructions.push_back(taArg);
+
                 for(auto child : thirdChild->children){
                     string arg = visit_expr(child, ctx, st);
                     TAC ta("Args", "", arg,"");  
@@ -409,6 +415,9 @@ private:
                 string getFullClassAndMethod = curr_class_name + "." + secChild->value;
                 // COME HERE3
                 //TAC ta("CALL", left->value, isThis +"."+ secChild->value, to_string(argCount));  // foo2
+                
+                
+                
                 TAC ta("CALL", left->value, isThis, getFullClassAndMethod);  // this 
                 ctx.current_block->tacInstructions.push_back(ta);
 
@@ -668,10 +677,11 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable) {
                 if (isClassName(tac.src1, symbolTable)) {
                     // If it's a class name, create a new object
                     byteCode.addInstruction("new", tac.src1); // Create a new object of the class
-                } else {
-                    // Otherwise, assume it's an object reference stored in a variable
-                    byteCode.addInstruction("aload", tac.src1); // Load the object reference
-                }
+                } 
+                // else {
+                //     // Otherwise, assume it's an object reference stored in a variable
+                //     byteCode.addInstruction("aload", tac.src1); // Load the object reference
+                // }
 
                 // Call the method
                 byteCode.addInstruction("invokevirtual", tac.src2); // Method label
@@ -685,7 +695,12 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable) {
                 if (isdigit(tac.src1[0]) || (tac.src1[0] == '-' && isdigit(tac.src1[1]))) {
                     // If the argument is a constant, use iconst
                     //byteCode.addInstruction("iconst", tac.src1); COMMENTED THIS OUT MAYBE NEEDED
-                } else {
+                } 
+                else if (tac.src1 == "this") {
+                    // If the argument is "this", load the reference
+                    byteCode.addInstruction("aload", tac.src1);
+                }
+                else {
                     // Otherwise, load the variable
                     byteCode.addInstruction("iload", tac.src1);
                 }
