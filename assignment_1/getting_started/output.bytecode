@@ -1,8 +1,76 @@
 new Bar
+dup
+invokevirtual Bar.foo
 istore __t0
 iload __t0
-invoke Bar.foo
-istore __t1
-iload __t1
 print
 exit
+label Bar.foo
+iconst 1
+istore __t1
+istore aux
+iconst 1
+istore __t2
+istore aux2
+iload aux
+aload this.foo2
+invokevirtual 1
+istore aux
+iconst 2
+istore __t3
+iload __t3
+iconst 5
+istore __t4
+iload __t4
+iload aux2
+aload this.foo3
+invokevirtual 3
+istore aux
+iload aux
+return
+label Bar.foo2
+iconst 2
+istore __t6
+iload p1
+iload __t6
+ilt
+istore __t5
+iload __t5
+iffalse block_3
+goto block_4
+iconst 0
+istore __t8
+iload __t8
+print
+goto block_5
+iload 1
+return
+label Bar.foo3
+iload p3
+iffalse block_7
+goto block_8
+iconst 0
+istore __t10
+iload __t10
+print
+goto block_9
+iload p1
+print
+iload p2
+iload p1
+isub
+istore __t11
+iload __t11
+print
+iload 4
+return
+iconst 1
+istore __t9
+iload __t9
+print
+goto block_9
+iconst 10
+istore __t7
+iload __t7
+print
+goto block_5

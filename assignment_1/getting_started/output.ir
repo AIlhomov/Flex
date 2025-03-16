@@ -1,49 +1,60 @@
 Main:
-    __t0 := NEW Bar
-    __t1 := CALL __t0: Bar.foo
-    PRINT __t1
+    __t0 := CALL Bar: Bar.foo
+    PRINT __t0
     EXIT
 
-Bar_foo:
-    aux := 1
-    aux2 := True
+block_1:
+    Unknown TAC: ENTRY
+    Unknown TAC: CONST
+    aux := __t1
+    Unknown TAC: CONST
+    aux2 := __t2
      @param: aux
     aux := CALL this.foo2: 1
-     @param: 2
-     @param: 5
+    Unknown TAC: CONST
+     @param: __t3
+    Unknown TAC: CONST
+     @param: __t4
      @param: aux2
     aux := CALL this.foo3: 3
     RETURN aux
 
-Bar_foo2:
-    __t2 := p1 < 2
-    if __t2 goto block_2 else goto block_1
-
-block_1:
-    PRINT 10
-    goto block_3
-
 block_2:
-    PRINT 0
-    goto block_3
+    Unknown TAC: ENTRY
+    Unknown TAC: CONST
+    __t5 := p1 < __t6
+    if __t5 goto block_4 else goto block_3
 
 block_3:
-    RETURN 1
-
-Bar_foo3:
-    if p3 goto block_5 else goto block_4
+    Unknown TAC: CONST
+    PRINT __t7
+    goto block_5
 
 block_4:
-    PRINT 1
-    goto block_6
+    Unknown TAC: CONST
+    PRINT __t8
+    goto block_5
 
 block_5:
-    PRINT 0
-    goto block_6
+    RETURN 1
 
 block_6:
+    Unknown TAC: ENTRY
+    if p3 goto block_8 else goto block_7
+
+block_7:
+    Unknown TAC: CONST
+    PRINT __t9
+    goto block_9
+
+block_8:
+    Unknown TAC: CONST
+    PRINT __t10
+    goto block_9
+
+block_9:
     PRINT p1
-    __t3 := p2 - p1
-    PRINT __t3
+    __t11 := p2 - p1
+    PRINT __t11
     RETURN 4
 

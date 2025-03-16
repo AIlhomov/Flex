@@ -36,7 +36,10 @@ public:
             if (op == "ASSIGN") {
                     printf("%s := %s\n", dest.c_str(), src1.c_str());
                 }
-
+                else if (op == "ENTRY") {
+                    printf("ENTRY %s\n", dest.c_str());
+                }
+                
                 else if (op =="ADD"){
                     printf("%s := %s + %s\n", dest.c_str(), src1.c_str(), src2.c_str()); // FIX THIS IN FINAL ANSWER
                 }
@@ -57,7 +60,7 @@ public:
                      src2.c_str()); // FIX THIS IN FINAL ANSWER
                 }
                 else if (op =="AND"){
-                    printf("%s := %s - %s\n", dest.c_str(), src1.c_str(), 
+                    printf("%s := %s && %s\n", dest.c_str(), src1.c_str(), 
                      src2.c_str()); // FIX THIS IN FINAL ANSWER
                 }
 
@@ -69,7 +72,12 @@ public:
 
                 }
                 else if(op == "CALL"){
-                    printf("%s := CALL %s: %s\n", dest.c_str(), src1.c_str(), src2.c_str() );
+                    if (src2.empty()) {
+                        printf("%s := CALL %s\n", dest.c_str(), src1.c_str());
+                    } else {
+                        printf("%s := CALL %s: %s\n", dest.c_str(), src1.c_str(), src2.c_str());
+                    }
+                    
 
                 }                
                 else if(op == "Args"){
@@ -102,7 +110,7 @@ public:
                 }
                 else if( op == "EXIT"){
 
-                    printf("EXIT");
+                    printf("EXIT\n");
                 }
                 else if (op == "EQUAL"){
                     printf("%s := %s == %s\n", dest.c_str(), src1.c_str(), src2.c_str());
@@ -112,7 +120,8 @@ public:
                 }
                 else {
 
-                    printf("Unknown TAC type == ", op.c_str() ," \n");
+                    printf("Unknown TAC type: %s\n", op.c_str());
+
                 }
         }
         
@@ -225,6 +234,9 @@ public:
                 }
                 else if (tac.op == "EXIT" ) {
                     label += "EXIT\\n";
+                }
+                else if (tac.op == "ENTRY") {
+                    label += "ENTRY " + tac.dest + "\\n";
                 }
                 else if (tac.op == "NOT" ) {
                     label += tac.dest +" := !" + tac.src1 + "\\n";

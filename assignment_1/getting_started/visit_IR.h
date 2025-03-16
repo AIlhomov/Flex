@@ -58,21 +58,35 @@ private:
 
     std::string visit_expr(Node* node, BlockContext& ctx, SymbolTable& st) {
         if(!node) return "";
-        else if (node->type == "INT"|| node->type == "TRUE" || node->type == "FALSE" || node->type == "identifier"){
+        else if (node->type == "INT"|| node->type == "TRUE" || node->type == "FALSE"){
+            
+            std::string temp = this->new_temp();
+            std::string value = node->value;
+
+            // Map TRUE/FALSE to 1/0
+            if (node->type == "TRUE") value = "1";
+            else if (node->type == "FALSE") value = "0";
+
+            // Generate TAC for constant
+            TAC ta("CONST", temp, value, "");
+            ctx.current_block->tacInstructions.push_back(ta);
+            return temp;
+        }
+        else if (node->type == "identifier"){
             return node->value;
         }
         else if(node->type == "exp DOT ident LP exp COMMA exp RP"){
             Node* child = node->children.front();
-            std::string firstExpThis = visit_expr(child, ctx, st); //NEW Bar
+            //std::string firstExpThis = visit_expr(child, ctx, st); //NEW Bar
 
             std::string temp = this->new_temp();
 
-            string nameOfClass = firstExpThis;
-            if (child->type == "NEW identifier LP RP"){
-                Node* childChild = child->children.front();
+            //string nameOfClass = firstExpThis;
+            // if (child->type == "NEW identifier LP RP"){
+            //     Node* childChild = child->children.front();
 
-                nameOfClass = visit_expr(childChild,ctx, st); //BAR
-            }
+            //     nameOfClass = visit_expr(childChild,ctx, st); //BAR
+            // }
     
             // if (node->children.front()->type == "THIS"){
                 
@@ -84,15 +98,14 @@ private:
             std::string argruments = visit_expr(argNode,ctx, st);  //can be argument_list or emptyArgumet
             
             int argCount = argNode->children.size();
-            std::cout << "argNodeVal  : " + argNode->value << endl;
-            std::cout << "argNodeType  : " + argNode->type << endl;
+            
 
 
 
             for(auto child : argNode->children){
                 std::string argrument = visit_expr(child,ctx, st);  //can be argument_list or emptyArgumet
 
-                std::cout << "arguments are : " + argrument << endl;
+                //std::cout << "arguments are : " + argrument << endl;
                 TAC ta("Args", "", argrument,"");  
 
                 ctx.current_block->tacInstructions.push_back(ta);
@@ -103,11 +116,14 @@ private:
         
 
             if (getFuncName && !getFuncName->value.empty()) {
-                cout << "firstExpThis : " + firstExpThis << endl; 
                 //  std::to_string(argCount) = Bar.foo
-                string test = nameOfClass + "." + getFuncName->value;
-
-                TAC ta("CALL", temp, firstExpThis, test);  
+                //string test = nameOfClass + "." + getFuncName->value;
+                string test2;
+                if (child->type == "NEW identifier LP RP"){
+                    test2 = child->children.front()->value;
+                }
+                string test = test2 + "." + getFuncName->value;
+                TAC ta("CALL", temp, test2, test);  
                 ctx.current_block->tacInstructions.push_back(ta);
             } else {
                 std::cerr << "Error: Invalid method name or null node in CALL operation." << std::endl;
@@ -542,8 +558,7 @@ private:
 
         }
         else if (node->type == "classDeclarations"){ // used just for the EXIT tac instruction
-            TAC ta ("EXIT","","","");
-            ctx.current_block->tacInstructions.push_back(ta);
+            
             for (auto child : node->children){
                 traverse_generic(child, ctx, st);
             }
@@ -556,8 +571,14 @@ private:
         }
         else if (node->type == "methodDec"){
             
-            string resThis = curr_class_name + "_" + node->value; // also that is has a class name
-            BasicBlock *res = create_block(ctx.cfg, resThis); //provided  method name AS BLOCK NAME
+            string resThis = curr_class_name + "." + node->value; // also that is has a class name
+            BasicBlock *res = create_block(ctx.cfg); //provided  method name AS BLOCK NAME
+
+            // NEW CHANGES:
+            ctx.current_block->successors.push_back(res); // Ensure correct flow
+
+            TAC ta("ENTRY",resThis,"","");
+            res->tacInstructions.push_back(ta);
 
             ctx.current_block = res;
             
@@ -572,7 +593,13 @@ private:
                 traverse_generic(child, ctx, st);
             }
         }
-
+        else if (node->type == "MAIN CLASS"){
+            for (auto child : node->children){
+                traverse_generic(child, ctx, st);
+            }
+            TAC ta ("EXIT","","","");
+            ctx.current_block->tacInstructions.push_back(ta);
+        }
 
         // else if (node->type == "IF LP expression RP statement ELSE statement"){
         //     BasicBlock *res = visit_stmt(node, ctx);
@@ -589,10 +616,15 @@ private:
     }
 };
 
-void generateByteCode(CFG* cfg, ByteCode& byteCode) {
+bool isClassName(const std::string& name, SymbolTable& symbolTable) {
+    // Use the symbol table to check if the name corresponds to a class
+    return symbolTable.get_class_scope(name) != nullptr;
+}
+
+void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable) {
     std::unordered_set<BasicBlock*> visitedBlocks;
     std::vector<BasicBlock*> stack = {cfg->entry_block};
-
+    
     while (!stack.empty()) {
         BasicBlock* block = stack.back();
         stack.pop_back();
@@ -634,8 +666,18 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode) {
             else if (tac.op == "CALL") {
                 // Push arguments onto the stack
                 // COME HERE2
-                byteCode.addInstruction("iload", tac.src1); // Object reference
-                byteCode.addInstruction("invoke", tac.src2); // Method label
+                // Check if tac.src1 is a class name or an object reference
+                if (isClassName(tac.src1, symbolTable)) {
+                    // If it's a class name, create a new object
+                    byteCode.addInstruction("new", tac.src1); // Create a new object of the class
+                    byteCode.addInstruction("dup");          // Duplicate the object reference
+                } else {
+                    // Otherwise, assume it's an object reference stored in a variable
+                    byteCode.addInstruction("aload", tac.src1); // Load the object reference
+                }
+
+                // Call the method
+                byteCode.addInstruction("invokevirtual", tac.src2); // Method label
                 byteCode.addInstruction("istore", tac.dest); // Store the return value
             }
             else if (tac.op == "NEW") {
@@ -686,11 +728,16 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode) {
             else if (tac.op == "METHOD") {
                 byteCode.addInstruction("method", tac.dest, tac.src1);
             }
-            else if (tac.op == "LABEL") {
+            else if (tac.op == "ENTRY") {
                 byteCode.addInstruction("label", tac.dest);
+                //cout << "DWDWADWADAWDWAD"<<endl;
             }
             else if (tac.op == "EXIT") {
                 byteCode.addInstruction("exit");
+            }
+            else if (tac.op == "CONST") {
+                byteCode.addInstruction("iconst", tac.src1); // Push constant value onto the stack
+                byteCode.addInstruction("istore", tac.dest); // Store it in a temporary variable
             }
         }
         
@@ -698,4 +745,11 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode) {
             stack.push_back(successor);
         }
     }
+
+    // for (auto block : cfg->blocks) {
+    //     std::cout << "Block: " << block->label << "\n";
+    //     for (auto successor : block->successors) {
+    //         std::cout << "  Successor: " << successor->label << "\n";
+    //     }
+    // }
 }

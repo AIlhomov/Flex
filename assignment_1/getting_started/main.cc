@@ -101,7 +101,7 @@ int main(int argc, char **argv)
 
 					// Generate Byte-Code
 					ByteCode byteCode;
-					generateByteCode(cfg, byteCode);
+					generateByteCode(cfg, byteCode, symtab);
 
 					// Serialize Byte-Code to a file
 					byteCode.serializeToFile("output.bytecode");

@@ -225,9 +225,14 @@ void Interpreter::executeInstruction(const std::vector<std::string>& instruction
         int a = dataStack.top(); dataStack.pop();
         dataStack.push(a == b);
     }
-    
-    
-    
+    else if (opcode == "iconst") {
+        if (instruction.size() < 2) {
+            std::cerr << "Error: Missing constant value for iconst\n";
+            return;
+        }
+        int value = std::stoi(instruction[1]); // Convert the constant to an integer
+        dataStack.push(value); // Push the constant onto the stack
+    }
     else if (opcode == "new") {
         if (instruction.size() < 2) {
             std::cerr << "Error: Missing class name for new\n";
@@ -237,8 +242,7 @@ void Interpreter::executeInstruction(const std::vector<std::string>& instruction
         objects[className] = std::make_shared<Object>();
         dataStack.push(1); // Push a reference value onto the stack
     }
-    
-    else if (opcode == "invoke") {
+    else if (opcode == "invokevirtual") {
         if (instruction.size() < 2) {
             std::cerr << "Error: Missing method label for invoke\n";
             return;
@@ -252,12 +256,15 @@ void Interpreter::executeInstruction(const std::vector<std::string>& instruction
             std::cerr << "Error: Method label " << methodLabel << " not found\n";
         }
     }
-    
-
-
-
-
-
+    else if (opcode == "label") {
+        if (instruction.size() < 2) {
+            std::cerr << "Error: Missing method name for ENTRY\n";
+            return;
+        }
+        const std::string& methodName = instruction[1];
+        // Acknowledge the method entry (no action needed)
+        return;
+    }
     else if (opcode == "exit") {
         exit(0);
     }   else if (opcode == "return") {
@@ -318,10 +325,7 @@ void Interpreter::executeInstruction(const std::vector<std::string>& instruction
             std::cerr << "Error: Label " << label << " not found\n";
             return;
         }
-    } else if (opcode == "label") {
-        // Labels are already processed during the parsing phase
-        return;
-    } else {
+    }  else {
         std::cerr << "Unknown opcode: " << opcode << std::endl;
     }
 }
