@@ -256,6 +256,27 @@ void Interpreter::executeInstruction(const std::vector<std::string>& instruction
             std::cerr << "Error: Method label " << methodLabel << " not found\n";
         }
     }
+    else if (opcode == "dup") {
+        if (dataStack.empty()) {
+            std::cerr << "Error: Stack underflow in dup\n";
+            return;
+        }
+        int topValue = dataStack.top(); // Get the top value of the stack
+        dataStack.push(topValue);      // Push the duplicate value onto the stack
+    }
+    else if (opcode == "aload"){
+        if (instruction.size() < 2) {
+            std::cerr << "Error: Missing variable or field name for aload\n";
+            return;
+        }
+        const std::string& target = instruction[1];
+        if (variables.find(target) != variables.end()) {
+            dataStack.push(variables[target]);
+        } else {
+            std::cerr << "Error: Variable " << target << " used before assignment.\n";
+        }
+    }
+
     else if (opcode == "label") {
         if (instruction.size() < 2) {
             std::cerr << "Error: Missing method name for ENTRY\n";

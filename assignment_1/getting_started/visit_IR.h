@@ -70,7 +70,7 @@ private:
             // Generate TAC for constant
             TAC ta("CONST", temp, value, "");
             ctx.current_block->tacInstructions.push_back(ta);
-            return temp;
+            return value;
         }
         else if (node->type == "identifier"){
             return node->value;
@@ -87,29 +87,25 @@ private:
 
             //     nameOfClass = visit_expr(childChild,ctx, st); //BAR
             // }
-    
-            // if (node->children.front()->type == "THIS"){
-                
-            //     firstExpThis = curr_class_name;
-            // }   
+            string classNAME; // = nameOfClass;
+            if (child->type == "THIS"){
+                classNAME = curr_class_name;
+            }   
             // COME HERE
             Node* getFuncName = *std::next(node->children.begin()); //aka FOO
-            Node* argNode = *std::next(node->children.begin(),2); //aka FOO
-            std::string argruments = visit_expr(argNode,ctx, st);  //can be argument_list or emptyArgumet
+            Node* argsNode = *std::next(node->children.begin(),2); // Arguments
+            std::string argruments = visit_expr(argsNode,ctx, st);  //can be argument_list or emptyArgumet
             
-            int argCount = argNode->children.size();
+            int argCount = argsNode->children.size();
             
 
 
 
-            for(auto child : argNode->children){
-                std::string argrument = visit_expr(child,ctx, st);  //can be argument_list or emptyArgumet
-
-                //std::cout << "arguments are : " + argrument << endl;
-                TAC ta("Args", "", argrument,"");  
-
-                ctx.current_block->tacInstructions.push_back(ta);
-
+            // Process arguments
+            for (auto arg : argsNode->children) {
+                std::string argTemp = visit_expr(arg, ctx, st);
+                TAC argTAC("Args", "", argTemp, "");
+                ctx.current_block->tacInstructions.push_back(argTAC);
             }
 
             
@@ -118,12 +114,15 @@ private:
             if (getFuncName && !getFuncName->value.empty()) {
                 //  std::to_string(argCount) = Bar.foo
                 //string test = nameOfClass + "." + getFuncName->value;
-                string test2;
+                
                 if (child->type == "NEW identifier LP RP"){
-                    test2 = child->children.front()->value;
+                    classNAME = child->children.front()->value;
                 }
-                string test = test2 + "." + getFuncName->value;
-                TAC ta("CALL", temp, test2, test);  
+                // COME HERE4
+                //std::string methodLabel = curr_class_name + "." + getFuncName->value;
+
+                string methodLabel = classNAME + "." + getFuncName->value;
+                TAC ta("CALL", temp, classNAME, methodLabel);  
                 ctx.current_block->tacInstructions.push_back(ta);
             } else {
                 std::cerr << "Error: Invalid method name or null node in CALL operation." << std::endl;
@@ -395,7 +394,7 @@ private:
                 // }
 
                 string isThis = "";
-                if (firstChild->type == "THIS") isThis = "this";
+                if (firstChild->type == "THIS") isThis = "this"; // it was "this" before
                 else isThis = firstChild->value;
                 
                 int argCount = thirdChild->children.size();
@@ -407,9 +406,10 @@ private:
                     ctx.current_block->tacInstructions.push_back(ta);
 
                 }
-
-
-                TAC ta("CALL", left->value, isThis +"."+ secChild->value, to_string(argCount));  // foo2 
+                string getFullClassAndMethod = curr_class_name + "." + secChild->value;
+                // COME HERE3
+                //TAC ta("CALL", left->value, isThis +"."+ secChild->value, to_string(argCount));  // foo2
+                TAC ta("CALL", left->value, isThis, getFullClassAndMethod);  // this 
                 ctx.current_block->tacInstructions.push_back(ta);
 
                 // TAC ta2(TACType::JUMP, "", "", "", secChild->value, "");
@@ -664,13 +664,10 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable) {
                 byteCode.addInstruction("goto", tac.dest);
             }
             else if (tac.op == "CALL") {
-                // Push arguments onto the stack
-                // COME HERE2
-                // Check if tac.src1 is a class name or an object reference
+                // Process arguments (assume they are pushed as separate TAC instructions)
                 if (isClassName(tac.src1, symbolTable)) {
                     // If it's a class name, create a new object
                     byteCode.addInstruction("new", tac.src1); // Create a new object of the class
-                    byteCode.addInstruction("dup");          // Duplicate the object reference
                 } else {
                     // Otherwise, assume it's an object reference stored in a variable
                     byteCode.addInstruction("aload", tac.src1); // Load the object reference
@@ -685,7 +682,13 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable) {
                 byteCode.addInstruction("istore", tac.dest); // Store object reference
             }
             else if (tac.op == "Args") {
-                byteCode.addInstruction("iload", tac.src1); // Push argument onto the stack
+                if (isdigit(tac.src1[0]) || (tac.src1[0] == '-' && isdigit(tac.src1[1]))) {
+                    // If the argument is a constant, use iconst
+                    //byteCode.addInstruction("iconst", tac.src1); COMMENTED THIS OUT MAYBE NEEDED
+                } else {
+                    // Otherwise, load the variable
+                    byteCode.addInstruction("iload", tac.src1);
+                }
             }
             else if (tac.op == "EQUAL") {
                 byteCode.addInstruction("iload", tac.src1);
@@ -737,7 +740,7 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable) {
             }
             else if (tac.op == "CONST") {
                 byteCode.addInstruction("iconst", tac.src1); // Push constant value onto the stack
-                byteCode.addInstruction("istore", tac.dest); // Store it in a temporary variable
+                //byteCode.addInstruction("istore", tac.dest); // Store it in a temporary variable
             }
         }
         
