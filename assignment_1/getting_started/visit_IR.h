@@ -1,7 +1,7 @@
 #include "Node.h"
 #include "IR.h"
 #include "ByteCode.h"
-
+#include <queue>
 
 /*
 
@@ -68,8 +68,8 @@ private:
             else if (node->type == "FALSE") value = "0";
 
             // Generate TAC for constant
-            // TAC ta("CONST", temp, value, "");
-            // ctx.current_block->tacInstructions.push_back(ta);
+            TAC ta("CONST", temp, value, "");
+            ctx.current_block->tacInstructions.push_back(ta);
             return value;
         }
         else if (node->type == "identifier"){
@@ -474,7 +474,7 @@ private:
             ctx.current_block->successors.push_back(thenBlock);
             ctx.current_block->successors.push_back(elseBlock);
             
-
+            
 
             // DO IT RECURSIVE JUST CALL VISIT_STMT AGAIN.
             // 4. Process THEN block
@@ -489,14 +489,27 @@ private:
 
             // 5. Process ELSE block
             ctx.current_block = elseBlock;
-            
+            //add label
+            TAC taLabelForThenEnd("LABEL", elseBlock->label, "", "");
+            ctx.current_block->tacInstructions.push_back(taLabelForThenEnd);
+
             BasicBlock* elseEnd = visit_stmt(elseStmtNode, ctx, st);
+            
+
             TAC elseGoto("JUMP", mergeBlock->label ,"", "");
             elseEnd->tacInstructions.push_back(elseGoto);
             elseEnd->successors.push_back(mergeBlock);
             
+            
+            
             // 6. Set merge block as new current
             ctx.current_block = mergeBlock;
+
+            // add label
+            TAC ta("LABEL", mergeBlock->label, "", "");
+            ctx.current_block->tacInstructions.push_back(ta);
+            
+
             return mergeBlock;
         }
 
@@ -632,12 +645,14 @@ bool isClassName(const std::string& name, SymbolTable& symbolTable) {
 
 void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable) {
     std::unordered_set<BasicBlock*> visitedBlocks;
-    std::vector<BasicBlock*> stack = {cfg->entry_block};
+    //std::vector<BasicBlock*> stack = {cfg->entry_block};
     std::string lastInstruction = ""; // Track the last instruction type
-    
-    while (!stack.empty()) {
-        BasicBlock* block = stack.back();
-        stack.pop_back();
+    std::queue<BasicBlock*> queue; // Use a queue for breadth-first traversal
+    queue.push(cfg->entry_block);
+
+    while (!queue.empty()) {
+        BasicBlock* block = queue.front();
+        queue.pop();
 
         if (visitedBlocks.count(block)) continue;
         visitedBlocks.insert(block);
@@ -669,29 +684,25 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable) {
                 byteCode.addInstruction("iload", tac.src1);
                 byteCode.addInstruction("print");
             } else if (tac.op == "RETURN") {
-                byteCode.addInstruction("iload", tac.src1);
+                // Check if tac.src1 is a constant
+                if (isdigit(tac.src1[0]) || (tac.src1[0] == '-' && isdigit(tac.src1[1]))) {
+                    // If it's a constant, use iconst
+                    byteCode.addInstruction("iconst", tac.src1);
+                } else {
+                    // Otherwise, use iload for variables or other values
+                    byteCode.addInstruction("iload", tac.src1);
+                }
                 byteCode.addInstruction("return");
             } else if (tac.op == "COND_JUMP") {
                 //add a goto "else_foo2" if wanted otherwise it just works with block labels.
                 byteCode.addInstruction("iffalse goto", tac.src1); // go to else block
-                // Emit a label for the true block (then block)
-                for (auto successor : block->successors) {
-                    stack.push_back(successor);
-                }
+                
                 //byteCode.addInstruction("goto", tac.src1);
             } else if (tac.op == "JUMP") {
                 byteCode.addInstruction("goto", tac.dest);
             }
             else if (tac.op == "CALL") {
-                // Process arguments (assume they are pushed as separate TAC instructions)
-                if (isClassName(tac.src1, symbolTable)) {
-                    // If it's a class name, create a new object
-                    byteCode.addInstruction("new", tac.src1); // Create a new object of the class
-                } 
-                // else {
-                //     // Otherwise, assume it's an object reference stored in a variable
-                //     byteCode.addInstruction("aload", tac.src1); // Load the object reference
-                // }
+                
 
                 // Call the method
                 byteCode.addInstruction("invokevirtual", tac.src2); // Method label
@@ -703,7 +714,7 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable) {
             }
             else if (tac.op == "Args") {
                 if (isdigit(tac.src1[0]) || (tac.src1[0] == '-' && isdigit(tac.src1[1]))) {
-                    byteCode.addInstruction("iconst", tac.src1);
+                    //byteCode.addInstruction("iconst", tac.src1);
                     lastInstruction = "iconst";
                 } else if (tac.src1 == "this") {
                     byteCode.addInstruction("aload", tac.src1);
@@ -767,11 +778,17 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable) {
                 byteCode.addInstruction("iconst", tac.src1); // Push constant value onto the stack
                 //byteCode.addInstruction("istore", tac.dest); // Store it in a temporary variable
             }
+            else if (tac.op == "LABEL") {
+                byteCode.addInstruction("label", tac.dest);
+            }
+            // else {
+            //     std::cerr << "Error: Unrecognized TAC operation: " << tac.op << std::endl;
+            // }
         }
         
         for (auto successor : block->successors) {
             if (!visitedBlocks.count(successor)) {
-                stack.push_back(successor);
+                queue.push(successor);
             }
         }
         // Ensure the true block is processed before the false block

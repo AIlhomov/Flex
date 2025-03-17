@@ -11,15 +11,15 @@ block_2 [label="block_2\nENTRY Bar.foo2\n__t5 := p1 < 2\nif __t5 goto block_4 el
 block_3 -> block_5;
 block_3 [label="block_3\nPRINT 10\ngoto block_5\n"];
 block_4 -> block_5;
-block_4 [label="block_4\nPRINT 0\ngoto block_5\n"];
+block_4 [label="block_4\nLABEL block_4\nPRINT 0\ngoto block_5\n"];
 block_5 -> block_6;
-block_5 [label="block_5\nRETURN 1\n"];
+block_5 [label="block_5\nLABEL block_5\nRETURN 1\n"];
 block_6 -> block_7 [xlabel="true"];
 block_6 -> block_8 [xlabel="false"];
 block_6 [label="block_6\nENTRY Bar.foo3\nif p3 goto block_8 else goto block_7\n"];
 block_7 -> block_9;
 block_7 [label="block_7\nPRINT 1\ngoto block_9\n"];
 block_8 -> block_9;
-block_8 [label="block_8\nPRINT 0\ngoto block_9\n"];
-block_9 [label="block_9\nPRINT p1\n__t11 := p2 - p1\nPRINT __t11\nRETURN 4\n"];
+block_8 [label="block_8\nLABEL block_8\nPRINT 0\ngoto block_9\n"];
+block_9 [label="block_9\nLABEL block_9\nPRINT p1\n__t11 := p2 - p1\nPRINT __t11\nRETURN 4\n"];
 }

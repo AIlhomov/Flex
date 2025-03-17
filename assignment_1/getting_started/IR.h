@@ -118,6 +118,9 @@ public:
                 else if (op == "OR"){
                     printf("%s := %s || %s\n", dest.c_str(), src1.c_str(), src2.c_str());
                 }
+                else if (op == "LABEL"){
+                    printf("LABEL %s\n", dest.c_str());
+                }
                 else {
 
                     printf("Unknown TAC type: %s\n", op.c_str());
@@ -241,7 +244,10 @@ public:
                 else if (tac.op == "NOT" ) {
                     label += tac.dest +" := !" + tac.src1 + "\\n";
                 }                
-
+                else if (tac.op == "LABEL") {
+                    label += "LABEL " + tac.dest + "\\n";
+                }
+                
             }
             // Add edges to successors
             for (BasicBlock* succ : block->successors) {
@@ -330,6 +336,9 @@ public:
                 }
                 else if (tac.op == "OR") {
                     outFile << tac.dest << " := " << tac.src1 << " || " << tac.src2 << "\n";
+                }
+                else if (tac.op == "LABEL") {
+                    outFile << "LABEL " << tac.dest << "\n";
                 }
                 else {
                     outFile << "Unknown TAC: " << tac.op << "\n";
