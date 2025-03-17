@@ -67,9 +67,7 @@ private:
             if (node->type == "TRUE") value = "1";
             else if (node->type == "FALSE") value = "0";
 
-            // Generate TAC for constant
-            TAC ta("CONST", temp, value, "");
-            ctx.current_block->tacInstructions.push_back(ta);
+            
             return value;
         }
         else if (node->type == "identifier"){
@@ -374,6 +372,8 @@ private:
             if(right->type == "MultExpression" || right->type == "AddExpression"|| right->type == "SubExpression" ) {
 
                 std::string src = visit_expr(right, ctx, st);
+                
+
                 TAC ta("ASSIGN", left->value, src, "");  // foo2 
                 ctx.current_block->tacInstructions.push_back(ta);
                 return ctx.current_block;
@@ -435,6 +435,14 @@ private:
             else {
                 string leftVal = visit_expr(left,ctx, st);
                 string rightVal = visit_expr(right,ctx, st);
+                string constIfNotTrue;
+                if (right->type == "TRUE") constIfNotTrue = "1";
+                else if (right->type == "FALSE") constIfNotTrue = "0";
+                else constIfNotTrue = right->value;
+
+                //ADD TAC FOR CONST:
+                TAC taC("CONST", rightVal, constIfNotTrue, "");
+                ctx.current_block->tacInstructions.push_back(taC);
 
                 TAC ta("ASSIGN", leftVal, rightVal, "");
                 ctx.current_block->tacInstructions.push_back(ta);
@@ -714,7 +722,7 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable) {
             }
             else if (tac.op == "Args") {
                 if (isdigit(tac.src1[0]) || (tac.src1[0] == '-' && isdigit(tac.src1[1]))) {
-                    //byteCode.addInstruction("iconst", tac.src1);
+                    byteCode.addInstruction("iconst", tac.src1);
                     lastInstruction = "iconst";
                 } else if (tac.src1 == "this") {
                     byteCode.addInstruction("aload", tac.src1);

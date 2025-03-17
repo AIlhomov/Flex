@@ -1,66 +1,20 @@
 Main:
-    __t0 := CALL Bar: Bar.foo
-    PRINT __t0
+    __t0 := 4 * 2
+    __t4 := __t0 + 10
+    __t5 := 2 * 6
+    __t8 := __t4 - __t5
+    __t13 := 4 - 1
+    __t10 := __t13 * 2
+    __t9 := __t10 * 2
+    __t16 := __t8 + __t9
+    PRINT __t16
+    __t21 := !1
+    __t20 := __t21 && 0
+    __t18 := 1 == __t20
+    __t25 := 10 > 1
+    __t28 := 1 < 10
+    __t24 := __t25 && __t28
+    __t17 := __t18 || __t24
+    PRINT __t17
     EXIT
-
-block_1:
-    Unknown TAC: ENTRY
-    Unknown TAC: CONST
-    aux := 1
-    Unknown TAC: CONST
-    aux2 := 1
-     @param: this
-     @param: aux
-    aux := CALL this: Bar.foo2
-     @param: this
-    Unknown TAC: CONST
-     @param: 2
-    Unknown TAC: CONST
-     @param: 5
-     @param: aux2
-    aux := CALL this: Bar.foo3
-    RETURN aux
-
-block_2:
-    Unknown TAC: ENTRY
-    Unknown TAC: CONST
-    __t5 := p1 < 2
-    if __t5 goto block_4 else goto block_3
-
-block_3:
-    Unknown TAC: CONST
-    PRINT 10
-    goto block_5
-
-block_4:
-    LABEL block_4
-    Unknown TAC: CONST
-    PRINT 0
-    goto block_5
-
-block_5:
-    LABEL block_5
-    RETURN 1
-
-block_6:
-    Unknown TAC: ENTRY
-    if p3 goto block_8 else goto block_7
-
-block_7:
-    Unknown TAC: CONST
-    PRINT 1
-    goto block_9
-
-block_8:
-    LABEL block_8
-    Unknown TAC: CONST
-    PRINT 0
-    goto block_9
-
-block_9:
-    LABEL block_9
-    PRINT p1
-    __t11 := p2 - p1
-    PRINT __t11
-    RETURN 4
 
