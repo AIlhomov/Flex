@@ -336,9 +336,9 @@ void Interpreter::executeInstruction(const std::vector<std::string>& instruction
         // Acknowledge the method entry (no action needed)
         return;
     }
-    else if (opcode == "exit") {
+    else if (opcode == "stop") {
         exit(0);
-    }   else if (opcode == "return") {
+    }   else if (opcode == "ireturn") {
         if (dataStack.empty()) {
             std::cerr << "Error: Stack underflow in return\n";
             return;

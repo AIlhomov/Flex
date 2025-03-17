@@ -1,57 +1,58 @@
-iload 4
-iload 2
-imul
+invokevirtual Bar.foo
 istore __t0
 iload __t0
-iload 10
-iadd
-istore __t4
-iload 2
-iload 6
-imul
-istore __t5
-iload __t4
-iload __t5
-isub
-istore __t8
-iload 4
-iload 1
-isub
-istore __t13
-iload __t13
-iload 2
-imul
-istore __t10
-iload __t10
-iload 2
-imul
-istore __t9
-iload __t8
-iload __t9
-iadd
-istore __t16
-iload __t16
 print
-iload 1
-inot
-iload __t21
-iload 0
-iand
-iload 1
-iload __t20
-equal
-iload 10
-iload 1
-igt
-iload 1
-iload 10
+stop
+label Bar.foo
+iconst 1
+istore aux
+iconst 1
+istore aux2
+iload aux
+invokevirtual Bar.foo2
+istore aux
+iconst 2
+iconst 5
+iload aux2
+invokevirtual Bar.foo3
+istore aux
+iload aux
+ireturn
+label Bar.foo2
+iload p1
+iconst 2
 ilt
-iload __t25
-iload __t28
-iand
-iload __t18
-iload __t24
-ior
-iload __t17
+iffalse goto block_4
+iconst 10
+iload 10
 print
-exit
+goto block_5
+label block_4
+iconst 0
+iload 0
+print
+label block_5
+iconst 1
+ireturn
+label Bar.foo3
+iload p3
+iffalse goto block_8
+iconst 1
+iload 1
+print
+goto block_9
+label block_8
+iconst 0
+iload 0
+print
+label block_9
+iload p1
+iload p1
+print
+iload p2
+iload p1
+isub
+iload __t11
+print
+iconst 4
+ireturn

@@ -71,6 +71,10 @@ private:
             return value;
         }
         else if (node->type == "identifier"){
+
+            // TAC ta("identifiersInIF", node->value, "", "");
+            // ctx.current_block->tacInstructions.push_back(ta);
+
             return node->value;
         }
         else if(node->type == "exp DOT ident LP exp COMMA exp RP"){
@@ -489,7 +493,7 @@ private:
             ctx.current_block = thenBlock;
 
             BasicBlock* thenEnd = visit_stmt(thenStmtNode, ctx, st);
-            TAC thenGoto("JUMP",  mergeBlock->label, "", "" );
+            TAC thenGoto("JUMP",  mergeBlock->label, "doit", "" ); // "doit" is for bytecode to generate block_5 for example for the first THEN block
             thenEnd->tacInstructions.push_back(thenGoto);
             thenEnd->successors.push_back(mergeBlock);
 
@@ -682,13 +686,21 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable) {
                 byteCode.addInstruction("iload", tac.src1);
                 byteCode.addInstruction("iload", tac.src2);
                 byteCode.addInstruction("isub");
-                byteCode.addInstruction("istore", tac.dest);
+                //byteCode.addInstruction("istore", tac.dest);
             } else if (tac.op == "MULT") {
                 byteCode.addInstruction("iload", tac.src1);
                 byteCode.addInstruction("iload", tac.src2);
                 byteCode.addInstruction("imul");
                 byteCode.addInstruction("istore", tac.dest);
             } else if (tac.op == "PRINT") {
+                if (isdigit(tac.src1[0]) || (tac.src1[0] == '-' && isdigit(tac.src1[1]))) {
+                    // If it's a constant, use iconst
+                    byteCode.addInstruction("iconst", tac.src1);
+                } else if (!tac.src1[0] == '_' || isalpha(tac.src1[0])) { // DO NOT HANDLE TEMPS!!
+                    // Otherwise, use iload for variables or other values
+                    
+                    byteCode.addInstruction("iload", tac.src1);
+                }
                 byteCode.addInstruction("iload", tac.src1);
                 byteCode.addInstruction("print");
             } else if (tac.op == "RETURN") {
@@ -700,14 +712,21 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable) {
                     // Otherwise, use iload for variables or other values
                     byteCode.addInstruction("iload", tac.src1);
                 }
-                byteCode.addInstruction("return");
+                byteCode.addInstruction("ireturn");
             } else if (tac.op == "COND_JUMP") {
                 //add a goto "else_foo2" if wanted otherwise it just works with block labels.
+                //byteCode.addInstruction("istore", tac.dest);
+                if (tac.dest[0] != '_') { // DO NOT HANDLE TEMPS!!
+                    byteCode.addInstruction("iload", tac.dest);
+                }
+
                 byteCode.addInstruction("iffalse goto", tac.src1); // go to else block
                 
                 //byteCode.addInstruction("goto", tac.src1);
             } else if (tac.op == "JUMP") {
-                byteCode.addInstruction("goto", tac.dest);
+                if (tac.src1 == "doit"){
+                    byteCode.addInstruction("goto", tac.dest);
+                }
             }
             else if (tac.op == "CALL") {
                 
@@ -715,6 +734,7 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable) {
                 // Call the method
                 byteCode.addInstruction("invokevirtual", tac.src2); // Method label
                 byteCode.addInstruction("istore", tac.dest); // Store the return value
+                //byteCode.addInstruction("iload", tac.dest); // Load the return value
             }
             else if (tac.op == "NEW") {
                 byteCode.addInstruction("new", tac.src1); // Class name
@@ -725,12 +745,13 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable) {
                     byteCode.addInstruction("iconst", tac.src1);
                     lastInstruction = "iconst";
                 } else if (tac.src1 == "this") {
-                    byteCode.addInstruction("aload", tac.src1);
+                    //byteCode.addInstruction("aload", tac.src1);
                     lastInstruction = "aload";
                 } else {
                     if (lastInstruction != "iconst") { // Skip iload if the last instruction was iconst
-                        byteCode.addInstruction("iload", tac.src1);
+                        //byteCode.addInstruction("iload", tac.src1);
                     }
+                    byteCode.addInstruction("iload", tac.src1);
                     lastInstruction = "iload";
                 }
             }
@@ -753,14 +774,36 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable) {
                 //byteCode.addInstruction("istore", tac.dest);
             }
             else if (tac.op == "LESS_THAN") {
-                byteCode.addInstruction("iload", tac.src1);
-                byteCode.addInstruction("iload", tac.src2);
+                // Check if src1 is a digit
+                if (isdigit(tac.src1[0]) || (tac.src1[0] == '-' && isdigit(tac.src1[1]))) {
+                    byteCode.addInstruction("iconst", tac.src1);
+                } else {
+                    byteCode.addInstruction("iload", tac.src1);
+                }
+
+                // Check if src2 is a digit
+                if (isdigit(tac.src2[0]) || (tac.src2[0] == '-' && isdigit(tac.src2[1]))) {
+                    byteCode.addInstruction("iconst", tac.src2);
+                } else {
+                    byteCode.addInstruction("iload", tac.src2);
+                }
                 byteCode.addInstruction("ilt");
                 //byteCode.addInstruction("istore", tac.dest);
             }
             else if (tac.op == "MORE_THAN") {
-                byteCode.addInstruction("iload", tac.src1);
-                byteCode.addInstruction("iload", tac.src2);
+                // Check if src1 is a digit
+                if (isdigit(tac.src1[0]) || (tac.src1[0] == '-' && isdigit(tac.src1[1]))) {
+                    byteCode.addInstruction("iconst", tac.src1);
+                } else {
+                    byteCode.addInstruction("iload", tac.src1);
+                }
+
+                // Check if src2 is a digit
+                if (isdigit(tac.src2[0]) || (tac.src2[0] == '-' && isdigit(tac.src2[1]))) {
+                    byteCode.addInstruction("iconst", tac.src2);
+                } else {
+                    byteCode.addInstruction("iload", tac.src2);
+                }
                 byteCode.addInstruction("igt");
                 //byteCode.addInstruction("istore", tac.dest);
             }
@@ -780,7 +823,7 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable) {
                 //cout << "DWDWADWADAWDWAD"<<endl;
             }
             else if (tac.op == "EXIT") {
-                byteCode.addInstruction("exit");
+                byteCode.addInstruction("stop");
             }
             else if (tac.op == "CONST") {
                 byteCode.addInstruction("iconst", tac.src1); // Push constant value onto the stack

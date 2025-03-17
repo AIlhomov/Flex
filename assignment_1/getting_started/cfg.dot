@@ -1,5 +1,25 @@
 digraph CFG {
 graph [splines=ortho];
 node [shape=box];
-Main [label="Main\n__t0 := 4 * 2\n__t4 := __t0 + 10\n__t5 := 2 * 6\n__t8 := __t4 - __t5\n__t13 := 4 - 1\n__t10 := __t13 * 2\n__t9 := __t10 * 2\n__t16 := __t8 + __t9\nPRINT __t16\n__t21 := !1\n__t20 := __t21 && 0\n__t18 := 1 == __t20\n__t25 := 10 > 1\n__t28 := 1 < 10\n__t24 := __t25 && __t28\n__t17 := __t18 || __t24\nPRINT __t17\nEXIT\n"];
+Main -> block_1;
+Main [label="Main\n__t0 := CALL Bar: Bar.foo\nPRINT __t0\nEXIT\n"];
+block_1 -> block_2;
+block_1 [label="block_1\nENTRY Bar.foo\naux := 1\naux2 := 1\n @Param: this\n @Param: aux\naux := CALL this: Bar.foo2\n @Param: this\n @Param: 2\n @Param: 5\n @Param: aux2\naux := CALL this: Bar.foo3\nRETURN aux\n"];
+block_2 -> block_3 [xlabel="true"];
+block_2 -> block_4 [xlabel="false"];
+block_2 [label="block_2\nENTRY Bar.foo2\n__t5 := p1 < 2\nif __t5 goto block_4 else goto block_3\n"];
+block_3 -> block_5;
+block_3 [label="block_3\nPRINT 10\ngoto block_5\n"];
+block_4 -> block_5;
+block_4 [label="block_4\nLABEL block_4\nPRINT 0\ngoto block_5\n"];
+block_5 -> block_6;
+block_5 [label="block_5\nLABEL block_5\nRETURN 1\n"];
+block_6 -> block_7 [xlabel="true"];
+block_6 -> block_8 [xlabel="false"];
+block_6 [label="block_6\nENTRY Bar.foo3\nif p3 goto block_8 else goto block_7\n"];
+block_7 -> block_9;
+block_7 [label="block_7\nPRINT 1\ngoto block_9\n"];
+block_8 -> block_9;
+block_8 [label="block_8\nLABEL block_8\nPRINT 0\ngoto block_9\n"];
+block_9 [label="block_9\nLABEL block_9\nPRINT p1\n__t11 := p2 - p1\nPRINT __t11\nRETURN 4\n"];
 }
