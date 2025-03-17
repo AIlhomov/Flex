@@ -5,17 +5,13 @@ Main:
 
 block_1:
     Unknown TAC: ENTRY
-    Unknown TAC: CONST
     aux := 1
-    Unknown TAC: CONST
     aux2 := 1
      @param: this
      @param: aux
     aux := CALL this: Bar.foo2
      @param: this
-    Unknown TAC: CONST
      @param: 2
-    Unknown TAC: CONST
      @param: 5
      @param: aux2
     aux := CALL this: Bar.foo3
@@ -23,17 +19,14 @@ block_1:
 
 block_2:
     Unknown TAC: ENTRY
-    Unknown TAC: CONST
     __t5 := p1 < 2
     if __t5 goto block_4 else goto block_3
 
 block_3:
-    Unknown TAC: CONST
     PRINT 10
     goto block_5
 
 block_4:
-    Unknown TAC: CONST
     PRINT 0
     goto block_5
 
@@ -45,12 +38,10 @@ block_6:
     if p3 goto block_8 else goto block_7
 
 block_7:
-    Unknown TAC: CONST
     PRINT 1
     goto block_9
 
 block_8:
-    Unknown TAC: CONST
     PRINT 0
     goto block_9
 

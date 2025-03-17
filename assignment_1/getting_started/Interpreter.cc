@@ -89,6 +89,56 @@ std::vector<std::string> Interpreter::parseInstruction(const std::string& line) 
     iload aux         // Load aux
     return            // Return aux
 
+
+    // more simplified:
+    invokevirtual Bar.foo   ; Call foo() directly (assuming Bar instance exists)
+    istore __t0             ; Store return value of foo()
+    iload __t0              ; Load it for printing
+    print                   ; Print the result
+    stop                    ; End program
+
+    label Bar.foo
+    iconst 1                ; int aux = 1;
+    istore aux
+
+    iconst 1                ; boolean aux2 = true; (true is iconst 1)
+    istore aux2
+
+    iload aux               ; Load aux
+    invokevirtual Bar.foo2  ; Call foo2(aux)
+    istore aux              ; Store return value in aux
+
+    iconst 2                ; First argument for foo3
+    iconst 5                ; Second argument for foo3
+    iload aux2              ; Load boolean aux2
+    invokevirtual Bar.foo3  ; Call foo3(2, 5, aux2)
+    istore aux              ; Store return value in aux
+
+    iload aux               ; Load return value
+    ireturn                 ; Return from foo()
+
+    // Bar.foo2 method
+    label Bar.foo2
+    iload p1            ; Load p1
+    iconst 2           ; Load constant 2
+    ilt               ; Compare (p1 < 2), push 1 if true, 0 otherwise
+    iffalse goto else_foo2  ; If false, jump to else branch
+
+    ; Then branch (p1 < 2)
+    iconst 10          ; Push 10
+    print             ; Print 10
+    goto end_foo2     ; Jump to end of function
+
+    ; Else branch (p1 >= 2)
+    label else_foo2
+    iconst 0           ; Push 0
+    print             ; Print 0
+
+    ; Return statement
+    label end_foo2
+    iconst 1          ; Return value 1
+    ireturn
+
 */
 
 void Interpreter::executeInstruction(const std::vector<std::string>& instruction) {

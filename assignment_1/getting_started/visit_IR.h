@@ -68,8 +68,8 @@ private:
             else if (node->type == "FALSE") value = "0";
 
             // Generate TAC for constant
-            TAC ta("CONST", temp, value, "");
-            ctx.current_block->tacInstructions.push_back(ta);
+            // TAC ta("CONST", temp, value, "");
+            // ctx.current_block->tacInstructions.push_back(ta);
             return value;
         }
         else if (node->type == "identifier"){
@@ -633,6 +633,7 @@ bool isClassName(const std::string& name, SymbolTable& symbolTable) {
 void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable) {
     std::unordered_set<BasicBlock*> visitedBlocks;
     std::vector<BasicBlock*> stack = {cfg->entry_block};
+    std::string lastInstruction = ""; // Track the last instruction type
     
     while (!stack.empty()) {
         BasicBlock* block = stack.back();
@@ -640,6 +641,11 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable) {
 
         if (visitedBlocks.count(block)) continue;
         visitedBlocks.insert(block);
+
+        std::cout << "Processing block: " << block->label << std::endl;
+        for (auto successor : block->successors) {
+            std::cout << "  Successor: " << successor->label << std::endl;
+        }
 
         for (const auto& tac : block->tacInstructions) {
             if (tac.op == "ASSIGN") {
@@ -666,9 +672,13 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable) {
                 byteCode.addInstruction("iload", tac.src1);
                 byteCode.addInstruction("return");
             } else if (tac.op == "COND_JUMP") {
-                byteCode.addInstruction("iload", tac.dest);
-                byteCode.addInstruction("iffalse", tac.src2);
-                byteCode.addInstruction("goto", tac.src1);
+                //add a goto "else_foo2" if wanted otherwise it just works with block labels.
+                byteCode.addInstruction("iffalse goto", tac.src1); // go to else block
+                // Emit a label for the true block (then block)
+                for (auto successor : block->successors) {
+                    stack.push_back(successor);
+                }
+                //byteCode.addInstruction("goto", tac.src1);
             } else if (tac.op == "JUMP") {
                 byteCode.addInstruction("goto", tac.dest);
             }
@@ -693,52 +703,52 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable) {
             }
             else if (tac.op == "Args") {
                 if (isdigit(tac.src1[0]) || (tac.src1[0] == '-' && isdigit(tac.src1[1]))) {
-                    // If the argument is a constant, use iconst
-                    //byteCode.addInstruction("iconst", tac.src1); COMMENTED THIS OUT MAYBE NEEDED
-                } 
-                else if (tac.src1 == "this") {
-                    // If the argument is "this", load the reference
+                    byteCode.addInstruction("iconst", tac.src1);
+                    lastInstruction = "iconst";
+                } else if (tac.src1 == "this") {
                     byteCode.addInstruction("aload", tac.src1);
-                }
-                else {
-                    // Otherwise, load the variable
-                    byteCode.addInstruction("iload", tac.src1);
+                    lastInstruction = "aload";
+                } else {
+                    if (lastInstruction != "iconst") { // Skip iload if the last instruction was iconst
+                        byteCode.addInstruction("iload", tac.src1);
+                    }
+                    lastInstruction = "iload";
                 }
             }
             else if (tac.op == "EQUAL") {
                 byteCode.addInstruction("iload", tac.src1);
                 byteCode.addInstruction("iload", tac.src2);
                 byteCode.addInstruction("equal");
-                byteCode.addInstruction("istore", tac.dest);
+                //byteCode.addInstruction("istore", tac.dest);
             }
             else if (tac.op == "OR") {
                 byteCode.addInstruction("iload", tac.src1);
                 byteCode.addInstruction("iload", tac.src2);
                 byteCode.addInstruction("ior");
-                byteCode.addInstruction("istore", tac.dest);
+                //byteCode.addInstruction("istore", tac.dest);
             }
             else if (tac.op == "AND") {
                 byteCode.addInstruction("iload", tac.src1);
                 byteCode.addInstruction("iload", tac.src2);
                 byteCode.addInstruction("iand");
-                byteCode.addInstruction("istore", tac.dest);
+                //byteCode.addInstruction("istore", tac.dest);
             }
             else if (tac.op == "LESS_THAN") {
                 byteCode.addInstruction("iload", tac.src1);
                 byteCode.addInstruction("iload", tac.src2);
                 byteCode.addInstruction("ilt");
-                byteCode.addInstruction("istore", tac.dest);
+                //byteCode.addInstruction("istore", tac.dest);
             }
             else if (tac.op == "MORE_THAN") {
                 byteCode.addInstruction("iload", tac.src1);
                 byteCode.addInstruction("iload", tac.src2);
                 byteCode.addInstruction("igt");
-                byteCode.addInstruction("istore", tac.dest);
+                //byteCode.addInstruction("istore", tac.dest);
             }
             else if (tac.op == "NOT") {
                 byteCode.addInstruction("iload", tac.src1);
                 byteCode.addInstruction("inot");
-                byteCode.addInstruction("istore", tac.dest);
+                //byteCode.addInstruction("istore", tac.dest);
             }
             else if (tac.op == "CLASS") {
                 byteCode.addInstruction("class", tac.dest);
@@ -760,8 +770,11 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable) {
         }
         
         for (auto successor : block->successors) {
-            stack.push_back(successor);
+            if (!visitedBlocks.count(successor)) {
+                stack.push_back(successor);
+            }
         }
+        // Ensure the true block is processed before the false block
     }
 
     // for (auto block : cfg->blocks) {
