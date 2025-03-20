@@ -689,7 +689,6 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable, st
         for (auto successor : block->successors) {
             std::cout << "  Successor: " << successor->label << std::endl;
         }
-
         for (const auto& tac : block->tacInstructions) {
             if (tac.op == "ASSIGN") {
                 byteCode.addInstruction("istore", tac.dest);
@@ -709,6 +708,7 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable, st
                 byteCode.addInstruction("imul");
                 byteCode.addInstruction("istore", tac.dest);
             } else if (tac.op == "PRINT") {
+                
                 if (isdigit(tac.src1[0]) || (tac.src1[0] == '-' && isdigit(tac.src1[1]))) {
                     // If it's a constant, use iconst
                     byteCode.addInstruction("iconst", tac.src1);
@@ -746,10 +746,9 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable, st
             }
             else if (tac.op == "CALL") {
                 
-
                 // Call the method
                 byteCode.addInstruction("invokevirtual", tac.src2); // Method label
-                //byteCode.addInstruction("istore", tac.dest); // Store the return value
+                byteCode.addInstruction("istore", tac.dest); // Store the return value
                 //byteCode.addInstruction("iload", tac.dest); // Load the return value
             }
             else if (tac.op == "NEW") {
@@ -843,11 +842,21 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable, st
                 cout << "LABEL: " << tac.dest << endl;
                 // maybe show all arguments in the method with "iload" and "iconst" ?
                 //use methodParams
+                //reverse methodParams for the stack implementation:
+
+                
+
                 auto it = methodParams.find(tac.dest);
                 if (it != methodParams.end()) {
-                    for (const auto& param : it->second) {
-                        byteCode.addInstruction("istore", param);
-                    }
+                std::vector<std::string> reversedParams(it->second.rbegin(), it->second.rend());
+                for (const auto& param : reversedParams) {
+                    byteCode.addInstruction("istore", param);
+                }
+                // if (it != methodParams.end()) {
+                //     for (const auto& param : it->second) {
+                //         byteCode.addInstruction("istore", param);
+                //     }
+                // }
                 }
             }
             else if (tac.op == "EXIT") {
