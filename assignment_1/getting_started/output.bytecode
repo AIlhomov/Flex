@@ -1,7 +1,9 @@
 invokevirtual Bar.foo
 istore __t0
+iload __t0
 print
 stop
+
 label Bar.foo
 iconst 1
 istore aux
@@ -33,6 +35,7 @@ print
 label block_5
 iconst 1
 ireturn
+
 label Bar.foo3
 istore p3
 iload p3
@@ -49,6 +52,7 @@ print
 iload p2
 iload p1
 isub
+iload __t11
 print
 iconst 4
 ireturn

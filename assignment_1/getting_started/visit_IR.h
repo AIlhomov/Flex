@@ -696,9 +696,8 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable) {
                 if (isdigit(tac.src1[0]) || (tac.src1[0] == '-' && isdigit(tac.src1[1]))) {
                     // If it's a constant, use iconst
                     byteCode.addInstruction("iconst", tac.src1);
-                } else if (!tac.src1[0] == '_' || isalpha(tac.src1[0])) { // DO NOT HANDLE TEMPS!!
+                } else if (tac.src1[0] == '_' || isalpha(tac.src1[0])) { // DO NOT HANDLE CONSTANTS!!
                     // Otherwise, use iload for variables or other values
-                    
                     byteCode.addInstruction("iload", tac.src1);
                 }
                 //byteCode.addInstruction("iload", tac.src1);
