@@ -677,14 +677,14 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable, st
     std::string lastInstruction = ""; // Track the last instruction type
     std::queue<BasicBlock*> queue; // Use a queue for breadth-first traversal
     queue.push(cfg->entry_block);
-
+    bool dontDoIstore = false;
     while (!queue.empty()) {
         BasicBlock* block = queue.front();
         queue.pop();
 
         if (visitedBlocks.count(block)) continue;
         visitedBlocks.insert(block);
-
+        
         std::cout << "Processing block: " << block->label << std::endl;
         for (auto successor : block->successors) {
             std::cout << "  Successor: " << successor->label << std::endl;
@@ -709,14 +709,26 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable, st
                 byteCode.addInstruction("istore", tac.dest);
             } else if (tac.op == "PRINT") {
                 
+                //check if the src1 is an parameter then dont do istore, check in the methodParams
+                for (const auto& [method, params] : methodParams) {
+                    if (std::find(params.begin(), params.end(), tac.src1) != params.end()) {
+                        dontDoIstore = true;
+                        break;
+                    }
+                }
+
                 if (isdigit(tac.src1[0]) || (tac.src1[0] == '-' && isdigit(tac.src1[1]))) {
                     // If it's a constant, use iconst
                     byteCode.addInstruction("iconst", tac.src1);
-                } else if (tac.src1[0] == '_' || isalpha(tac.src1[0])) { // DO NOT HANDLE CONSTANTS!!
+                } else if (!dontDoIstore && (tac.src1[0] == '_' || isalpha(tac.src1[0]))) { // DO NOT HANDLE CONSTANTS!!
                     // Otherwise, use iload for variables or other values
                     byteCode.addInstruction("istore", tac.src1);
                     byteCode.addInstruction("iload", tac.src1);
                 }
+                else if (dontDoIstore && (tac.src1[0] == '_' || isalpha(tac.src1[0]))){
+                    byteCode.addInstruction("iload", tac.src1);
+                }
+                dontDoIstore = false;
                 //byteCode.addInstruction("iload", tac.src1);
                 byteCode.addInstruction("print");
             } else if (tac.op == "RETURN") {
@@ -745,7 +757,7 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable, st
                 }
             }
             else if (tac.op == "CALL") {
-                
+                dontDoIstore = true;
                 // Call the method
                 byteCode.addInstruction("invokevirtual", tac.src2); // Method label
                 byteCode.addInstruction("istore", tac.dest); // Store the return value
@@ -845,7 +857,7 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable, st
                 //reverse methodParams for the stack implementation:
 
                 
-
+                
                 auto it = methodParams.find(tac.dest);
                 if (it != methodParams.end()) {
                 std::vector<std::string> reversedParams(it->second.rbegin(), it->second.rend());

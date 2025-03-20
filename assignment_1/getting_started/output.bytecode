@@ -1,6 +1,5 @@
 invokevirtual Bar.foo
 istore __t0
-istore __t0
 iload __t0
 print
 stop
@@ -47,7 +46,6 @@ label block_8
 iconst 0
 print
 label block_9
-istore p1
 iload p1
 print
 iload p2
