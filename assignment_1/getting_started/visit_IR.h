@@ -30,6 +30,8 @@ private:
     int block_counter = 0;
     
     string curr_class_name;
+    
+    std::unordered_map<std::string, std::vector<std::string>> methodParams; // Store method parameters for bytecode.
 
     string new_temp() {
         return "__t" + std::to_string(temp_counter++);
@@ -52,6 +54,10 @@ public:
         traverse_generic(root, ctx, st);
 
         return cfg; // Return the fully built CFG
+    }
+
+    std::unordered_map<std::string, std::vector<std::string>> getMethodParams() {
+        return methodParams;
     }
 
 private:
@@ -616,6 +622,16 @@ private:
 
             ctx.current_block = res;
             
+            Node* methodParamsNode = *std::next(node->children.begin(), 2); // Parameters
+
+            // Process method parameters
+            for (auto param : methodParamsNode->children) {
+                Node* paramVar = *std::next(param->children.begin()); // Variable name
+                std::string paramName = paramVar->value;
+                methodParams[resThis].push_back(paramName);
+            }
+            
+
             for (auto child : node->children){
                 traverse_generic(child, ctx, st);
             }
@@ -655,7 +671,7 @@ bool isClassName(const std::string& name, SymbolTable& symbolTable) {
     return symbolTable.get_class_scope(name) != nullptr;
 }
 
-void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable) {
+void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable, std::unordered_map<std::string, std::vector<std::string>>& methodParams) {
     std::unordered_set<BasicBlock*> visitedBlocks;
     //std::vector<BasicBlock*> stack = {cfg->entry_block};
     std::string lastInstruction = ""; // Track the last instruction type
@@ -698,6 +714,7 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable) {
                     byteCode.addInstruction("iconst", tac.src1);
                 } else if (tac.src1[0] == '_' || isalpha(tac.src1[0])) { // DO NOT HANDLE CONSTANTS!!
                     // Otherwise, use iload for variables or other values
+                    byteCode.addInstruction("istore", tac.src1);
                     byteCode.addInstruction("iload", tac.src1);
                 }
                 //byteCode.addInstruction("iload", tac.src1);
@@ -715,7 +732,7 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable) {
             } else if (tac.op == "COND_JUMP") {
                 //add a goto "else_foo2" if wanted otherwise it just works with block labels.
                 if (tac.dest[0] != '_') { // DO NOT HANDLE TEMPS!!
-                    byteCode.addInstruction("istore", tac.dest);
+                    //byteCode.addInstruction("istore", tac.dest);
                     byteCode.addInstruction("iload", tac.dest);
                 }
 
@@ -732,7 +749,7 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable) {
 
                 // Call the method
                 byteCode.addInstruction("invokevirtual", tac.src2); // Method label
-                byteCode.addInstruction("istore", tac.dest); // Store the return value
+                //byteCode.addInstruction("istore", tac.dest); // Store the return value
                 //byteCode.addInstruction("iload", tac.dest); // Load the return value
             }
             else if (tac.op == "NEW") {
@@ -778,7 +795,7 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable) {
                 if (isdigit(tac.src1[0]) || (tac.src1[0] == '-' && isdigit(tac.src1[1]))) {
                     byteCode.addInstruction("iconst", tac.src1);
                 } else {
-                    byteCode.addInstruction("istore", tac.src1);
+                    //byteCode.addInstruction("istore", tac.src1);
                     byteCode.addInstruction("iload", tac.src1);
                 }
 
@@ -786,7 +803,7 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable) {
                 if (isdigit(tac.src2[0]) || (tac.src2[0] == '-' && isdigit(tac.src2[1]))) {
                     byteCode.addInstruction("iconst", tac.src2);
                 } else {
-                    byteCode.addInstruction("istore", tac.src2);
+                    //byteCode.addInstruction("istore", tac.src2);
                     byteCode.addInstruction("iload", tac.src2);
                 }
                 byteCode.addInstruction("ilt");
@@ -823,6 +840,15 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable) {
             else if (tac.op == "ENTRY") {
                 byteCode.addInstruction("label", tac.dest);
                 //cout << "DWDWADWADAWDWAD"<<endl;
+                cout << "LABEL: " << tac.dest << endl;
+                // maybe show all arguments in the method with "iload" and "iconst" ?
+                //use methodParams
+                auto it = methodParams.find(tac.dest);
+                if (it != methodParams.end()) {
+                    for (const auto& param : it->second) {
+                        byteCode.addInstruction("istore", param);
+                    }
+                }
             }
             else if (tac.op == "EXIT") {
                 byteCode.addInstruction("stop");
@@ -832,7 +858,7 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable) {
                 //byteCode.addInstruction("istore", tac.dest); // Store it in a temporary variable
             }
             else if (tac.op == "LABEL") {
-                byteCode.addInstruction("label", tac.dest);
+                byteCode.addInstruction("label", tac.dest);           
             }
             // else {
             //     std::cerr << "Error: Unrecognized TAC operation: " << tac.op << std::endl;

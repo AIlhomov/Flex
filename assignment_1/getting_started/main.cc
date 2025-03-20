@@ -99,10 +99,13 @@ int main(int argc, char **argv)
 					// Generate DOT FILE for CFG
 					cfg->generateDot("cfg.dot");
 
+					
 					// Generate Byte-Code
 					ByteCode byteCode;
-					generateByteCode(cfg, byteCode, symtab);
-
+					//get method parameters
+					std::unordered_map<std::string, std::vector<std::string>> methodParams = ir_visitor.getMethodParams();
+					generateByteCode(cfg, byteCode, symtab, methodParams);
+					
 					// Serialize Byte-Code to a file
 					byteCode.serializeToFile("output.bytecode");
 
