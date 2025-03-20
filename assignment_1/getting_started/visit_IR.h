@@ -491,7 +491,7 @@ private:
             // DO IT RECURSIVE JUST CALL VISIT_STMT AGAIN.
             // 4. Process THEN block
             ctx.current_block = thenBlock;
-
+            
             BasicBlock* thenEnd = visit_stmt(thenStmtNode, ctx, st);
             TAC thenGoto("JUMP",  mergeBlock->label, "doit", "" ); // "doit" is for bytecode to generate block_5 for example for the first THEN block
             thenEnd->tacInstructions.push_back(thenGoto);
@@ -504,7 +504,7 @@ private:
             //add label
             TAC taLabelForThenEnd("LABEL", elseBlock->label, "", "");
             ctx.current_block->tacInstructions.push_back(taLabelForThenEnd);
-
+            
             BasicBlock* elseEnd = visit_stmt(elseStmtNode, ctx, st);
             
 
@@ -701,7 +701,7 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable) {
                     
                     byteCode.addInstruction("iload", tac.src1);
                 }
-                byteCode.addInstruction("iload", tac.src1);
+                //byteCode.addInstruction("iload", tac.src1);
                 byteCode.addInstruction("print");
             } else if (tac.op == "RETURN") {
                 // Check if tac.src1 is a constant
@@ -715,8 +715,8 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable) {
                 byteCode.addInstruction("ireturn");
             } else if (tac.op == "COND_JUMP") {
                 //add a goto "else_foo2" if wanted otherwise it just works with block labels.
-                //byteCode.addInstruction("istore", tac.dest);
                 if (tac.dest[0] != '_') { // DO NOT HANDLE TEMPS!!
+                    byteCode.addInstruction("istore", tac.dest);
                     byteCode.addInstruction("iload", tac.dest);
                 }
 
@@ -751,6 +751,7 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable) {
                     if (lastInstruction != "iconst") { // Skip iload if the last instruction was iconst
                         //byteCode.addInstruction("iload", tac.src1);
                     }
+                    //byteCode.addInstruction("istore", tac.src1);
                     byteCode.addInstruction("iload", tac.src1);
                     lastInstruction = "iload";
                 }
@@ -778,6 +779,7 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable) {
                 if (isdigit(tac.src1[0]) || (tac.src1[0] == '-' && isdigit(tac.src1[1]))) {
                     byteCode.addInstruction("iconst", tac.src1);
                 } else {
+                    byteCode.addInstruction("istore", tac.src1);
                     byteCode.addInstruction("iload", tac.src1);
                 }
 
@@ -785,6 +787,7 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable) {
                 if (isdigit(tac.src2[0]) || (tac.src2[0] == '-' && isdigit(tac.src2[1]))) {
                     byteCode.addInstruction("iconst", tac.src2);
                 } else {
+                    byteCode.addInstruction("istore", tac.src2);
                     byteCode.addInstruction("iload", tac.src2);
                 }
                 byteCode.addInstruction("ilt");
