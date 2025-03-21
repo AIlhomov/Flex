@@ -687,6 +687,18 @@ bool isClassName(const std::string& name, SymbolTable& symbolTable) {
     // Use the symbol table to check if the name corresponds to a class
     return symbolTable.get_class_scope(name) != nullptr;
 }
+bool willBeUsedAgain(const std::string& var, const TAC& currentTac, const std::vector<TAC>& tacList) {
+    // Iterate through the remaining TAC instructions
+    for (const auto& tac : tacList) {
+        if (&tac == &currentTac) continue; // Skip the current instruction
+
+        // Check if the variable is used in src1, src2, or dest
+        if (tac.src1 == var || tac.src2 == var || tac.dest == var) {
+            return true; // Variable will be used again
+        }
+    }
+    return false; // Variable will not be used again
+}
 
 void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable, std::unordered_map<std::string, std::vector<std::string>>& methodParams) {
     std::unordered_set<BasicBlock*> visitedBlocks;
@@ -710,8 +722,33 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable, st
             if (tac.op == "ASSIGN") {
                 byteCode.addInstruction("istore", tac.dest);
             } else if (tac.op == "ADD") {
-                byteCode.addInstruction("iload", tac.src1);
-                byteCode.addInstruction("iload", tac.src2);
+                
+                //check if we already have the src1 or src2 in the stack
+                //if we have just do iadd
+
+                // THIS IS A BIG TRADEOFF. IF ADDED OR NOT
+                // if (willBeUsedAgain(tac.src1, tac, block->tacInstructions)) {
+                //     byteCode.addInstruction("iadd");
+                //     continue;
+                // } 
+
+                //check if src1 or src2 are constants
+                if (isdigit(tac.src1[0]) || (tac.src1[0] == '-' && isdigit(tac.src1[1]))) {
+                    byteCode.addInstruction("iconst", tac.src1);
+                } else if (!dontDoIstore) {
+                    byteCode.addInstruction("iload", tac.src1);
+
+                    // // Check if src1 will be used again
+                    // if (willBeUsedAgain(tac.src1, tac, block->tacInstructions)) { // FOR D3.java or BIGGER EXPRESSIONS..
+                    //     byteCode.addInstruction("iload", tac.src1); // Push it again
+                    // }
+                }
+                if (isdigit(tac.src2[0]) || (tac.src2[0] == '-' && isdigit(tac.src2[1]))) {
+                    byteCode.addInstruction("iconst", tac.src2);
+                } else if (!dontDoIstore){
+                    byteCode.addInstruction("iload", tac.src2);
+                }
+                dontDoIstore = false;
                 byteCode.addInstruction("iadd");
                 //byteCode.addInstruction("istore", tac.dest);
             } else if (tac.op == "SUB") {
@@ -722,6 +759,11 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable, st
                     byteCode.addInstruction("iconst", tac.src1);
                 } else {
                     byteCode.addInstruction("iload", tac.src1);
+
+                    // Check if src1 will be used again
+                    if (willBeUsedAgain(tac.src1, tac, block->tacInstructions)) { // FOR D3.java or BIGGER EXPRESSIONS..
+                        byteCode.addInstruction("iload", tac.src1); // Push it again
+                    }
                 }
                 if (isdigit(tac.src2[0]) || (tac.src2[0] == '-' && isdigit(tac.src2[1]))) {
                     byteCode.addInstruction("iconst", tac.src2);
@@ -732,10 +774,26 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable, st
                 byteCode.addInstruction("isub");
                 //byteCode.addInstruction("istore", tac.dest);
             } else if (tac.op == "MULT") {
-                byteCode.addInstruction("iload", tac.src1);
-                byteCode.addInstruction("iload", tac.src2);
+                
+                //check if src1 or src2 are constants
+                if (isdigit(tac.src1[0]) || (tac.src1[0] == '-' && isdigit(tac.src1[1]))) {
+                    byteCode.addInstruction("iconst", tac.src1);
+                } else {
+                    byteCode.addInstruction("iload", tac.src1);
+
+                    // Check if src1 will be used again
+                    if (willBeUsedAgain(tac.src1, tac, block->tacInstructions)) { // FOR D3.java or BIGGER EXPRESSIONS..
+                        byteCode.addInstruction("iload", tac.src1); // Push it again
+                    }
+                }
+                if (isdigit(tac.src2[0]) || (tac.src2[0] == '-' && isdigit(tac.src2[1]))) {
+                    byteCode.addInstruction("iconst", tac.src2);
+                } else {
+                    byteCode.addInstruction("iload", tac.src2);
+                }
+                
                 byteCode.addInstruction("imul");
-                byteCode.addInstruction("istore", tac.dest);
+                //byteCode.addInstruction("istore", tac.dest);
             } else if (tac.op == "PRINT") {
                 
                 //check if the src1 is an parameter then dont do istore, check in the methodParams
@@ -745,7 +803,8 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable, st
                         break;
                     }
                 }
-
+                // add istore 
+                //byteCode.addInstruction("istore", tac.src1);
                 if (isdigit(tac.src1[0]) || (tac.src1[0] == '-' && isdigit(tac.src1[1]))) {
                     // If it's a constant, use iconst
                     byteCode.addInstruction("iconst", tac.src1);
@@ -798,7 +857,9 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable, st
                 dontDoIstore = true;
                 // Call the method
                 byteCode.addInstruction("invokevirtual", tac.src2); // Method label
-                byteCode.addInstruction("istore", tac.dest); // Store the return value
+                if (tac.dest[0] != '_') { // Check if it's not a temporary variable
+                    byteCode.addInstruction("istore", tac.dest); // Store the return value CHANGED
+                }
                 //byteCode.addInstruction("iload", tac.dest); // Load the return value
             }
             else if (tac.op == "NEW") {
@@ -812,12 +873,17 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable, st
                 } else if (tac.src1 == "this") {
                     //byteCode.addInstruction("aload", tac.src1);
                     lastInstruction = "aload";
-                } else {
+                } 
+                else if (tac.src1[0] == '_') {
+                    // Skip handling temporary variables
+                    continue;
+                } 
+                else {
                     if (lastInstruction != "iconst") { // Skip iload if the last instruction was iconst
                         //byteCode.addInstruction("iload", tac.src1);
                     }
                     //byteCode.addInstruction("istore", tac.src1);
-                    byteCode.addInstruction("iload", tac.src1);
+                    byteCode.addInstruction("iload", tac.src1); //CHANGED
                     lastInstruction = "iload";
                 }
             }
@@ -939,7 +1005,6 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable, st
     //     }
     // }
 }
-
 /*
 ; Main method
 iconst 100
