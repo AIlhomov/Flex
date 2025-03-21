@@ -17,6 +17,7 @@ void Interpreter::interpret(const std::string& filename) {
         return;
     }
 
+    // First pass: Parse the file and store instructions
     std::string line;
     int lineNumber = 0;
     while (std::getline(inFile, line)) {
@@ -31,6 +32,12 @@ void Interpreter::interpret(const std::string& filename) {
     }
     inFile.close();
 
+    //cout the whole labelMap
+    for (const auto& [label, line] : labelMap) {
+        std::cout << label << " -> " << line << std::endl;
+    }
+
+    // Second pass: Execute instructions
     while (programCounter < instructions.size()) {
         executeInstruction(instructions[programCounter]);
         programCounter++;
@@ -301,7 +308,7 @@ void Interpreter::executeInstruction(const std::vector<std::string>& instruction
         callStack.push(programCounter); // Save the current program counter
         auto it = labelMap.find(methodLabel);
         if (it != labelMap.end()) {
-            programCounter = it->second - 1; // Jump to the method label
+            programCounter = it->second; // Jump to the method label
         } else {
             std::cerr << "Error: Method label " << methodLabel << " not found\n";
         }
@@ -374,16 +381,41 @@ void Interpreter::executeInstruction(const std::vector<std::string>& instruction
         int value = dataStack.top();
         dataStack.pop();
         if (value == 0) {
-            const std::string& label = instruction[1];
+            const std::string& label = instruction[2]; // 1 IS GOTO 2 is "labelNAME"
+            cout << "LABEL: " << label << endl;
             auto it = labelMap.find(label);
             if (it != labelMap.end()) {
-                programCounter = it->second - 1; // Jump to the label
+                programCounter = it->second; // Jump to the label
             } else {
                 std::cerr << "Error: Label " << label << " not found\n";
                 return;
             }
         }
-    } else if (opcode == "goto") {
+    }
+    // else if (opcode == "iftrue"){
+    //     if (instruction.size() < 2) {
+    //         std::cerr << "Error: Missing label for iftrue\n";
+    //         return;
+    //     }
+    //     if (dataStack.empty()) {
+    //         std::cerr << "Error: Stack underflow in iftrue\n";
+    //         return;
+    //     }
+    //     int value = dataStack.top();
+    //     dataStack.pop();
+    //     if (value == 1) {
+    //         const std::string& label = instruction[1];
+    //         auto it = labelMap.find(label);
+    //         if (it != labelMap.end()) {
+    //             programCounter = it->second; // Jump to the label
+    //         } else {
+    //             //cout << "NDAOIWUDNWAIODNAWIODNWAIDO"<<endl;
+    //             std::cerr << "Error: Label " << label << " not found\n";
+    //             return;
+    //         }
+    //     }
+    // }
+    else if (opcode == "goto") {
         if (instruction.size() < 2) {
             std::cerr << "Error: Missing label for goto\n";
             return;
@@ -391,12 +423,13 @@ void Interpreter::executeInstruction(const std::vector<std::string>& instruction
         const std::string& label = instruction[1];
         auto it = labelMap.find(label);
         if (it != labelMap.end()) {
-            programCounter = it->second - 1; // Jump to the label
+            programCounter = it->second; // Jump to the label
         } else {
             std::cerr << "Error: Label " << label << " not found\n";
             return;
         }
-    }  else {
+    } 
+      else {
         std::cerr << "Unknown opcode: " << opcode << std::endl;
     }
 }

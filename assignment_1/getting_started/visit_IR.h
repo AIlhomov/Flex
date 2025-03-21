@@ -536,15 +536,21 @@ private:
             // Extract condition and body nodes
             Node* conditionNode = node->children.front(); 
             Node* bodyNode = *std::next(node->children.begin());
-        
+            
+
             // 1. Create blocks
             BasicBlock* whileCondition = create_block(ctx.cfg, "whileCondition_" + std::to_string(block_counter++));
             BasicBlock* whileBody = create_block(ctx.cfg, "whileBody_" + std::to_string(block_counter++));
             BasicBlock* whileExit = create_block(ctx.cfg, "whileExit_" + std::to_string(block_counter++));
-        
+            
+
+            // add label
+            TAC ta2("LABEL", whileCondition->label, "", "");
+            ctx.current_block->tacInstructions.push_back(ta2);
+            //COME HERE5
             // 2. Jump to the condition block from the current block
-            TAC jumpToCond("JUMP", whileCondition->label, "", "");
-            ctx.current_block->tacInstructions.push_back(jumpToCond);
+            // TAC jumpToCond("JUMP", whileCondition->label, "", "");
+            // ctx.current_block->tacInstructions.push_back(jumpToCond);
             ctx.current_block->successors.push_back(whileCondition);
         
             // 3. Evaluate the condition
@@ -558,7 +564,8 @@ private:
             // 4. Process while body
             ctx.current_block = whileBody;
             BasicBlock* bodyEnd = visit_stmt(bodyNode, ctx, st);
-        
+            
+            
             // 5. Add a jump back to the condition
             TAC loopBack("JUMP", whileCondition->label, "","");
             bodyEnd->tacInstructions.push_back(loopBack);
@@ -566,6 +573,16 @@ private:
         
             // 6. Continue execution in the exit block
             ctx.current_block = whileExit;
+
+            
+
+            // // add label
+            // TAC ta("JUMP", "", "loopStart", ""); // WHILE LOOP NEEDS TO JUMP BACK
+            // ctx.current_block->tacInstructions.push_back(ta);
+
+            TAC ta3("LABEL", whileExit->label, "", "");
+            ctx.current_block->tacInstructions.push_back(ta3);
+
             return whileExit;
         }
                 
@@ -696,10 +713,22 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable, st
                 byteCode.addInstruction("iload", tac.src1);
                 byteCode.addInstruction("iload", tac.src2);
                 byteCode.addInstruction("iadd");
-                byteCode.addInstruction("istore", tac.dest);
+                //byteCode.addInstruction("istore", tac.dest);
             } else if (tac.op == "SUB") {
-                byteCode.addInstruction("iload", tac.src1);
-                byteCode.addInstruction("iload", tac.src2);
+                
+
+                //check if src1 or src2 are constants
+                if (isdigit(tac.src1[0]) || (tac.src1[0] == '-' && isdigit(tac.src1[1]))) {
+                    byteCode.addInstruction("iconst", tac.src1);
+                } else {
+                    byteCode.addInstruction("iload", tac.src1);
+                }
+                if (isdigit(tac.src2[0]) || (tac.src2[0] == '-' && isdigit(tac.src2[1]))) {
+                    byteCode.addInstruction("iconst", tac.src2);
+                } else {
+                    byteCode.addInstruction("iload", tac.src2);
+                }
+
                 byteCode.addInstruction("isub");
                 //byteCode.addInstruction("istore", tac.dest);
             } else if (tac.op == "MULT") {
@@ -747,12 +776,21 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable, st
                     //byteCode.addInstruction("istore", tac.dest);
                     byteCode.addInstruction("iload", tac.dest);
                 }
-
-                byteCode.addInstruction("iffalse goto", tac.src1); // go to else block
+                // check if its an while loop that starts with whileExit
+                if (tac.src2.rfind("whileExit", 0) == 0) { // Check if tac.src2 starts with "whileExit"
+                    byteCode.addInstruction("iffalse goto", tac.src2); // go to else block
+                } else {
+                    byteCode.addInstruction("iffalse goto", tac.src1); // go to then block
+                }
+                //byteCode.addInstruction("iffalse goto", tac.src1); // go to else block
                 
                 //byteCode.addInstruction("goto", tac.src1);
             } else if (tac.op == "JUMP") {
                 if (tac.src1 == "doit"){
+                    byteCode.addInstruction("goto", tac.dest);
+                }
+                else if (tac.dest.rfind("whileCondition", 0) == 0) { // Check if tac.src1 starts with "whileCondition"
+                    cout << "DNAWIODNAWDIUAWBNI"<<endl;
                     byteCode.addInstruction("goto", tac.dest);
                 }
             }
@@ -901,3 +939,85 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable, st
     //     }
     // }
 }
+
+/*
+; Main method
+iconst 100
+invokevirtual Sum.calcSum
+print
+stop
+
+; Sum.calcSum method
+label Sum.calcSum
+iconst 0           ; Initialize sum = 0
+istore sum
+
+label loopStart
+iload num           ; Check loop condition: 0 < num
+iconst 0
+ilt                 ; Push 1 if 0 < num, else 0
+iffalse goto loopExit ; Exit loop if condition is false
+
+iload sum           ; sum = sum + num
+iload num
+iadd
+istore sum
+
+iload num           ; num = num - 1
+iconst 1
+isub
+istore num
+
+goto loopStart      ; Repeat loop
+
+label loopExit
+iload sum           ; Return sum
+ireturn
+
+*/
+
+
+/*
+D1.java:
+# Main program
+new Sum             # Create new Sum object
+istore __t0         # Store object reference
+iload __t0          # Load object for method call
+iconst 100          # Push argument 100
+invokevirtual Sum.calcSum  # Call calcSum(100)
+istore __t1         # Store result (5050)
+iload __t1          # Load result for printing
+print               # Print 5050
+stop                # End program
+
+# Sum.calcSum method
+label Sum.calcSum
+istore num          # Store parameter: num = 100
+iconst 0            
+istore sum          # sum = 0
+
+label loop_start
+iload num           # Load num for comparison
+iconst 0
+igt                 # Check if num > 0
+iffalse goto loop_end  # Exit loop if false
+
+# Loop body - sum += num
+iload sum
+iload num
+iadd
+istore sum          # sum = sum + num
+
+# Decrement num
+iload num
+iconst 1
+isub
+istore num          # num = num - 1
+
+goto loop_start     # Repeat loop
+
+label loop_end
+iload sum           # Load final sum value
+ireturn             # Return 5050
+
+*/
