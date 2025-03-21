@@ -102,7 +102,7 @@ private:
             // COME HERE
             Node* getFuncName = *std::next(node->children.begin()); //aka FOO
             Node* argsNode = *std::next(node->children.begin(),2); // Arguments
-            std::string argruments = visit_expr(argsNode,ctx, st);  //can be argument_list or emptyArgumet
+            //std::string argruments = visit_expr(argsNode,ctx, st);  //can be argument_list or emptyArgumet
             
             int argCount = argsNode->children.size();
             

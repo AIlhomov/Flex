@@ -1,89 +1,107 @@
 digraph {
 n0 [label="goal:"];
 n1 [label="MAIN CLASS:"];
-n2 [label="identifier:E"];
+n2 [label="identifier:D3"];
 n1 -> n2
 n3 [label="MAIN METHOD:"];
 n4 [label="identifier:a"];
 n3 -> n4
 n5 [label="statements:"];
 n6 [label="statement:"];
-n7 [label="LC statement RC:"];
-n8 [label="statements:"];
-n9 [label="statement:"];
-n10 [label="SIMPLE PRINT LOL:"];
-n11 [label="AddExpression:"];
-n12 [label="SubExpression:"];
-n13 [label="AddExpression:"];
-n14 [label="MultExpression:"];
-n15 [label="INT:4"];
-n14 -> n15
-n16 [label="INT:2"];
-n14 -> n16
-n13 -> n14
-n17 [label="INT:10"];
-n13 -> n17
-n12 -> n13
-n18 [label="MultExpression:"];
-n19 [label="INT:2"];
-n18 -> n19
-n20 [label="INT:6"];
-n18 -> n20
-n12 -> n18
-n11 -> n12
-n21 [label="MultExpression:"];
-n22 [label="MultExpression:"];
-n23 [label="SubExpression:"];
-n24 [label="INT:4"];
-n23 -> n24
-n25 [label="INT:1"];
-n23 -> n25
-n22 -> n23
-n26 [label="INT:2"];
-n22 -> n26
-n21 -> n22
-n27 [label="INT:2"];
-n21 -> n27
-n11 -> n21
-n10 -> n11
+n7 [label="SIMPLE PRINT LOL:"];
+n8 [label="exp DOT ident LP exp COMMA exp RP:"];
+n9 [label="NEW identifier LP RP:"];
+n10 [label="identifier:Sum"];
 n9 -> n10
 n8 -> n9
-n28 [label="statement:"];
-n29 [label="SIMPLE PRINT LOL:"];
-n30 [label="OR:"];
-n31 [label="EQUAL:"];
-n32 [label="TRUE:True"];
-n31 -> n32
-n33 [label="AND:"];
-n34 [label="EXCLAMATION_MARK expression:"];
-n35 [label="TRUE:True"];
-n34 -> n35
-n33 -> n34
-n36 [label="FALSE:False"];
-n33 -> n36
-n31 -> n33
-n30 -> n31
-n37 [label="AND:"];
-n38 [label="MORE_THAN:"];
-n39 [label="INT:10"];
-n38 -> n39
-n40 [label="INT:1"];
-n38 -> n40
-n37 -> n38
-n41 [label="LESS_THAN:"];
-n42 [label="INT:1"];
-n41 -> n42
-n43 [label="INT:10"];
-n41 -> n43
-n37 -> n41
-n30 -> n37
-n29 -> n30
-n28 -> n29
-n8 -> n28
+n11 [label="identifier:calcSum"];
+n8 -> n11
+n12 [label="argument_list:"];
+n13 [label="INT:10000"];
+n12 -> n13
+n8 -> n12
 n7 -> n8
 n6 -> n7
 n5 -> n6
 n3 -> n5
 n1 -> n3
 n0 -> n1
+n14 [label="classDeclarations:"];
+n15 [label="classDeclaration:Sum"];
+n16 [label="identifier:Sum"];
+n15 -> n16
+n17 [label="var declarations:"];
+n15 -> n17
+n18 [label="methodDeclarations:"];
+n19 [label="methodDec:calcSum"];
+n20 [label="INT:"];
+n19 -> n20
+n21 [label="identifier:calcSum"];
+n19 -> n21
+n22 [label="parameters:"];
+n23 [label="parameter:"];
+n24 [label="INT:"];
+n23 -> n24
+n25 [label="identifier:num"];
+n23 -> n25
+n22 -> n23
+n19 -> n22
+n26 [label="methodBody:"];
+n27 [label="var declaration:"];
+n28 [label="INT:"];
+n27 -> n28
+n29 [label="identifier:sum"];
+n27 -> n29
+n26 -> n27
+n30 [label="statement:"];
+n31 [label="IF LP expression RP statement ELSE statement:"];
+n32 [label="LESS_THAN:"];
+n33 [label="identifier:num"];
+n32 -> n33
+n34 [label="INT:2"];
+n32 -> n34
+n31 -> n32
+n35 [label="statements:"];
+n36 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n37 [label="identifier:sum"];
+n36 -> n37
+n38 [label="INT:1"];
+n36 -> n38
+n35 -> n36
+n31 -> n35
+n39 [label="statements:"];
+n40 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n41 [label="identifier:sum"];
+n40 -> n41
+n42 [label="AddExpression:"];
+n43 [label="identifier:num"];
+n42 -> n43
+n44 [label="exp DOT ident LP exp COMMA exp RP:"];
+n45 [label="THIS:"];
+n44 -> n45
+n46 [label="identifier:calcSum"];
+n44 -> n46
+n47 [label="argument_list:"];
+n48 [label="SubExpression:"];
+n49 [label="identifier:num"];
+n48 -> n49
+n50 [label="INT:1"];
+n48 -> n50
+n47 -> n48
+n44 -> n47
+n42 -> n44
+n40 -> n42
+n39 -> n40
+n31 -> n39
+n30 -> n31
+n26 -> n30
+n19 -> n26
+n51 [label="RETURN:"];
+n52 [label="identifier:sum"];
+n51 -> n52
+n19 -> n51
+n18 -> n19
+n15 -> n18
+n14 -> n15
+n0 -> n14
 }

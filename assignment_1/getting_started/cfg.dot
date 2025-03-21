@@ -1,5 +1,14 @@
 digraph CFG {
 graph [splines=ortho];
 node [shape=box];
-Main [label="Main\n__t0 := 4 * 2\n__t4 := __t0 + 10\n__t5 := 2 * 6\n__t8 := __t4 - __t5\n__t13 := 4 - 1\n__t10 := __t13 * 2\n__t9 := __t10 * 2\n__t16 := __t8 + __t9\nPRINT __t16\n__t21 := !1\n__t20 := __t21 && 0\n__t18 := 1 == __t20\n__t25 := 10 > 1\n__t28 := 1 < 10\n__t24 := __t25 && __t28\n__t17 := __t18 || __t24\nPRINT __t17\nEXIT\n"];
+Main -> block_1;
+Main [label="Main\n @Param: 10000\n__t0 := CALL Sum: Sum.calcSum\nPRINT __t0\nEXIT\n"];
+block_1 -> block_2 [xlabel="true"];
+block_1 -> block_3 [xlabel="false"];
+block_1 [label="block_1\nENTRY Sum.calcSum\n__t2 := num < 2\nif __t2 goto block_3 else goto block_2\n"];
+block_2 -> block_4;
+block_2 [label="block_2\nsum := 1\ngoto block_4\n"];
+block_3 -> block_4;
+block_3 [label="block_3\nLABEL block_3\n__t7 := num - 1\n @Param: __t7\n__t5 := CALL Sum: Sum.calcSum\n__t8 := num + __t5\nsum := __t8\ngoto block_4\n"];
+block_4 [label="block_4\nLABEL block_4\nRETURN sum\n"];
 }
