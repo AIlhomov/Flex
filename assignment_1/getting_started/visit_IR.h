@@ -23,6 +23,8 @@ Generic Nodes: Process all children without specific handling.
 
 */
 
+// make clean; make s; make interpreter; ./interpreter output.bytecode 
+
 class IRvisitor{
 private:
     // counters
@@ -687,7 +689,9 @@ bool isClassName(const std::string& name, SymbolTable& symbolTable) {
     // Use the symbol table to check if the name corresponds to a class
     return symbolTable.get_class_scope(name) != nullptr;
 }
-bool willBeUsedAgain(const std::string& var, const TAC& currentTac, const std::vector<TAC>& tacList) {
+bool willBeUsedAgain(const std::string& var, const TAC& currentTac, const std::vector<TAC>& tacList, bool isThisAnFunction) {
+    
+    if (isThisAnFunction) return false;
     // Iterate through the remaining TAC instructions
     for (const auto& tac : tacList) {
         if (&tac == &currentTac) continue; // Skip the current instruction
@@ -700,13 +704,25 @@ bool willBeUsedAgain(const std::string& var, const TAC& currentTac, const std::v
     return false; // Variable will not be used again
 }
 
+bool checkIfThisStatementDoesContainAnCall(const std::string& var, const TAC& currentTac, const std::vector<TAC>& tacList) {
+    
+    //check if the currentTac is a CALL
+    if (currentTac.op == "CALL") return true;
+    // Iterate through the remaining TAC instructions
+    for (const auto& tac : tacList) {
+        //check if in the statement there is a CALL
+        if (tac.op == "CALL") return true;
+    }
+    return false; // Variable will not be used again
+}
+
 void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable, std::unordered_map<std::string, std::vector<std::string>>& methodParams) {
     std::unordered_set<BasicBlock*> visitedBlocks;
     //std::vector<BasicBlock*> stack = {cfg->entry_block};
     std::string lastInstruction = ""; // Track the last instruction type
     std::queue<BasicBlock*> queue; // Use a queue for breadth-first traversal
     queue.push(cfg->entry_block);
-    bool dontDoIstore = false;
+    bool dontDoIstore = false; // Flag to prevent istore or iload for parameters
     while (!queue.empty()) {
         BasicBlock* block = queue.front();
         queue.pop();
@@ -761,8 +777,12 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable, st
                     byteCode.addInstruction("iload", tac.src1);
 
                     // Check if src1 will be used again
-                    if (willBeUsedAgain(tac.src1, tac, block->tacInstructions)) { // FOR D3.java or BIGGER EXPRESSIONS..
-                        byteCode.addInstruction("iload", tac.src1); // Push it again
+                    // if (willBeUsedAgain(tac.src1, tac, block->tacInstructions, dontDoIstore)) { // FOR D3.java or BIGGER EXPRESSIONS..
+                    //     byteCode.addInstruction("iload", tac.src1); // Push it again // WORKS SOMETIMES:
+                    // }
+                    if (checkIfThisStatementDoesContainAnCall(tac.src1, tac, block->tacInstructions)) {
+                        cout << "NDAWOINDAWOIDNAWOIDN" <<endl;
+                        byteCode.addInstruction("iload", tac.src1); // Push it again // WORKS SOMETIMES:
                     }
                 }
                 if (isdigit(tac.src2[0]) || (tac.src2[0] == '-' && isdigit(tac.src2[1]))) {
@@ -770,7 +790,7 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable, st
                 } else {
                     byteCode.addInstruction("iload", tac.src2);
                 }
-
+                dontDoIstore = false;
                 byteCode.addInstruction("isub");
                 //byteCode.addInstruction("istore", tac.dest);
             } else if (tac.op == "MULT") {
@@ -782,7 +802,7 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable, st
                     byteCode.addInstruction("iload", tac.src1);
 
                     // Check if src1 will be used again
-                    if (willBeUsedAgain(tac.src1, tac, block->tacInstructions)) { // FOR D3.java or BIGGER EXPRESSIONS..
+                    if (willBeUsedAgain(tac.src1, tac, block->tacInstructions, dontDoIstore)) { // FOR D3.java or BIGGER EXPRESSIONS..
                         byteCode.addInstruction("iload", tac.src1); // Push it again
                     }
                 }
@@ -791,7 +811,7 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable, st
                 } else {
                     byteCode.addInstruction("iload", tac.src2);
                 }
-                
+                dontDoIstore = false;
                 byteCode.addInstruction("imul");
                 //byteCode.addInstruction("istore", tac.dest);
             } else if (tac.op == "PRINT") {
