@@ -716,6 +716,50 @@ bool checkIfThisStatementDoesContainAnCall(const std::string& var, const TAC& cu
     return false; // Variable will not be used again
 }
 
+void doInstructionForOperator(const TAC& tac, ByteCode& byteCode, BasicBlock* block, bool& dontDoIstore) {
+    
+    //check if src1 or src2 are constants
+    if (isdigit(tac.src1[0]) || (tac.src1[0] == '-' && isdigit(tac.src1[1]))) {
+        byteCode.addInstruction("iconst", tac.src1);
+    } else if (!dontDoIstore) {
+        byteCode.addInstruction("iload", tac.src1);
+
+        // Check if src1 will be used again
+        // if (willBeUsedAgain(tac.src1, tac, block->tacInstructions, dontDoIstore)) { // FOR D3.java or BIGGER EXPRESSIONS..
+        //     byteCode.addInstruction("iload", tac.src1); // Push it again // WORKS SOMETIMES:
+        // }
+        if (checkIfThisStatementDoesContainAnCall(tac.src1, tac, block->tacInstructions)) {
+            byteCode.addInstruction("iload", tac.src1); // Push it again // WORKS SOMETIMES:
+        }
+    }
+    if (isdigit(tac.src2[0]) || (tac.src2[0] == '-' && isdigit(tac.src2[1]))) {
+        byteCode.addInstruction("iconst", tac.src2);
+    } else if (!dontDoIstore){
+        byteCode.addInstruction("iload", tac.src2);
+    }
+    dontDoIstore = false;
+    
+    if (tac.op == "ADD") {
+        byteCode.addInstruction("iadd");
+    } else if (tac.op == "SUB") {
+        byteCode.addInstruction("isub");
+    } else if (tac.op == "MULT") {
+        byteCode.addInstruction("imul");
+    } else if (tac.op == "AND") {
+        byteCode.addInstruction("iand");
+    } else if (tac.op == "OR") {
+        byteCode.addInstruction("ior");
+    } else if (tac.op == "NOT") {
+        byteCode.addInstruction("ineg");
+    } else if (tac.op == "EQUAL") {
+        byteCode.addInstruction("if_icmpeq");
+    } else if (tac.op == "LESS_THAN") {
+        byteCode.addInstruction("if_icmplt");
+    } else if (tac.op == "MORE_THAN") {
+        byteCode.addInstruction("if_icmpgt");
+    }
+}
+
 void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable, std::unordered_map<std::string, std::vector<std::string>>& methodParams) {
     std::unordered_set<BasicBlock*> visitedBlocks;
     //std::vector<BasicBlock*> stack = {cfg->entry_block};
@@ -739,77 +783,17 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable, st
                 byteCode.addInstruction("istore", tac.dest);
             } else if (tac.op == "ADD") {
                 
-                //check if we already have the src1 or src2 in the stack
-                //if we have just do iadd
+                doInstructionForOperator(tac, byteCode, block, dontDoIstore);
 
-                
-
-                //check if src1 or src2 are constants
-                if (isdigit(tac.src1[0]) || (tac.src1[0] == '-' && isdigit(tac.src1[1]))) {
-                    byteCode.addInstruction("iconst", tac.src1);
-                } else if (!dontDoIstore) {
-                    byteCode.addInstruction("iload", tac.src1);
-
-                    // // Check if src1 will be used again
-                    // if (willBeUsedAgain(tac.src1, tac, block->tacInstructions)) { // FOR D3.java or BIGGER EXPRESSIONS..
-                    //     byteCode.addInstruction("iload", tac.src1); // Push it again
-                    // }
-                }
-                if (isdigit(tac.src2[0]) || (tac.src2[0] == '-' && isdigit(tac.src2[1]))) {
-                    byteCode.addInstruction("iconst", tac.src2);
-                } else if (!dontDoIstore){
-                    byteCode.addInstruction("iload", tac.src2);
-                }
-                dontDoIstore = false;
-                byteCode.addInstruction("iadd");
-                //byteCode.addInstruction("istore", tac.dest);
             } else if (tac.op == "SUB") {
                 
 
-                //check if src1 or src2 are constants
-                if (isdigit(tac.src1[0]) || (tac.src1[0] == '-' && isdigit(tac.src1[1]))) {
-                    byteCode.addInstruction("iconst", tac.src1);
-                } else {
-                    byteCode.addInstruction("iload", tac.src1);
-
-                    // Check if src1 will be used again
-                    // if (willBeUsedAgain(tac.src1, tac, block->tacInstructions, dontDoIstore)) { // FOR D3.java or BIGGER EXPRESSIONS..
-                    //     byteCode.addInstruction("iload", tac.src1); // Push it again // WORKS SOMETIMES:
-                    // }
-                    if (checkIfThisStatementDoesContainAnCall(tac.src1, tac, block->tacInstructions)) {
-                        cout << "NDAWOINDAWOIDNAWOIDN" <<endl;
-                        byteCode.addInstruction("iload", tac.src1); // Push it again // WORKS SOMETIMES:
-                    }
-                }
-                if (isdigit(tac.src2[0]) || (tac.src2[0] == '-' && isdigit(tac.src2[1]))) {
-                    byteCode.addInstruction("iconst", tac.src2);
-                } else {
-                    byteCode.addInstruction("iload", tac.src2);
-                }
-                dontDoIstore = false;
-                byteCode.addInstruction("isub");
-                //byteCode.addInstruction("istore", tac.dest);
+                doInstructionForOperator(tac, byteCode, block, dontDoIstore);
+                
             } else if (tac.op == "MULT") {
                 
-                //check if src1 or src2 are constants
-                if (isdigit(tac.src1[0]) || (tac.src1[0] == '-' && isdigit(tac.src1[1]))) {
-                    byteCode.addInstruction("iconst", tac.src1);
-                } else {
-                    byteCode.addInstruction("iload", tac.src1);
+                doInstructionForOperator(tac, byteCode, block, dontDoIstore);
 
-                    // Check if src1 will be used again
-                    if (willBeUsedAgain(tac.src1, tac, block->tacInstructions, dontDoIstore)) { // FOR D3.java or BIGGER EXPRESSIONS..
-                        byteCode.addInstruction("iload", tac.src1); // Push it again
-                    }
-                }
-                if (isdigit(tac.src2[0]) || (tac.src2[0] == '-' && isdigit(tac.src2[1]))) {
-                    byteCode.addInstruction("iconst", tac.src2);
-                } else {
-                    byteCode.addInstruction("iload", tac.src2);
-                }
-                dontDoIstore = false;
-                byteCode.addInstruction("imul");
-                //byteCode.addInstruction("istore", tac.dest);
             } else if (tac.op == "PRINT") {
                 
                 //check if the src1 is an parameter then dont do istore, check in the methodParams
