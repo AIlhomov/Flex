@@ -742,11 +742,7 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable, st
                 //check if we already have the src1 or src2 in the stack
                 //if we have just do iadd
 
-                // THIS IS A BIG TRADEOFF. IF ADDED OR NOT
-                // if (willBeUsedAgain(tac.src1, tac, block->tacInstructions)) {
-                //     byteCode.addInstruction("iadd");
-                //     continue;
-                // } 
+                
 
                 //check if src1 or src2 are constants
                 if (isdigit(tac.src1[0]) || (tac.src1[0] == '-' && isdigit(tac.src1[1]))) {
