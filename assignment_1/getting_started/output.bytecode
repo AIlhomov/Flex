@@ -1,51 +1,33 @@
-iconst 4
-iconst 2
-imul
+iconst 100
+invokevirtual Sum.calcSum
 iload __t0
-iconst 10
-iadd
-iconst 2
-iconst 6
-imul
-iload __t4
-iload __t5
-isub
-iconst 4
-iconst 1
-isub
-iload __t13
-iconst 2
-imul
-iload __t10
-iconst 2
-imul
-iload __t8
-iload __t9
-iadd
-istore __t16
-iload __t16
-print
-iload 1
-inot
-iload __t21
-iload 0
-iand
-iload 1
-iload __t20
-equal
-iconst 10
-iconst 1
-igt
-iconst 1
-iconst 10
-ilt
-iload __t25
-iload __t28
-iand
-iload __t18
-iload __t24
-ior
-istore __t17
-iload __t17
 print
 stop
+label Sum.calcSum
+istore num
+iconst 0
+istore sum
+label whileCondition_2
+iconst 0
+iload num
+ilt
+iffalse goto whileExit_4
+iload sum
+iconst 100
+ilt
+iffalse goto block_6
+label whileExit_4
+iload sum
+ireturn
+iload sum
+iload num
+iadd
+istore sum
+goto block_7
+label block_6
+label block_7
+iload num
+iconst 1
+isub
+istore num
+goto whileCondition_2

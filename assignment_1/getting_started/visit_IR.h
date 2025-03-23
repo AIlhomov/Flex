@@ -317,34 +317,20 @@ private:
     }
 
     BasicBlock* visit_stmt(Node* node, BlockContext& ctx, SymbolTable& st) {
+        
+        
         //if(!node) return ctx.current_block;
         if(!node) return nullptr;
         else if(node->type == "SIMPLE PRINT LOL"){    
             std::string t = visit_expr(node->children.front(),ctx, st);
             TAC ta ("PRINT","",t,"");
             ctx.current_block->tacInstructions.push_back(ta);  
-            // if(node->children.front()->type =="exp DOT ident LP exp COMMA exp RP"){
-            //     BasicBlock* newBlock = create_block(ctx.cfg);
-            //     ctx.current_block->successors.push_back(newBlock); // Ensure correct flow
-            //     ctx.current_block = newBlock; // Switch to the new block
-            //     return ctx.current_block;
-            // }
+            
             return ctx.current_block;
         }
 
-        // //karmaHere
-        // else if(node->type == "LC statement RC"){
-        //     return visit_stmt(node->children.front(),ctx);
-        // }
+        
 
-        // else if(node->type == "statements"){
-        //     BasicBlock* lastBlock = ctx.current_block;
-        //     for (Node* stmt : node->children) {
-        //         lastBlock = visit_stmt(stmt, ctx); // Process each statement
-        //     }
-        //     return lastBlock; // Return the last processed block
-
-        // }
         else if (node->type == "LC statement RC"){
             std::cout << "KKKKKKKKKKKKKKKK";
             if (node->children.size() == 1) return visit_stmt(node->children.front(),ctx, st);
@@ -582,6 +568,10 @@ private:
             // TAC ta("JUMP", "", "loopStart", ""); // WHILE LOOP NEEDS TO JUMP BACK
             // ctx.current_block->tacInstructions.push_back(ta);
 
+            // we have to somehow know if we already are in a statement so we print whileExit->label last and not in a statement
+
+
+
             TAC ta3("LABEL", whileExit->label, "", "");
             ctx.current_block->tacInstructions.push_back(ta3);
 
@@ -745,18 +735,24 @@ void doInstructionForOperator(const TAC& tac, ByteCode& byteCode, BasicBlock* bl
         byteCode.addInstruction("isub");
     } else if (tac.op == "MULT") {
         byteCode.addInstruction("imul");
-    } else if (tac.op == "AND") {
+    } 
+    else if (tac.op == "DIV") {
+        byteCode.addInstruction("idiv");
+    }
+    else if (tac.op == "AND") {
         byteCode.addInstruction("iand");
     } else if (tac.op == "OR") {
         byteCode.addInstruction("ior");
     } else if (tac.op == "NOT") {
-        byteCode.addInstruction("ineg");
+        byteCode.addInstruction("inot");
     } else if (tac.op == "EQUAL") {
-        byteCode.addInstruction("if_icmpeq");
+        byteCode.addInstruction("ieq");
     } else if (tac.op == "LESS_THAN") {
-        byteCode.addInstruction("if_icmplt");
-    } else if (tac.op == "MORE_THAN") {
-        byteCode.addInstruction("if_icmpgt");
+        byteCode.addInstruction("ilt");
+    } 
+    
+    else if (tac.op == "MORE_THAN") {
+        byteCode.addInstruction("igt");
     }
 }
 
@@ -767,6 +763,7 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable, st
     std::queue<BasicBlock*> queue; // Use a queue for breadth-first traversal
     queue.push(cfg->entry_block);
     bool dontDoIstore = false; // Flag to prevent istore or iload for parameters
+    
     while (!queue.empty()) {
         BasicBlock* block = queue.front();
         queue.pop();
@@ -774,27 +771,22 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable, st
         if (visitedBlocks.count(block)) continue;
         visitedBlocks.insert(block);
         
-        std::cout << "Processing block: " << block->label << std::endl;
-        for (auto successor : block->successors) {
-            std::cout << "  Successor: " << successor->label << std::endl;
-        }
+        // std::cout << "Processing block: " << block->label << std::endl;
+        // for (auto successor : block->successors) {
+        //     std::cout << "  Successor: " << successor->label << std::endl;
+        // }
+
         for (const auto& tac : block->tacInstructions) {
             if (tac.op == "ASSIGN") {
                 byteCode.addInstruction("istore", tac.dest);
-            } else if (tac.op == "ADD") {
+            } else if (tac.op == "ADD" || tac.op == "SUB" || tac.op == "MULT"
+                || tac.op == "DIV" || tac.op == "AND" || tac.op == "OR" || tac.op == "NOT"
+                || tac.op == "EQUAL" || tac.op == "LESS_THAN" || tac.op == "MORE_THAN") {
                 
                 doInstructionForOperator(tac, byteCode, block, dontDoIstore);
 
-            } else if (tac.op == "SUB") {
-                
-
-                doInstructionForOperator(tac, byteCode, block, dontDoIstore);
-                
-            } else if (tac.op == "MULT") {
-                
-                doInstructionForOperator(tac, byteCode, block, dontDoIstore);
-
-            } else if (tac.op == "PRINT") {
+            } 
+            else if (tac.op == "PRINT") {
                 
                 //check if the src1 is an parameter then dont do istore, check in the methodParams
                 for (const auto& [method, params] : methodParams) {
@@ -887,65 +879,7 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable, st
                     lastInstruction = "iload";
                 }
             }
-            else if (tac.op == "EQUAL") {
-                byteCode.addInstruction("iload", tac.src1);
-                byteCode.addInstruction("iload", tac.src2);
-                byteCode.addInstruction("equal");
-                //byteCode.addInstruction("istore", tac.dest);
-            }
-            else if (tac.op == "OR") {
-                byteCode.addInstruction("iload", tac.src1);
-                byteCode.addInstruction("iload", tac.src2);
-                byteCode.addInstruction("ior");
-                //byteCode.addInstruction("istore", tac.dest);
-            }
-            else if (tac.op == "AND") {
-                byteCode.addInstruction("iload", tac.src1);
-                byteCode.addInstruction("iload", tac.src2);
-                byteCode.addInstruction("iand");
-                //byteCode.addInstruction("istore", tac.dest);
-            }
-            else if (tac.op == "LESS_THAN") {
-                // Check if src1 is a digit
-                if (isdigit(tac.src1[0]) || (tac.src1[0] == '-' && isdigit(tac.src1[1]))) {
-                    byteCode.addInstruction("iconst", tac.src1);
-                } else {
-                    //byteCode.addInstruction("istore", tac.src1);
-                    byteCode.addInstruction("iload", tac.src1);
-                }
-
-                // Check if src2 is a digit
-                if (isdigit(tac.src2[0]) || (tac.src2[0] == '-' && isdigit(tac.src2[1]))) {
-                    byteCode.addInstruction("iconst", tac.src2);
-                } else {
-                    //byteCode.addInstruction("istore", tac.src2);
-                    byteCode.addInstruction("iload", tac.src2);
-                }
-                byteCode.addInstruction("ilt");
-                //byteCode.addInstruction("istore", tac.dest);
-            }
-            else if (tac.op == "MORE_THAN") {
-                // Check if src1 is a digit
-                if (isdigit(tac.src1[0]) || (tac.src1[0] == '-' && isdigit(tac.src1[1]))) {
-                    byteCode.addInstruction("iconst", tac.src1);
-                } else {
-                    byteCode.addInstruction("iload", tac.src1);
-                }
-
-                // Check if src2 is a digit
-                if (isdigit(tac.src2[0]) || (tac.src2[0] == '-' && isdigit(tac.src2[1]))) {
-                    byteCode.addInstruction("iconst", tac.src2);
-                } else {
-                    byteCode.addInstruction("iload", tac.src2);
-                }
-                byteCode.addInstruction("igt");
-                //byteCode.addInstruction("istore", tac.dest);
-            }
-            else if (tac.op == "NOT") {
-                byteCode.addInstruction("iload", tac.src1);
-                byteCode.addInstruction("inot");
-                //byteCode.addInstruction("istore", tac.dest);
-            }
+           
             else if (tac.op == "CLASS") {
                 byteCode.addInstruction("class", tac.dest);
             }
@@ -982,14 +916,23 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable, st
                 byteCode.addInstruction("iconst", tac.src1); // Push constant value onto the stack
                 //byteCode.addInstruction("istore", tac.dest); // Store it in a temporary variable
             }
-            else if (tac.op == "LABEL") {
-                byteCode.addInstruction("label", tac.dest);           
-            }
+            
+            
+            
+            if (tac.op == "LABEL") {
+                
+                // Print other labels immediately
+                byteCode.addInstruction("label", tac.dest);
+                
+            } 
             // else {
             //     std::cerr << "Error: Unrecognized TAC operation: " << tac.op << std::endl;
             // }
+            
         }
         
+        
+
         for (auto successor : block->successors) {
             if (!visitedBlocks.count(successor)) {
                 queue.push(successor);

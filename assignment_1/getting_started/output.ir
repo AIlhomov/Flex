@@ -1,20 +1,39 @@
 Main:
-    __t0 := 4 * 2
-    __t4 := __t0 + 10
-    __t5 := 2 * 6
-    __t8 := __t4 - __t5
-    __t13 := 4 - 1
-    __t10 := __t13 * 2
-    __t9 := __t10 * 2
-    __t16 := __t8 + __t9
-    PRINT __t16
-    __t21 := !1
-    __t20 := __t21 && 0
-    __t18 := 1 == __t20
-    __t25 := 10 > 1
-    __t28 := 1 < 10
-    __t24 := __t25 && __t28
-    __t17 := __t18 || __t24
-    PRINT __t17
+     @param: 100
+    __t0 := CALL Sum: Sum.calcSum
+    PRINT __t0
     EXIT
+
+block_1:
+    Unknown TAC: ENTRY
+    Unknown TAC: CONST
+    sum := 0
+    LABEL whileCondition_2
+
+whileCondition_2:
+    __t3 := 0 < num
+    if __t3 goto whileBody_3 else goto whileExit_4
+
+whileBody_3:
+    __t5 := sum < 100
+    if __t5 goto block_6 else goto block_5
+
+whileExit_4:
+    LABEL whileExit_4
+    RETURN sum
+
+block_5:
+    __t7 := sum + num
+    sum := __t7
+    goto block_7
+
+block_6:
+    LABEL block_6
+    goto block_7
+
+block_7:
+    LABEL block_7
+    __t9 := num - 1
+    num := __t9
+    goto whileCondition_2
 
