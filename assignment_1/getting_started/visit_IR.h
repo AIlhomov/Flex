@@ -760,13 +760,12 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable, st
     std::unordered_set<BasicBlock*> visitedBlocks;
     //std::vector<BasicBlock*> stack = {cfg->entry_block};
     std::string lastInstruction = ""; // Track the last instruction type
-    std::queue<BasicBlock*> queue; // Use a queue for breadth-first traversal
-    queue.push(cfg->entry_block);
+    std::vector<BasicBlock*> stack = {cfg->entry_block}; // Use a stack for depth-first traversal    queue.push(cfg->entry_block);
     bool dontDoIstore = false; // Flag to prevent istore or iload for parameters
-    
-    while (!queue.empty()) {
-        BasicBlock* block = queue.front();
-        queue.pop();
+    while (!stack.empty()) {
+        BasicBlock* block = stack.back();
+        stack.pop_back();
+
 
         if (visitedBlocks.count(block)) continue;
         visitedBlocks.insert(block);
@@ -837,13 +836,8 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable, st
                 
                 //byteCode.addInstruction("goto", tac.src1);
             } else if (tac.op == "JUMP") {
-                if (tac.src1 == "doit"){
-                    byteCode.addInstruction("goto", tac.dest);
-                }
-                else if (tac.dest.rfind("whileCondition", 0) == 0) { // Check if tac.src1 starts with "whileCondition"
-                    cout << "DNAWIODNAWDIUAWBNI"<<endl;
-                    byteCode.addInstruction("goto", tac.dest);
-                }
+                
+                byteCode.addInstruction("goto", tac.dest);
             }
             else if (tac.op == "CALL") {
                 dontDoIstore = true;
@@ -933,9 +927,11 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable, st
         
         
 
-        for (auto successor : block->successors) {
+        // Push successors in reverse order to maintain proper flow
+        for (auto it = block->successors.rbegin(); it != block->successors.rend(); ++it) {
+            BasicBlock* successor = *it;
             if (!visitedBlocks.count(successor)) {
-                queue.push(successor);
+                stack.push_back(successor);
             }
         }
         // Ensure the true block is processed before the false block

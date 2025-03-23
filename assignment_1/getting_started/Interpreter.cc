@@ -382,7 +382,7 @@ void Interpreter::executeInstruction(const std::vector<std::string>& instruction
         dataStack.pop();
         if (value == 0) {
             const std::string& label = instruction[2]; // 1 IS GOTO 2 is "labelNAME"
-            cout << "LABEL: " << label << endl;
+            //cout << "LABEL: " << label << endl;
             auto it = labelMap.find(label);
             if (it != labelMap.end()) {
                 programCounter = it->second; // Jump to the label

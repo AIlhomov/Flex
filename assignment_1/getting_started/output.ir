@@ -15,25 +15,157 @@ whileCondition_2:
     if __t3 goto whileBody_3 else goto whileExit_4
 
 whileBody_3:
-    __t5 := sum < 100
-    if __t5 goto block_6 else goto block_5
+    LABEL whileCondition_5
 
 whileExit_4:
     LABEL whileExit_4
     RETURN sum
 
-block_5:
-    __t7 := sum + num
-    sum := __t7
-    goto block_7
+whileCondition_5:
+    __t5 := 0 < num
+    if __t5 goto whileBody_6 else goto whileExit_7
 
-block_6:
-    LABEL block_6
-    goto block_7
+whileBody_6:
+    LABEL whileCondition_8
 
-block_7:
-    LABEL block_7
-    __t9 := num - 1
-    num := __t9
+whileExit_7:
+    LABEL whileExit_7
     goto whileCondition_2
+
+whileCondition_8:
+    __t7 := 0 < num
+    if __t7 goto whileBody_9 else goto whileExit_10
+
+whileBody_9:
+    __t10 := 50 < num
+    __t12 := sum < 2000
+    __t9 := __t10 && __t12
+    if __t9 goto block_12 else goto block_11
+
+whileExit_10:
+    LABEL whileExit_10
+    goto whileCondition_5
+
+block_11:
+    PRINT sum
+    goto block_13
+
+block_12:
+    LABEL block_12
+    PRINT num
+    goto block_13
+
+block_13:
+    LABEL block_13
+    __t14 := sum + num
+    sum := __t14
+    __t16 := num - 1
+    num := __t16
+    goto whileCondition_8
+
+block_14:
+    Unknown TAC: ENTRY
+    Unknown TAC: CONST
+    sum := 0
+    LABEL whileCondition_15
+
+whileCondition_15:
+    __t18 := 0 < num
+    if __t18 goto whileBody_16 else goto whileExit_17
+
+whileBody_16:
+    LABEL whileCondition_18
+
+whileExit_17:
+    LABEL whileExit_17
+    RETURN sum
+
+whileCondition_18:
+    __t20 := 0 < num
+    if __t20 goto whileBody_19 else goto whileExit_20
+
+whileBody_19:
+    LABEL whileCondition_21
+
+whileExit_20:
+    LABEL whileExit_20
+    goto whileCondition_15
+
+whileCondition_21:
+    __t22 := 0 < num
+    if __t22 goto whileBody_22 else goto whileExit_23
+
+whileBody_22:
+    LABEL whileCondition_24
+
+whileExit_23:
+    LABEL whileExit_23
+    goto whileCondition_18
+
+whileCondition_24:
+    __t24 := 0 < num
+    if __t24 goto whileBody_25 else goto whileExit_26
+
+whileBody_25:
+    __t26 := sum + num
+    sum := __t26
+    __t28 := num - 1
+    num := __t28
+    goto whileCondition_24
+
+whileExit_26:
+    LABEL whileExit_26
+    goto whileCondition_21
+
+block_27:
+    Unknown TAC: ENTRY
+    Unknown TAC: CONST
+    sum := 0
+    __t31 := 50 < num
+    __t33 := sum < 2000
+    __t30 := __t31 && __t33
+    if __t30 goto block_29 else goto block_28
+
+block_28:
+    __t36 := 50 < num
+    __t38 := sum < 2000
+    __t35 := __t36 && __t38
+    if __t35 goto block_32 else goto block_31
+
+block_29:
+    LABEL block_29
+    PRINT num
+    goto block_30
+
+block_30:
+    LABEL block_30
+    RETURN sum
+
+block_31:
+    __t41 := 50 < num
+    __t43 := sum < 2000
+    __t40 := __t41 && __t43
+    if __t40 goto block_35 else goto block_34
+
+block_32:
+    LABEL block_32
+    PRINT num
+    goto block_33
+
+block_33:
+    LABEL block_33
+    goto block_30
+
+block_34:
+    PRINT sum
+    goto block_36
+
+block_35:
+    LABEL block_35
+    PRINT num
+    goto block_36
+
+block_36:
+    LABEL block_36
+    goto block_33
 
