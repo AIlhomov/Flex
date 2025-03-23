@@ -1,7 +1,7 @@
 digraph {
 n0 [label="goal:"];
 n1 [label="MAIN CLASS:"];
-n2 [label="identifier:CFG"];
+n2 [label="identifier:B"];
 n1 -> n2
 n3 [label="MAIN METHOD:"];
 n4 [label="identifier:a"];
@@ -11,14 +11,18 @@ n6 [label="statement:"];
 n7 [label="SIMPLE PRINT LOL:"];
 n8 [label="exp DOT ident LP exp COMMA exp RP:"];
 n9 [label="NEW identifier LP RP:"];
-n10 [label="identifier:Sum"];
+n10 [label="identifier:FacFib"];
 n9 -> n10
 n8 -> n9
-n11 [label="identifier:calcSum"];
+n11 [label="identifier:Compute"];
 n8 -> n11
 n12 [label="argument_list:"];
-n13 [label="INT:100"];
+n13 [label="INT:5"];
 n12 -> n13
+n14 [label="argument:"];
+n15 [label="INT:10"];
+n14 -> n15
+n12 -> n14
 n8 -> n12
 n7 -> n8
 n6 -> n7
@@ -26,159 +30,155 @@ n5 -> n6
 n3 -> n5
 n1 -> n3
 n0 -> n1
-n14 [label="classDeclarations:"];
-n15 [label="classDeclaration:Sum"];
-n16 [label="identifier:Sum"];
-n15 -> n16
-n17 [label="var declarations:"];
-n15 -> n17
-n18 [label="methodDeclarations:"];
-n19 [label="methodDec:calcSum"];
-n20 [label="INT:"];
-n19 -> n20
-n21 [label="identifier:calcSum"];
-n19 -> n21
-n22 [label="parameters:"];
-n23 [label="parameter:"];
-n24 [label="INT:"];
-n23 -> n24
-n25 [label="identifier:num"];
-n23 -> n25
-n22 -> n23
-n19 -> n22
-n26 [label="methodBody:"];
-n27 [label="var declaration:"];
-n28 [label="INT:"];
-n27 -> n28
-n29 [label="identifier:sum"];
-n27 -> n29
-n26 -> n27
-n30 [label="statement:"];
-n31 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
-n32 [label="identifier:sum"];
+n16 [label="classDeclarations:"];
+n17 [label="classDeclaration:FacFib"];
+n18 [label="identifier:FacFib"];
+n17 -> n18
+n19 [label="var declarations:"];
+n17 -> n19
+n20 [label="methodDeclarations:"];
+n21 [label="methodDec:Compute"];
+n22 [label="INT:"];
+n21 -> n22
+n23 [label="identifier:Compute"];
+n21 -> n23
+n24 [label="parameters:"];
+n25 [label="parameter:"];
+n26 [label="INT:"];
+n25 -> n26
+n27 [label="identifier:first"];
+n25 -> n27
+n24 -> n25
+n28 [label="parameter:"];
+n29 [label="INT:"];
+n28 -> n29
+n30 [label="identifier:second"];
+n28 -> n30
+n24 -> n28
+n21 -> n24
+n31 [label="methodBody:"];
+n32 [label="var declaration:"];
+n33 [label="INT:"];
+n32 -> n33
+n34 [label="identifier:fac"];
+n32 -> n34
 n31 -> n32
-n33 [label="INT:0"];
-n31 -> n33
-n30 -> n31
-n26 -> n30
-n34 [label="statement:"];
-n35 [label="WHILE LP expression RP statement:"];
-n36 [label="LESS_THAN:"];
-n37 [label="INT:0"];
-n36 -> n37
-n38 [label="identifier:num"];
-n36 -> n38
+n35 [label="var declaration:"];
+n36 [label="INT:"];
 n35 -> n36
-n39 [label="LC statement RC:"];
-n40 [label="statements:"];
+n37 [label="identifier:fib"];
+n35 -> n37
+n31 -> n35
+n38 [label="var declaration:"];
+n39 [label="INT:"];
+n38 -> n39
+n40 [label="identifier:returnValue"];
+n38 -> n40
+n31 -> n38
 n41 [label="statement:"];
-n42 [label="WHILE LP expression RP statement:"];
-n43 [label="LESS_THAN:"];
-n44 [label="INT:0"];
+n42 [label="IF LP expression RP statement ELSE statement:"];
+n43 [label="AND:"];
+n44 [label="EXCLAMATION_MARK expression:"];
+n45 [label="LESS_THAN:"];
+n46 [label="identifier:first"];
+n45 -> n46
+n47 [label="INT:1"];
+n45 -> n47
+n44 -> n45
 n43 -> n44
-n45 [label="identifier:num"];
-n43 -> n45
-n42 -> n43
-n46 [label="LC statement RC:"];
-n47 [label="statements:"];
-n48 [label="statement:"];
-n49 [label="WHILE LP expression RP statement:"];
-n50 [label="LESS_THAN:"];
-n51 [label="INT:0"];
-n50 -> n51
-n52 [label="identifier:num"];
-n50 -> n52
+n48 [label="EXCLAMATION_MARK expression:"];
+n49 [label="LESS_THAN:"];
+n50 [label="identifier:second"];
 n49 -> n50
+n51 [label="INT:1"];
+n49 -> n51
+n48 -> n49
+n43 -> n48
+n42 -> n43
+n52 [label="statements:"];
 n53 [label="LC statement RC:"];
 n54 [label="statements:"];
 n55 [label="statement:"];
-n56 [label="IF LP expression RP statement ELSE statement:"];
-n57 [label="AND:"];
-n58 [label="LESS_THAN:"];
-n59 [label="INT:50"];
-n58 -> n59
-n60 [label="identifier:num"];
-n58 -> n60
-n57 -> n58
-n61 [label="LESS_THAN:"];
-n62 [label="identifier:sum"];
-n61 -> n62
-n63 [label="INT:2000"];
-n61 -> n63
-n57 -> n61
+n56 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n57 [label="identifier:fac"];
 n56 -> n57
-n64 [label="statements:"];
-n65 [label="LC statement RC:"];
-n66 [label="statements:"];
-n67 [label="statement:"];
-n68 [label="SIMPLE PRINT LOL:"];
-n69 [label="identifier:sum"];
-n68 -> n69
-n67 -> n68
-n66 -> n67
-n65 -> n66
-n64 -> n65
-n56 -> n64
-n70 [label="statements:"];
-n71 [label="LC statement RC:"];
-n72 [label="statements:"];
-n73 [label="statement:"];
-n74 [label="SIMPLE PRINT LOL:"];
-n75 [label="identifier:num"];
-n74 -> n75
-n73 -> n74
-n72 -> n73
-n71 -> n72
-n70 -> n71
-n56 -> n70
+n58 [label="exp DOT ident LP exp COMMA exp RP:"];
+n59 [label="THIS:"];
+n58 -> n59
+n60 [label="identifier:ComputeFac"];
+n58 -> n60
+n61 [label="argument_list:"];
+n62 [label="identifier:first"];
+n61 -> n62
+n58 -> n61
+n56 -> n58
 n55 -> n56
 n54 -> n55
-n76 [label="statement:"];
-n77 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
-n78 [label="identifier:sum"];
+n63 [label="statement:"];
+n64 [label="SIMPLE PRINT LOL:"];
+n65 [label="identifier:fac"];
+n64 -> n65
+n63 -> n64
+n54 -> n63
+n66 [label="statement:"];
+n67 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n68 [label="identifier:fib"];
+n67 -> n68
+n69 [label="exp DOT ident LP exp COMMA exp RP:"];
+n70 [label="THIS:"];
+n69 -> n70
+n71 [label="identifier:ComputeFib"];
+n69 -> n71
+n72 [label="argument_list:"];
+n73 [label="identifier:second"];
+n72 -> n73
+n69 -> n72
+n67 -> n69
+n66 -> n67
+n54 -> n66
+n74 [label="statement:"];
+n75 [label="SIMPLE PRINT LOL:"];
+n76 [label="identifier:fib"];
+n75 -> n76
+n74 -> n75
+n54 -> n74
+n77 [label="statement:"];
+n78 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n79 [label="identifier:returnValue"];
+n78 -> n79
+n80 [label="INT:1"];
+n78 -> n80
 n77 -> n78
-n79 [label="AddExpression:"];
-n80 [label="identifier:sum"];
-n79 -> n80
-n81 [label="identifier:num"];
-n79 -> n81
-n77 -> n79
-n76 -> n77
-n54 -> n76
-n82 [label="statement:"];
-n83 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
-n84 [label="identifier:num"];
-n83 -> n84
-n85 [label="SubExpression:"];
-n86 [label="identifier:num"];
-n85 -> n86
-n87 [label="INT:1"];
-n85 -> n87
-n83 -> n85
-n82 -> n83
-n54 -> n82
+n54 -> n77
 n53 -> n54
-n49 -> n53
-n48 -> n49
-n47 -> n48
-n46 -> n47
-n42 -> n46
+n52 -> n53
+n42 -> n52
+n81 [label="statements:"];
+n82 [label="LC statement RC:"];
+n83 [label="statements:"];
+n84 [label="statement:"];
+n85 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n86 [label="identifier:returnValue"];
+n85 -> n86
+n87 [label="INT:0"];
+n85 -> n87
+n84 -> n85
+n83 -> n84
+n82 -> n83
+n81 -> n82
+n42 -> n81
 n41 -> n42
-n40 -> n41
-n39 -> n40
-n35 -> n39
-n34 -> n35
-n26 -> n34
-n19 -> n26
+n31 -> n41
+n21 -> n31
 n88 [label="RETURN:"];
-n89 [label="identifier:sum"];
+n89 [label="identifier:returnValue"];
 n88 -> n89
-n19 -> n88
-n18 -> n19
-n90 [label="methodDec:calcSum1"];
+n21 -> n88
+n20 -> n21
+n90 [label="methodDec:ComputeFac"];
 n91 [label="INT:"];
 n90 -> n91
-n92 [label="identifier:calcSum1"];
+n92 [label="identifier:ComputeFac"];
 n90 -> n92
 n93 [label="parameters:"];
 n94 [label="parameter:"];
@@ -192,252 +192,188 @@ n97 [label="methodBody:"];
 n98 [label="var declaration:"];
 n99 [label="INT:"];
 n98 -> n99
-n100 [label="identifier:sum"];
+n100 [label="identifier:fac"];
 n98 -> n100
 n97 -> n98
 n101 [label="statement:"];
-n102 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
-n103 [label="identifier:sum"];
+n102 [label="IF LP expression RP statement ELSE statement:"];
+n103 [label="LESS_THAN:"];
+n104 [label="identifier:num"];
+n103 -> n104
+n105 [label="INT:1"];
+n103 -> n105
 n102 -> n103
-n104 [label="INT:0"];
-n102 -> n104
-n101 -> n102
-n97 -> n101
-n105 [label="statement:"];
-n106 [label="WHILE LP expression RP statement:"];
-n107 [label="LESS_THAN:"];
-n108 [label="INT:0"];
+n106 [label="statements:"];
+n107 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n108 [label="identifier:fac"];
 n107 -> n108
-n109 [label="identifier:num"];
+n109 [label="INT:1"];
 n107 -> n109
 n106 -> n107
-n110 [label="LC statement RC:"];
-n111 [label="statements:"];
-n112 [label="statement:"];
-n113 [label="WHILE LP expression RP statement:"];
-n114 [label="LESS_THAN:"];
-n115 [label="INT:0"];
-n114 -> n115
-n116 [label="identifier:num"];
-n114 -> n116
+n102 -> n106
+n110 [label="statements:"];
+n111 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n112 [label="identifier:fac"];
+n111 -> n112
+n113 [label="MultExpression:"];
+n114 [label="identifier:num"];
 n113 -> n114
-n117 [label="LC statement RC:"];
-n118 [label="statements:"];
-n119 [label="statement:"];
-n120 [label="WHILE LP expression RP statement:"];
-n121 [label="LESS_THAN:"];
-n122 [label="INT:0"];
-n121 -> n122
-n123 [label="identifier:num"];
-n121 -> n123
-n120 -> n121
-n124 [label="LC statement RC:"];
-n125 [label="statements:"];
-n126 [label="statement:"];
-n127 [label="WHILE LP expression RP statement:"];
-n128 [label="LESS_THAN:"];
-n129 [label="INT:0"];
+n115 [label="exp DOT ident LP exp COMMA exp RP:"];
+n116 [label="THIS:"];
+n115 -> n116
+n117 [label="identifier:ComputeFac"];
+n115 -> n117
+n118 [label="argument_list:"];
+n119 [label="SubExpression:"];
+n120 [label="identifier:num"];
+n119 -> n120
+n121 [label="INT:1"];
+n119 -> n121
+n118 -> n119
+n115 -> n118
+n113 -> n115
+n111 -> n113
+n110 -> n111
+n102 -> n110
+n101 -> n102
+n97 -> n101
+n90 -> n97
+n122 [label="RETURN:"];
+n123 [label="identifier:fac"];
+n122 -> n123
+n90 -> n122
+n20 -> n90
+n124 [label="methodDec:ComputeFib"];
+n125 [label="INT:"];
+n124 -> n125
+n126 [label="identifier:ComputeFib"];
+n124 -> n126
+n127 [label="parameters:"];
+n128 [label="parameter:"];
+n129 [label="INT:"];
 n128 -> n129
 n130 [label="identifier:num"];
 n128 -> n130
 n127 -> n128
-n131 [label="LC statement RC:"];
-n132 [label="statements:"];
-n133 [label="statement:"];
-n134 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
-n135 [label="identifier:sum"];
-n134 -> n135
-n136 [label="AddExpression:"];
-n137 [label="identifier:sum"];
-n136 -> n137
-n138 [label="identifier:num"];
-n136 -> n138
-n134 -> n136
-n133 -> n134
+n124 -> n127
+n131 [label="methodBody:"];
+n132 [label="var declaration:"];
+n133 [label="INT:"];
 n132 -> n133
-n139 [label="statement:"];
-n140 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
-n141 [label="identifier:num"];
-n140 -> n141
-n142 [label="SubExpression:"];
-n143 [label="identifier:num"];
-n142 -> n143
-n144 [label="INT:1"];
-n142 -> n144
-n140 -> n142
-n139 -> n140
-n132 -> n139
+n134 [label="identifier:f0"];
+n132 -> n134
 n131 -> n132
-n127 -> n131
-n126 -> n127
-n125 -> n126
-n124 -> n125
-n120 -> n124
-n119 -> n120
-n118 -> n119
-n117 -> n118
-n113 -> n117
-n112 -> n113
-n111 -> n112
-n110 -> n111
-n106 -> n110
-n105 -> n106
-n97 -> n105
-n90 -> n97
-n145 [label="RETURN:"];
-n146 [label="identifier:sum"];
+n135 [label="var declaration:"];
+n136 [label="INT:"];
+n135 -> n136
+n137 [label="identifier:f1"];
+n135 -> n137
+n131 -> n135
+n138 [label="var declaration:"];
+n139 [label="INT:"];
+n138 -> n139
+n140 [label="identifier:fib"];
+n138 -> n140
+n131 -> n138
+n141 [label="var declaration:"];
+n142 [label="INT:"];
+n141 -> n142
+n143 [label="identifier:i"];
+n141 -> n143
+n131 -> n141
+n144 [label="statement:"];
+n145 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n146 [label="identifier:f0"];
 n145 -> n146
-n90 -> n145
-n18 -> n90
-n147 [label="methodDec:calcSum2"];
-n148 [label="INT:"];
-n147 -> n148
-n149 [label="identifier:calcSum2"];
-n147 -> n149
-n150 [label="parameters:"];
-n151 [label="parameter:"];
-n152 [label="INT:"];
-n151 -> n152
-n153 [label="identifier:num"];
-n151 -> n153
-n150 -> n151
-n147 -> n150
-n154 [label="methodBody:"];
-n155 [label="var declaration:"];
-n156 [label="INT:"];
-n155 -> n156
-n157 [label="identifier:sum"];
-n155 -> n157
-n154 -> n155
-n158 [label="statement:"];
-n159 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
-n160 [label="identifier:sum"];
-n159 -> n160
-n161 [label="INT:0"];
-n159 -> n161
-n158 -> n159
-n154 -> n158
-n162 [label="statement:"];
-n163 [label="IF LP expression RP statement ELSE statement:"];
-n164 [label="AND:"];
-n165 [label="LESS_THAN:"];
-n166 [label="INT:50"];
-n165 -> n166
-n167 [label="identifier:num"];
-n165 -> n167
-n164 -> n165
-n168 [label="LESS_THAN:"];
-n169 [label="identifier:sum"];
-n168 -> n169
-n170 [label="INT:2000"];
-n168 -> n170
-n164 -> n168
-n163 -> n164
-n171 [label="statements:"];
-n172 [label="LC statement RC:"];
-n173 [label="statements:"];
-n174 [label="statement:"];
-n175 [label="IF LP expression RP statement ELSE statement:"];
-n176 [label="AND:"];
-n177 [label="LESS_THAN:"];
-n178 [label="INT:50"];
-n177 -> n178
-n179 [label="identifier:num"];
-n177 -> n179
-n176 -> n177
-n180 [label="LESS_THAN:"];
-n181 [label="identifier:sum"];
-n180 -> n181
-n182 [label="INT:2000"];
-n180 -> n182
-n176 -> n180
-n175 -> n176
-n183 [label="statements:"];
-n184 [label="LC statement RC:"];
-n185 [label="statements:"];
-n186 [label="statement:"];
-n187 [label="IF LP expression RP statement ELSE statement:"];
-n188 [label="AND:"];
-n189 [label="LESS_THAN:"];
-n190 [label="INT:50"];
-n189 -> n190
-n191 [label="identifier:num"];
-n189 -> n191
-n188 -> n189
-n192 [label="LESS_THAN:"];
-n193 [label="identifier:sum"];
-n192 -> n193
-n194 [label="INT:2000"];
-n192 -> n194
-n188 -> n192
-n187 -> n188
-n195 [label="statements:"];
-n196 [label="LC statement RC:"];
-n197 [label="statements:"];
-n198 [label="statement:"];
-n199 [label="SIMPLE PRINT LOL:"];
-n200 [label="identifier:sum"];
-n199 -> n200
-n198 -> n199
-n197 -> n198
-n196 -> n197
-n195 -> n196
-n187 -> n195
-n201 [label="statements:"];
-n202 [label="LC statement RC:"];
-n203 [label="statements:"];
-n204 [label="statement:"];
-n205 [label="SIMPLE PRINT LOL:"];
-n206 [label="identifier:num"];
-n205 -> n206
-n204 -> n205
-n203 -> n204
-n202 -> n203
-n201 -> n202
-n187 -> n201
-n186 -> n187
-n185 -> n186
-n184 -> n185
-n183 -> n184
-n175 -> n183
-n207 [label="statements:"];
-n208 [label="LC statement RC:"];
-n209 [label="statements:"];
-n210 [label="statement:"];
-n211 [label="SIMPLE PRINT LOL:"];
-n212 [label="identifier:num"];
-n211 -> n212
-n210 -> n211
-n209 -> n210
-n208 -> n209
-n207 -> n208
-n175 -> n207
-n174 -> n175
-n173 -> n174
-n172 -> n173
-n171 -> n172
-n163 -> n171
-n213 [label="statements:"];
-n214 [label="LC statement RC:"];
-n215 [label="statements:"];
-n216 [label="statement:"];
-n217 [label="SIMPLE PRINT LOL:"];
-n218 [label="identifier:num"];
-n217 -> n218
-n216 -> n217
-n215 -> n216
-n214 -> n215
-n213 -> n214
-n163 -> n213
+n147 [label="INT:0"];
+n145 -> n147
+n144 -> n145
+n131 -> n144
+n148 [label="statement:"];
+n149 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n150 [label="identifier:f1"];
+n149 -> n150
+n151 [label="INT:1"];
+n149 -> n151
+n148 -> n149
+n131 -> n148
+n152 [label="statement:"];
+n153 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n154 [label="identifier:fib"];
+n153 -> n154
+n155 [label="identifier:num"];
+n153 -> n155
+n152 -> n153
+n131 -> n152
+n156 [label="statement:"];
+n157 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n158 [label="identifier:i"];
+n157 -> n158
+n159 [label="INT:1"];
+n157 -> n159
+n156 -> n157
+n131 -> n156
+n160 [label="statement:"];
+n161 [label="WHILE LP expression RP statement:"];
+n162 [label="LESS_THAN:"];
+n163 [label="identifier:i"];
 n162 -> n163
-n154 -> n162
-n147 -> n154
-n219 [label="RETURN:"];
-n220 [label="identifier:sum"];
-n219 -> n220
-n147 -> n219
-n18 -> n147
-n15 -> n18
-n14 -> n15
-n0 -> n14
+n164 [label="identifier:num"];
+n162 -> n164
+n161 -> n162
+n165 [label="LC statement RC:"];
+n166 [label="statements:"];
+n167 [label="statement:"];
+n168 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n169 [label="identifier:fib"];
+n168 -> n169
+n170 [label="AddExpression:"];
+n171 [label="identifier:f1"];
+n170 -> n171
+n172 [label="identifier:f0"];
+n170 -> n172
+n168 -> n170
+n167 -> n168
+n166 -> n167
+n173 [label="statement:"];
+n174 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n175 [label="identifier:f0"];
+n174 -> n175
+n176 [label="identifier:f1"];
+n174 -> n176
+n173 -> n174
+n166 -> n173
+n177 [label="statement:"];
+n178 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n179 [label="identifier:f1"];
+n178 -> n179
+n180 [label="identifier:fib"];
+n178 -> n180
+n177 -> n178
+n166 -> n177
+n181 [label="statement:"];
+n182 [label="SOMETHING ASSIGNED = TO SOMETHING:"];
+n183 [label="identifier:i"];
+n182 -> n183
+n184 [label="AddExpression:"];
+n185 [label="identifier:i"];
+n184 -> n185
+n186 [label="INT:1"];
+n184 -> n186
+n182 -> n184
+n181 -> n182
+n166 -> n181
+n165 -> n166
+n161 -> n165
+n160 -> n161
+n131 -> n160
+n124 -> n131
+n187 [label="RETURN:"];
+n188 [label="identifier:fib"];
+n187 -> n188
+n124 -> n187
+n20 -> n124
+n17 -> n20
+n16 -> n17
+n0 -> n16
 }

@@ -22,7 +22,7 @@ Generic Nodes: Process all children without specific handling.
     Examples: goal, statements, methodBody
 
 */
-
+// python3 testScript.py -semantic -valid -lexical -syntax -interpreter
 // make clean; make s; make interpreter; ./interpreter output.bytecode 
 
 class IRvisitor{
@@ -906,8 +906,9 @@ void generateByteCode(CFG* cfg, ByteCode& byteCode, SymbolTable& symbolTable, st
             else if (tac.op == "EXIT") {
                 byteCode.addInstruction("stop");
             }
-            else if (tac.op == "CONST") {
-                byteCode.addInstruction("iconst", tac.src1); // Push constant value onto the stack
+            else if (tac.op == "CONST") { // even though it is a constant it is not a constant in the bytecode
+                doInstructionForOperator(tac, byteCode, block, dontDoIstore);
+                //byteCode.addInstruction("iconst", tac.src1); // Push constant value onto the stack
                 //byteCode.addInstruction("istore", tac.dest); // Store it in a temporary variable
             }
             

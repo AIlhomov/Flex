@@ -1,158 +1,106 @@
-iconst 100
-invokevirtual Sum.calcSum
+iconst 5
+iconst 10
+invokevirtual FacFib.Compute
 iload __t0
 print
 stop
-label Sum.calcSum
+label FacFib.Compute
+istore second
+istore first
+iload first
+iconst 1
+ilt
+iload __t5
+iload
+inot
+iload second
+iconst 1
+ilt
+iload __t8
+iload
+inot
+iload __t4
+iload __t7
+iand
+iffalse goto block_3
+iload first
+invokevirtual FacFib.ComputeFac
+istore fac
+iload fac
+print
+iload second
+invokevirtual FacFib.ComputeFib
+istore fib
+iload fib
+print
+iconst 1
+iload
+istore returnValue
+goto block_4
+label block_4
+iload returnValue
+ireturn
+label FacFib.ComputeFac
+istore num
+iload num
+iconst 1
+ilt
+iffalse goto block_7
+iconst 1
+iload
+istore fac
+goto block_8
+label block_8
+iload fac
+ireturn
+label FacFib.ComputeFib
 istore num
 iconst 0
-istore sum
-label whileCondition_2
-iconst 0
+iload
+istore f0
+iconst 1
+iload
+istore f1
+iload num
+iload
+istore fib
+iconst 1
+iload
+istore i
+label whileCondition_10
+iload i
 iload num
 ilt
-iffalse goto whileExit_4
-label whileCondition_5
-iconst 0
-iload num
-ilt
-iffalse goto whileExit_7
-label whileCondition_8
-iconst 0
-iload num
-ilt
-iffalse goto whileExit_10
-iconst 50
-iload num
-ilt
-iload sum
-iconst 2000
-ilt
-iload __t10
-iload __t12
-iand
-iffalse goto block_12
-istore sum
-iload sum
-print
-goto block_13
-label block_13
-iload sum
-iload num
+iffalse goto whileExit_12
+iload f1
+iload f0
 iadd
-istore sum
+istore fib
+iload f1
+iload
+istore f0
+iload fib
+iload
+istore f1
+iload i
+iconst 1
+iadd
+istore i
+goto whileCondition_10
+label whileExit_12
+iload fib
+ireturn
+label block_7
+iload num
 iload num
 iconst 1
 isub
-istore num
-goto whileCondition_8
-label block_12
-iload num
-print
-goto block_13
-label whileExit_10
-goto whileCondition_5
-label whileExit_7
-goto whileCondition_2
-label whileExit_4
-iload sum
-ireturn
-label Sum.calcSum1
-istore num
+invokevirtual FacFib.ComputeFac
+imul
+istore fac
+goto block_8
+label block_3
 iconst 0
-istore sum
-label whileCondition_15
-iconst 0
-iload num
-ilt
-iffalse goto whileExit_17
-label whileCondition_18
-iconst 0
-iload num
-ilt
-iffalse goto whileExit_20
-label whileCondition_21
-iconst 0
-iload num
-ilt
-iffalse goto whileExit_23
-label whileCondition_24
-iconst 0
-iload num
-ilt
-iffalse goto whileExit_26
-iload sum
-iload num
-iadd
-istore sum
-iload num
-iconst 1
-isub
-istore num
-goto whileCondition_24
-label whileExit_26
-goto whileCondition_21
-label whileExit_23
-goto whileCondition_18
-label whileExit_20
-goto whileCondition_15
-label whileExit_17
-iload sum
-ireturn
-label Sum.calcSum2
-istore num
-iconst 0
-istore sum
-iconst 50
-iload num
-ilt
-iload sum
-iconst 2000
-ilt
-iload __t31
-iload __t33
-iand
-iffalse goto block_29
-iconst 50
-iload num
-ilt
-iload sum
-iconst 2000
-ilt
-iload __t36
-iload __t38
-iand
-iffalse goto block_32
-iconst 50
-iload num
-ilt
-iload sum
-iconst 2000
-ilt
-iload __t41
-iload __t43
-iand
-iffalse goto block_35
-istore sum
-iload sum
-print
-goto block_36
-label block_36
-goto block_33
-label block_33
-goto block_30
-label block_30
-iload sum
-ireturn
-label block_35
-iload num
-print
-goto block_36
-label block_32
-iload num
-print
-goto block_33
-label block_29
-iload num
-print
-goto block_30
+iload
+istore returnValue
+goto block_4
