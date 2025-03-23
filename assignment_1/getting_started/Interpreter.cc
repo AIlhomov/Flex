@@ -36,7 +36,7 @@ void Interpreter::interpret(const std::string& filename) {
     for (const auto& [label, line] : labelMap) {
         std::cout << label << " -> " << line << std::endl;
     }
-
+    cout << endl << "-------------------" << endl;
     // Second pass: Execute instructions
     while (programCounter < instructions.size()) {
         executeInstruction(instructions[programCounter]);
@@ -155,7 +155,7 @@ void Interpreter::executeInstruction(const std::vector<std::string>& instruction
 
     if (opcode == "iload") {
         if (instruction.size() < 2) {
-            std::cerr << "Error: Missing operand for iload\n";
+            //std::cerr << "Error: Missing operand for iload\n";
             return;
         }
         const std::string& operand = instruction[1];
@@ -174,12 +174,12 @@ void Interpreter::executeInstruction(const std::vector<std::string>& instruction
             // Operand is a variable
             dataStack.push(variables[operand]);
         } else {
-            std::cerr << "Error: Variable " << operand << " used before assignment.\n";
+            //std::cerr << "Error: Variable " << operand << " used before assignment.\n";
         }
     } 
     else if (opcode == "iadd" || opcode == "isub" || opcode == "imul") {
         if (dataStack.size() < 2) {
-            std::cerr << "Error: Stack underflow in " << opcode << "\n";
+            //std::cerr << "Error: Stack underflow in " << opcode << "\n";
             return;
         }
         int b = dataStack.top(); dataStack.pop();
@@ -190,11 +190,11 @@ void Interpreter::executeInstruction(const std::vector<std::string>& instruction
     }
     else if (opcode == "istore") {
         if (instruction.size() < 2) {
-            std::cerr << "Error: Missing variable or field name for istore\n";
+            //std::cerr << "Error: Missing variable or field name for istore\n";
             return;
         }
         if (dataStack.empty()) {
-            std::cerr << "Error: Stack underflow in istore\n";
+            //std::cerr << "Error: Stack underflow in istore\n";
             return;
         }
         const std::string& target = instruction[1];
@@ -209,7 +209,7 @@ void Interpreter::executeInstruction(const std::vector<std::string>& instruction
             if (objects.find(objectName) != objects.end()) {
                 objects[objectName]->fields[fieldName] = value;
             } else {
-                std::cerr << "Error: Object " << objectName << " not found\n";
+                //std::cerr << "Error: Object " << objectName << " not found\n";
             }
         } else {
             // Store in a variable
@@ -218,7 +218,7 @@ void Interpreter::executeInstruction(const std::vector<std::string>& instruction
     }  
     else if (opcode == "print") {
         if (dataStack.empty()) {
-            std::cerr << "Error: Stack underflow in print\n";
+            //std::cerr << "Error: Stack underflow in print\n";
         } else {
             
             std::cout << dataStack.top() << std::endl;
@@ -227,7 +227,7 @@ void Interpreter::executeInstruction(const std::vector<std::string>& instruction
     }
     else if (opcode == "inot") {
         if (dataStack.empty()) {
-            std::cerr << "Error: Stack underflow in inot\n";
+            //std::cerr << "Error: Stack underflow in inot\n";
             return;
         }
         int value = dataStack.top();
@@ -235,7 +235,7 @@ void Interpreter::executeInstruction(const std::vector<std::string>& instruction
         dataStack.push(!value);
     } else if (opcode == "iand") {
         if (dataStack.size() < 2) {
-            std::cerr << "Error: Stack underflow in iand\n";
+            //std::cerr << "Error: Stack underflow in iand\n";
             return;
         }
         int b = dataStack.top(); dataStack.pop();
@@ -243,7 +243,7 @@ void Interpreter::executeInstruction(const std::vector<std::string>& instruction
         dataStack.push(a && b);
     } else if (opcode == "ior") {
         if (dataStack.size() < 2) {
-            std::cerr << "Error: Stack underflow in ior\n";
+            //std::cerr << "Error: Stack underflow in ior\n";
             return;
         }
         int b = dataStack.top(); dataStack.pop();
@@ -251,7 +251,7 @@ void Interpreter::executeInstruction(const std::vector<std::string>& instruction
         dataStack.push(a || b);
     } else if (opcode == "ieq") {
         if (dataStack.size() < 2) {
-            std::cerr << "Error: Stack underflow in ieq\n";
+            //std::cerr << "Error: Stack underflow in ieq\n";
             return;
         }
         int b = dataStack.top(); dataStack.pop();
@@ -259,7 +259,7 @@ void Interpreter::executeInstruction(const std::vector<std::string>& instruction
         dataStack.push(a == b);
     } else if (opcode == "igt") {
         if (dataStack.size() < 2) {
-            std::cerr << "Error: Stack underflow in igt\n";
+            //std::cerr << "Error: Stack underflow in igt\n";
             return;
         }
         int b = dataStack.top(); dataStack.pop();
@@ -267,7 +267,7 @@ void Interpreter::executeInstruction(const std::vector<std::string>& instruction
         dataStack.push(a > b);
     } else if (opcode == "ilt") {
         if (dataStack.size() < 2) {
-            std::cerr << "Error: Stack underflow in ilt\n";
+            //std::cerr << "Error: Stack underflow in ilt\n";
             return;
         }
         int b = dataStack.top(); dataStack.pop();
@@ -275,7 +275,7 @@ void Interpreter::executeInstruction(const std::vector<std::string>& instruction
         dataStack.push(a < b);
     } else if (opcode == "equal") {
         if (dataStack.size() < 2) {
-            std::cerr << "Error: Stack underflow in iequal\n";
+            //std::cerr << "Error: Stack underflow in iequal\n";
             return;
         }
         int b = dataStack.top(); dataStack.pop();
@@ -284,7 +284,7 @@ void Interpreter::executeInstruction(const std::vector<std::string>& instruction
     }
     else if (opcode == "iconst") {
         if (instruction.size() < 2) {
-            std::cerr << "Error: Missing constant value for iconst\n";
+            //std::cerr << "Error: Missing constant value for iconst\n";
             return;
         }
         int value = std::stoi(instruction[1]); // Convert the constant to an integer
@@ -292,7 +292,7 @@ void Interpreter::executeInstruction(const std::vector<std::string>& instruction
     }
     else if (opcode == "new") {
         if (instruction.size() < 2) {
-            std::cerr << "Error: Missing class name for new\n";
+            //std::cerr << "Error: Missing class name for new\n";
             return;
         }
         const std::string& className = instruction[1];
@@ -301,7 +301,7 @@ void Interpreter::executeInstruction(const std::vector<std::string>& instruction
     }
     else if (opcode == "invokevirtual") {
         if (instruction.size() < 2) {
-            std::cerr << "Error: Missing method label for invoke\n";
+            //std::cerr << "Error: Missing method label for invoke\n";
             return;
         }
         const std::string& methodLabel = instruction[1];
@@ -310,12 +310,12 @@ void Interpreter::executeInstruction(const std::vector<std::string>& instruction
         if (it != labelMap.end()) {
             programCounter = it->second; // Jump to the method label
         } else {
-            std::cerr << "Error: Method label " << methodLabel << " not found\n";
+            //std::cerr << "Error: Method label " << methodLabel << " not found\n";
         }
     }
     else if (opcode == "dup") {
         if (dataStack.empty()) {
-            std::cerr << "Error: Stack underflow in dup\n";
+            //std::cerr << "Error: Stack underflow in dup\n";
             return;
         }
         int topValue = dataStack.top(); // Get the top value of the stack
@@ -330,13 +330,13 @@ void Interpreter::executeInstruction(const std::vector<std::string>& instruction
         if (variables.find(target) != variables.end()) {
             dataStack.push(variables[target]);
         } else {
-            std::cerr << "Error: Variable " << target << " used before assignment.\n";
+            //std::cerr << "Error: Variable " << target << " used before assignment.\n";
         }
     }
 
     else if (opcode == "label") {
         if (instruction.size() < 2) {
-            std::cerr << "Error: Missing method name for ENTRY\n";
+            //std::cerr << "Error: Missing method name for ENTRY\n";
             return;
         }
         const std::string& methodName = instruction[1];
@@ -347,14 +347,14 @@ void Interpreter::executeInstruction(const std::vector<std::string>& instruction
         exit(0);
     }   else if (opcode == "ireturn") {
         if (dataStack.empty()) {
-            std::cerr << "Error: Stack underflow in return\n";
+            //std::cerr << "Error: Stack underflow in return\n";
             return;
         }
         int returnValue = dataStack.top();
         dataStack.pop();
 
         if (callStack.empty()) {
-            std::cerr << "Error: Call stack underflow in return\n";
+            //std::cerr << "Error: Call stack underflow in return\n";
             return;
         }
         programCounter = callStack.top(); // Restore the return address
@@ -364,18 +364,18 @@ void Interpreter::executeInstruction(const std::vector<std::string>& instruction
         dataStack.push(returnValue);
     } else if (opcode == "class") {
         if (instruction.size() < 2) {
-            std::cerr << "Error: Missing class name for class\n";
+            //std::cerr << "Error: Missing class name for class\n";
             return;
         }
         const std::string& className = instruction[1];
         // Acknowledge the class definition (no action needed)
     } else if (opcode == "iffalse") {
         if (instruction.size() < 2) {
-            std::cerr << "Error: Missing label for iffalse\n";
+            //std::cerr << "Error: Missing label for iffalse\n";
             return;
         }
         if (dataStack.empty()) {
-            std::cerr << "Error: Stack underflow in iffalse\n";
+            //std::cerr << "Error: Stack underflow in iffalse\n";
             return;
         }
         int value = dataStack.top();
@@ -387,7 +387,7 @@ void Interpreter::executeInstruction(const std::vector<std::string>& instruction
             if (it != labelMap.end()) {
                 programCounter = it->second; // Jump to the label
             } else {
-                std::cerr << "Error: Label " << label << " not found\n";
+                //std::cerr << "Error: Label " << label << " not found\n";
                 return;
             }
         }
@@ -417,7 +417,7 @@ void Interpreter::executeInstruction(const std::vector<std::string>& instruction
     // }
     else if (opcode == "goto") {
         if (instruction.size() < 2) {
-            std::cerr << "Error: Missing label for goto\n";
+            //std::cerr << "Error: Missing label for goto\n";
             return;
         }
         const std::string& label = instruction[1];
@@ -425,11 +425,11 @@ void Interpreter::executeInstruction(const std::vector<std::string>& instruction
         if (it != labelMap.end()) {
             programCounter = it->second; // Jump to the label
         } else {
-            std::cerr << "Error: Label " << label << " not found\n";
+            //std::cerr << "Error: Label " << label << " not found\n";
             return;
         }
     } 
       else {
-        std::cerr << "Unknown opcode: " << opcode << std::endl;
+        //std::cerr << "Unknown opcode: " << opcode << std::endl;
     }
 }

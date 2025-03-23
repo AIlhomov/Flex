@@ -1,93 +1,20 @@
 Main:
-     @param: 5
-     @param: 10
-    __t0 := CALL FacFib: FacFib.Compute
-    PRINT __t0
+    __t0 := 4 * 2
+    __t4 := __t0 + 10
+    __t5 := 2 * 6
+    __t8 := __t4 - __t5
+    __t13 := 4 - 1
+    __t10 := __t13 * 2
+    __t9 := __t10 * 2
+    __t16 := __t8 + __t9
+    PRINT __t16
+    __t21 := !1
+    __t20 := __t21 && 0
+    __t18 := 1 == __t20
+    __t25 := 10 > 1
+    __t28 := 1 < 10
+    __t24 := __t25 && __t28
+    __t17 := __t18 || __t24
+    PRINT __t17
     EXIT
-
-block_1:
-    Unknown TAC: ENTRY
-    __t5 := first < 1
-    __t4 := !__t5
-    __t8 := second < 1
-    __t7 := !__t8
-    __t3 := __t4 && __t7
-    if __t3 goto block_3 else goto block_2
-
-block_2:
-     @param: this
-     @param: first
-    fac := CALL this: FacFib.ComputeFac
-    PRINT fac
-     @param: this
-     @param: second
-    fib := CALL this: FacFib.ComputeFib
-    PRINT fib
-    Unknown TAC: CONST
-    returnValue := 1
-    goto block_4
-
-block_3:
-    LABEL block_3
-    Unknown TAC: CONST
-    returnValue := 0
-    goto block_4
-
-block_4:
-    LABEL block_4
-    RETURN returnValue
-
-block_5:
-    Unknown TAC: ENTRY
-    __t12 := num < 1
-    if __t12 goto block_7 else goto block_6
-
-block_6:
-    Unknown TAC: CONST
-    fac := 1
-    goto block_8
-
-block_7:
-    LABEL block_7
-    __t18 := num - 1
-     @param: __t18
-    __t16 := CALL FacFib: FacFib.ComputeFac
-    __t15 := num * __t16
-    fac := __t15
-    goto block_8
-
-block_8:
-    LABEL block_8
-    RETURN fac
-
-block_9:
-    Unknown TAC: ENTRY
-    Unknown TAC: CONST
-    f0 := 0
-    Unknown TAC: CONST
-    f1 := 1
-    Unknown TAC: CONST
-    fib := num
-    Unknown TAC: CONST
-    i := 1
-    LABEL whileCondition_10
-
-whileCondition_10:
-    __t22 := i < num
-    if __t22 goto whileBody_11 else goto whileExit_12
-
-whileBody_11:
-    __t23 := f1 + f0
-    fib := __t23
-    Unknown TAC: CONST
-    f0 := f1
-    Unknown TAC: CONST
-    f1 := fib
-    __t25 := i + 1
-    i := __t25
-    goto whileCondition_10
-
-whileExit_12:
-    LABEL whileExit_12
-    RETURN fib
 

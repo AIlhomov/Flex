@@ -1,32 +1,5 @@
 digraph CFG {
 graph [splines=ortho];
 node [shape=box];
-Main -> block_1;
-Main [label="Main\n @Param: 5\n @Param: 10\n__t0 := CALL FacFib: FacFib.Compute\nPRINT __t0\nEXIT\n"];
-block_1 -> block_2 [xlabel="true"];
-block_1 -> block_3 [xlabel="false"];
-block_1 [label="block_1\nENTRY FacFib.Compute\n__t5 := first < 1\n__t4 := !__t5\n__t8 := second < 1\n__t7 := !__t8\n__t3 := __t4 && __t7\nif __t3 goto block_3 else goto block_2\n"];
-block_2 -> block_4;
-block_2 [label="block_2\n @Param: this\n @Param: first\nfac := CALL this: FacFib.ComputeFac\nPRINT fac\n @Param: this\n @Param: second\nfib := CALL this: FacFib.ComputeFib\nPRINT fib\nreturnValue := 1\ngoto block_4\n"];
-block_3 -> block_4;
-block_3 [label="block_3\nLABEL block_3\nreturnValue := 0\ngoto block_4\n"];
-block_4 -> block_5;
-block_4 [label="block_4\nLABEL block_4\nRETURN returnValue\n"];
-block_5 -> block_6 [xlabel="true"];
-block_5 -> block_7 [xlabel="false"];
-block_5 [label="block_5\nENTRY FacFib.ComputeFac\n__t12 := num < 1\nif __t12 goto block_7 else goto block_6\n"];
-block_6 -> block_8;
-block_6 [label="block_6\nfac := 1\ngoto block_8\n"];
-block_7 -> block_8;
-block_7 [label="block_7\nLABEL block_7\n__t18 := num - 1\n @Param: __t18\n__t16 := CALL FacFib: FacFib.ComputeFac\n__t15 := num * __t16\nfac := __t15\ngoto block_8\n"];
-block_8 -> block_9;
-block_8 [label="block_8\nLABEL block_8\nRETURN fac\n"];
-block_9 -> whileCondition_10;
-block_9 [label="block_9\nENTRY FacFib.ComputeFib\nf0 := 0\nf1 := 1\nfib := num\ni := 1\nLABEL whileCondition_10\n"];
-whileCondition_10 -> whileBody_11 [xlabel="true"];
-whileCondition_10 -> whileExit_12 [xlabel="false"];
-whileCondition_10 [label="whileCondition_10\n__t22 := i < num\nif __t22 goto whileBody_11 else goto whileExit_12\n"];
-whileBody_11 -> whileCondition_10;
-whileBody_11 [label="whileBody_11\n__t23 := f1 + f0\nfib := __t23\nf0 := f1\nf1 := fib\n__t25 := i + 1\ni := __t25\ngoto whileCondition_10\n"];
-whileExit_12 [label="whileExit_12\nLABEL whileExit_12\nRETURN fib\n"];
+Main [label="Main\n__t0 := 4 * 2\n__t4 := __t0 + 10\n__t5 := 2 * 6\n__t8 := __t4 - __t5\n__t13 := 4 - 1\n__t10 := __t13 * 2\n__t9 := __t10 * 2\n__t16 := __t8 + __t9\nPRINT __t16\n__t21 := !1\n__t20 := __t21 && 0\n__t18 := 1 == __t20\n__t25 := 10 > 1\n__t28 := 1 < 10\n__t24 := __t25 && __t28\n__t17 := __t18 || __t24\nPRINT __t17\nEXIT\n"];
 }
